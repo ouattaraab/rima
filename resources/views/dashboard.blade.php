@@ -1,0 +1,292 @@
+@extends('layouts.app')
+
+@section('title', 'Tableau de bord')
+@section('header', 'Tableau de bord')
+
+@section('content')
+    {{-- Filters --}}
+    <div class="mb-6">
+        <form method="GET" action="{{ route('dashboard') }}" class="border-b border-slate-200 pb-4">
+            <div class="flex flex-wrap items-center gap-3">
+                <select name="region" class="flex-1 min-w-0 h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none">
+                    <option value="">Region : Toutes</option>
+                    @foreach($regions as $r)
+                        <option value="{{ $r }}" @selected(request('region') === $r)>{{ $r }}</option>
+                    @endforeach
+                </select>
+                <input type="date" name="date_from" value="{{ request('date_from') }}"
+                       class="h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0">
+                <input type="date" name="date_to" value="{{ request('date_to') }}"
+                       class="h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0">
+                <button type="submit" class="inline-flex items-center justify-center rounded-full bg-slate-900 hover:bg-black text-white text-[13px] font-medium h-10 px-4 transition-colors">Filtrer</button>
+                @if(request()->hasAny(['region', 'date_from', 'date_to']))
+                    <a href="{{ route('dashboard') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Reinitialiser</a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    {{-- KPI Cards --}}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+        <div class="bg-white border border-slate-200 p-5">
+            <p class="text-3xl font-bold text-slate-900">{{ number_format($total) }}</p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Total vehicules</p>
+        </div>
+        <div class="bg-white border border-slate-200 p-5">
+            <p class="text-3xl font-bold text-slate-900">{{ number_format($validated) }}</p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Validees</p>
+        </div>
+        <div class="bg-white border border-slate-200 p-5">
+            <p class="text-3xl font-bold text-slate-900">{{ number_format($synchronized) }}</p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Synchronisees</p>
+        </div>
+        <div class="bg-white border border-slate-200 p-5">
+            <p class="text-3xl font-bold text-slate-900">{{ number_format($rejected) }}</p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Rejetees</p>
+        </div>
+        <div class="bg-white border border-slate-200 p-5">
+            <p class="text-3xl font-bold text-slate-900">{{ number_format($draft) }}</p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Brouillons</p>
+        </div>
+    </div>
+
+    {{-- Charts --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white border border-slate-200 p-6">
+            <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Repartition par type</h3>
+            <div class="flex items-center justify-center" style="height: 260px;">
+                <canvas id="typeChart"></canvas>
+            </div>
+        </div>
+        <div class="bg-white border border-slate-200 p-6">
+            <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Repartition par categorie</h3>
+            <div class="flex items-center justify-center" style="height: 260px;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+        <div class="bg-white border border-slate-200 p-6">
+            <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Statut des fiches</h3>
+            <div style="height: 260px;">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {{-- Map --}}
+    <div class="bg-white border border-slate-200 p-6 mb-8">
+        <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Carte des collectes</h3>
+        <div id="dashboardMap" style="height: 420px; z-index: 0;"></div>
+        @if(empty($mapData['features']))
+            <p class="text-[12px] text-slate-400 mt-2">Aucune donnee de localisation disponible.</p>
+        @endif
+    </div>
+
+    {{-- Recent Vehicles + Top Agents --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {{-- Recent Vehicles --}}
+        <div class="lg:col-span-2 bg-white border border-slate-200">
+            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+                <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide">Vehicules recents</h3>
+                <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition">Voir tout</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200">
+                            <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Immatriculation</th>
+                            <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Marque</th>
+                            <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Modele</th>
+                            <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Statut</th>
+                            <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Agent</th>
+                            <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        @forelse($recentVehicles as $vehicle)
+                        <tr class="hover:bg-slate-50/50">
+                            <td class="px-5 py-2.5">
+                                <a href="{{ route('vehicles.show', $vehicle) }}" class="text-sm font-medium text-slate-900 underline decoration-slate-300 hover:decoration-slate-900">{{ $vehicle->registration_number }}</a>
+                            </td>
+                            <td class="px-5 py-2.5 text-slate-600 border-l border-slate-100">{{ $vehicle->brand }}</td>
+                            <td class="px-5 py-2.5 text-slate-600 border-l border-slate-100">{{ $vehicle->model }}</td>
+                            <td class="px-5 py-2.5 border-l border-slate-100">
+                                @php
+                                    $statusClass = match($vehicle->form_status) {
+                                        'validated' => 'text-emerald-600',
+                                        'synchronized' => 'text-amber-600',
+                                        'rejected' => 'text-red-600',
+                                        default => 'text-slate-400',
+                                    };
+                                @endphp
+                                <span class="text-[12px] font-medium {{ $statusClass }}">{{ ucfirst($vehicle->form_status) }}</span>
+                            </td>
+                            <td class="px-5 py-2.5 text-slate-500 border-l border-slate-100">{{ $vehicle->collector->full_name ?? '-' }}</td>
+                            <td class="px-5 py-2.5 text-slate-400 text-[12px] border-l border-slate-100">{{ $vehicle->collected_at ? $vehicle->collected_at->format('d/m/Y') : '-' }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="px-5 py-8 text-center text-[13px] text-slate-400">Aucun vehicule enregistre.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Top Agents --}}
+        <div class="bg-white border border-slate-200">
+            <div class="px-5 py-3.5 border-b border-slate-200">
+                <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide">Top agents</h3>
+            </div>
+            <div class="divide-y divide-slate-50">
+                @forelse($topAgents as $index => $agent)
+                <div class="flex items-center gap-3 px-5 py-3">
+                    <span class="text-[12px] font-bold text-slate-300 w-5 text-right shrink-0">{{ $index + 1 }}</span>
+                    <div class="w-7 h-7 bg-slate-900 flex items-center justify-center shrink-0">
+                        <span class="text-white text-[10px] font-bold">{{ $agent->initials }}</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[13px] font-medium text-slate-900 truncate">{{ $agent->full_name }}</p>
+                    </div>
+                    <span class="text-[12px] font-semibold text-slate-500">{{ $agent->vehicles_count }}</span>
+                </div>
+                @empty
+                <div class="px-5 py-8 text-center text-[13px] text-slate-400">Aucun agent enregistre.</div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+    #dashboardMap { border: 1px solid #e2e8f0; }
+    .leaflet-popup-content-wrapper { border-radius: 0; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+    .leaflet-popup-tip { display: none; }
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chartColors = ['#0f172a', '#334155', '#64748b', '#94a3b8', '#cbd5e1', '#e2e8f0'];
+
+        const byTypeData = @json($byType);
+        const typeLabels = Object.keys(byTypeData);
+        const typeValues = Object.values(byTypeData);
+
+        if (typeLabels.length > 0) {
+            new Chart(document.getElementById('typeChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: typeLabels,
+                    datasets: [{ data: typeValues, backgroundColor: chartColors.slice(0, typeLabels.length), borderWidth: 0, hoverOffset: 4 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '65%',
+                    plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyleWidth: 8, font: { size: 11, family: 'DM Sans' } } } }
+                }
+            });
+        }
+
+        const byCategoryData = @json($byCategory);
+        const categoryLabels = Object.keys(byCategoryData);
+        const categoryValues = Object.values(byCategoryData);
+
+        if (categoryLabels.length > 0) {
+            new Chart(document.getElementById('categoryChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{ data: categoryValues, backgroundColor: chartColors.slice(0, categoryLabels.length), borderWidth: 0, hoverOffset: 4 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '65%',
+                    plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyleWidth: 8, font: { size: 11, family: 'DM Sans' } } } }
+                }
+            });
+        }
+
+        const byStatusData = @json($byStatus);
+        const statusLabels = Object.keys(byStatusData);
+        const statusValues = Object.values(byStatusData);
+
+        if (statusLabels.length > 0) {
+            new Chart(document.getElementById('statusChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{ label: 'Fiches', data: statusValues, backgroundColor: chartColors.slice(0, statusLabels.length), borderRadius: 2, borderSkipped: false, barPercentage: 0.5 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0, font: { size: 11, family: 'DM Sans' } }, grid: { color: '#f1f5f9' } },
+                        x: { ticks: { font: { size: 11, family: 'DM Sans' } }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+    });
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var map = L.map('dashboardMap').setView([7.54, -5.55], 7);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var geojsonData = @json($mapData);
+
+        if (geojsonData.features && geojsonData.features.length > 0) {
+            var statusColors = {
+                'validated': '#059669',
+                'synchronized': '#d97706',
+                'rejected': '#dc2626',
+                'draft': '#94a3b8'
+            };
+
+            var bounds = [];
+
+            geojsonData.features.forEach(function (feature) {
+                var coords = feature.geometry.coordinates;
+                var props = feature.properties;
+                var color = statusColors[props.form_status] || '#0f172a';
+                var latLng = [coords[1], coords[0]];
+
+                bounds.push(latLng);
+
+                var marker = L.circleMarker(latLng, {
+                    radius: 6,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.85
+                }).addTo(map);
+
+                var popupContent = '<div style="font-family: DM Sans, sans-serif; font-size: 11px; line-height: 1.4; font-weight: 400;">'
+                    + '<span style="font-weight: 500;">' + (props.registration_number || '-') + '</span><br>'
+                    + '<span style="color: #64748b;">' + ((props.brand || '') + ' ' + (props.model || '')).trim() + '</span><br>'
+                    + '<span style="color: ' + color + '; font-weight: 500; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">' + (props.form_status ? props.form_status.charAt(0).toUpperCase() + props.form_status.slice(1) : '-') + '</span>'
+                    + '</div>';
+
+                marker.bindPopup(popupContent);
+            });
+
+            // Auto-fit map to show all markers
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+            }
+        }
+    });
+</script>
+@endpush

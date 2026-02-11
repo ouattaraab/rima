@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Vehicle;
+use App\Models\VehicleHistory;
+
+class VehicleService
+{
+    public function __construct(
+        private AuditService $auditService,
+        private NotificationService $notificationService,
+    ) {}
+
+    public function recordHistory(
+        Vehicle $vehicle,
+        string $action,
+        string $changedBy,
+        ?array $oldValues = null,
+        ?array $newValues = null,
+        ?string $comment = null,
+    ): VehicleHistory {
+        return VehicleHistory::create([
+            'vehicle_id' => $vehicle->id,
+            'action' => $action,
+            'changed_by' => $changedBy,
+            'old_values' => $oldValues,
+            'new_values' => $newValues,
+            'comment' => $comment,
+        ]);
+    }
+
+    public function syncVehicle(Vehicle $vehicle, string $userId): Vehicle
+    {
+        $missing = $vehicle->getMissingFields();
+        if (!empty($missing)) {
+            throw new \App\Exceptions\IncompleteFormException($missing, $vehicle->completion_percentage);
+        }
+
+        $vehicle->update([
+            'form_status' => 'synchronized',
+        ]);
+
+        $vehicle->increment('revision');
+
+        $this->recordHistory($vehicle, 'synchronized', $userId, comment: 'Fiche synchronisee');
+
+        return $vehicle->fresh();
+    }
+
+    public function validateVehicle(Vehicle $vehicle, string $userId, ?string $comment = null): Vehicle
+    {
+        $vehicle->update([
+            'form_status' => 'validated',
+            'validated_by' => $userId,
+            'validated_at' => now(),
+        ]);
+
+        $vehicle->increment('revision');
+
+        $this->recordHistory($vehicle, 'validated', $userId, comment: $comment);
+
+        $this->notificationService->notifyValidation($vehicle);
+
+        return $vehicle->fresh();
+    }
+
+    public function rejectVehicle(Vehicle $vehicle, string $userId, string $reason, ?string $comment = null): Vehicle
+    {
+        $vehicle->update([
+            'form_status' => 'rejected',
+            'validated_by' => $userId,
+            'validated_at' => now(),
+            'rejection_reason' => $reason,
+            'rejection_comment' => $comment,
+        ]);
+
+        $vehicle->increment('revision');
+
+        $this->recordHistory($vehicle, 'rejected', $userId, comment: $comment ?? $reason);
+
+        $this->notificationService->notifyRejection($vehicle, $reason, $comment);
+
+        return $vehicle->fresh();
+    }
+}

@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Http\Requests\Vehicle;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class UpdateFinancialRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'financing_mode' => 'required|in:Leasing,Direct',
+            'bank_name' => 'nullable|string|max:50|required_if:financing_mode,Leasing',
+            'contract_number' => 'nullable|string|max:50|required_if:financing_mode,Leasing',
+            'withdrawal_start_date' => 'nullable|date|required_if:financing_mode,Leasing',
+            'withdrawal_end_date' => 'nullable|date|after_or_equal:withdrawal_start_date|required_if:financing_mode,Leasing',
+            'contract_start_date' => [
+                'nullable', 'date',
+                Rule::requiredIf(fn () => $this->vehicleContractType() === 'Sous contrat'),
+            ],
+            'provision_date' => 'required|date',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'financing_mode.required' => 'Le mode de financement est obligatoire.',
+            'financing_mode.in' => 'Le mode de financement doit etre Leasing ou Direct.',
+            'bank_name.required_if' => 'Le nom de la banque est obligatoire pour un financement en Leasing.',
+            'contract_number.required_if' => 'Le numero de contrat est obligatoire pour un financement en Leasing.',
+            'withdrawal_start_date.required_if' => 'La date de debut de prelevement est obligatoire pour un financement en Leasing.',
+            'withdrawal_end_date.required_if' => 'La date de fin de prelevement est obligatoire pour un financement en Leasing.',
+            'withdrawal_end_date.after_or_equal' => 'La date de fin de prelevement doit etre posterieure ou egale a la date de debut.',
+            'contract_start_date.required' => 'La date de debut du contrat est obligatoire pour les vehicules sous contrat.',
+            'provision_date.required' => 'La date de mise a disposition est obligatoire.',
+        ];
+    }
+
+    private function vehicleContractType(): ?string
+    {
+        $vehicle = $this->route('vehicle');
+        if (is_string($vehicle)) {
+            $vehicle = \App\Models\Vehicle::find($vehicle);
+        }
+        return $vehicle?->contract_type;
+    }
+}

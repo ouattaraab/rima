@@ -40,6 +40,7 @@ class StoreVehicleRequest extends FormRequest
             'transmission' => [
                 'nullable', 'in:Automatique,Manuelle',
                 Rule::requiredIf(fn() => $this->input('vehicle_type') === 'Auto'),
+                Rule::prohibitedIf(fn() => $this->input('vehicle_type') === 'Moto'),
             ],
             'engine_displacement' => 'nullable|integer|min:50|max:99999',
             'seats_count' => 'required|integer|min:1|max:99',
@@ -106,6 +107,7 @@ class StoreVehicleRequest extends FormRequest
             'mileage.min' => 'Le kilometrage doit etre strictement positif.',
             'color.in' => 'La couleur doit etre : Blanc, Noir, Gris, Bleu, Rouge, Vert, Jaune, Beige, Marron ou Autre.',
             'special_equipment.prohibited' => 'Les equipements speciaux ne concernent que les Camions.',
+            'transmission.prohibited' => 'La transmission n\'est pas applicable pour les Motos.',
             'version.prohibited' => 'La version ne concerne que les Berlines.',
             'insurance_company.required_if' => 'La compagnie d\'assurance est obligatoire si le vehicule est assure.',
             'policy_number.required_if' => 'Le numero de police est obligatoire si le vehicule est assure.',

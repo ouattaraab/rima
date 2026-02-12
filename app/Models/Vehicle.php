@@ -234,6 +234,11 @@ class Vehicle extends Model
             $errors['mileage'] = 'Le kilometrage doit etre strictement positif.';
         }
 
+        // CDC TE-02: Transmission interdite pour les Motos
+        if (!empty($this->transmission) && $this->vehicle_type === 'Moto') {
+            $errors['transmission'] = 'La transmission n\'est pas applicable pour les Motos.';
+        }
+
         // CDC ST-03: Equipements speciaux uniquement Camion
         if (!empty($this->special_equipment) && $this->category !== 'Camion') {
             $errors['special_equipment'] = 'Les equipements speciaux ne concernent que les Camions.';

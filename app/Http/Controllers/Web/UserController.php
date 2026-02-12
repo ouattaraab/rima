@@ -44,6 +44,8 @@ class UserController extends Controller
             'organization' => 'required|in:CIDEC,SODECI',
             'phone' => 'nullable|string|max:20',
             'region' => 'required|string|max:50',
+        ], [
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caracteres.',
         ]);
 
         User::create([...$request->except('password'), 'password' => Hash::make($request->password)]);
@@ -68,6 +70,9 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'region' => 'required|string|max:50',
             'is_active' => 'boolean',
+            'password' => 'sometimes|nullable|string|min:8',
+        ], [
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caracteres.',
         ]);
 
         $data = $request->except('password');

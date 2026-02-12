@@ -129,6 +129,19 @@ class SodeciVehicleController extends Controller
             ], 422);
         }
 
+        // CDC: Verification coherence avant validation
+        $coherenceErrors = $v->getCoherenceErrors();
+        if (!empty($coherenceErrors)) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'COHERENCE_ERROR',
+                    'message' => 'Des incoherences ont ete detectees dans la fiche.',
+                    'details' => ['errors' => $coherenceErrors],
+                ],
+            ], 422);
+        }
+
         $v = $this->vehicleService->validateVehicle($v, $request->user()->id, $request->comment);
 
         return response()->json([

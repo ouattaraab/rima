@@ -14,6 +14,7 @@ class AuditService
         ?Request $request = null,
         ?int $responseStatus = null,
         ?string $source = null,
+        ?string $userId = null,
     ): AuditLog {
         $sensitiveKeys = ['password', 'password_confirmation', 'token', 'refresh_token'];
 
@@ -25,7 +26,7 @@ class AuditService
         }
 
         return AuditLog::create([
-            'user_id' => $request?->user()?->id,
+            'user_id' => $userId ?? $request?->user()?->id,
             'action' => $action,
             'entity_type' => $entityType,
             'entity_id' => $entityId,

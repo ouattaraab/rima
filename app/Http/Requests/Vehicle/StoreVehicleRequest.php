@@ -25,7 +25,7 @@ class StoreVehicleRequest extends FormRequest
             ],
             'commissioning_date' => 'required|date|before_or_equal:today',
             'contract_type' => 'required|in:Sous contrat,Flotte',
-            'color' => 'required|string|max:30|in:Blanc,Gris,Noir,Autre',
+            'color' => 'required|string|max:30|in:Blanc,Noir,Gris,Bleu,Rouge,Vert,Jaune,Beige,Marron,Autre',
 
             'registration_number' => [
                 'nullable', 'string', 'max:10', 'regex:/^[A-Z0-9\s\-]+$/i',
@@ -67,7 +67,12 @@ class StoreVehicleRequest extends FormRequest
 
             'is_insured' => [
                 'required', 'boolean',
-                Rule::requiredIf(fn() => $this->input('status') === 'En service'),
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    // CDC: Assurance obligatoire si vehicule "En service"
+                    if ($this->input('status') === 'En service' && !$value) {
+                        $fail('L\'assurance est obligatoire pour les vehicules en service.');
+                    }
+                },
             ],
             'insurance_company' => 'nullable|string|max:50|required_if:is_insured,true',
             'policy_number' => 'nullable|string|max:30|required_if:is_insured,true',
@@ -99,7 +104,7 @@ class StoreVehicleRequest extends FormRequest
             'has_roll_bars.required' => 'L\'indication des arceaux est obligatoire pour les Pick-up.',
             'load_capacity.required' => 'La charge utile est obligatoire pour les Camions et Pick-up.',
             'mileage.min' => 'Le kilometrage doit etre strictement positif.',
-            'color.in' => 'La couleur doit etre : Blanc, Gris, Noir ou Autre.',
+            'color.in' => 'La couleur doit etre : Blanc, Noir, Gris, Bleu, Rouge, Vert, Jaune, Beige, Marron ou Autre.',
             'special_equipment.prohibited' => 'Les equipements speciaux ne concernent que les Camions.',
             'version.prohibited' => 'La version ne concerne que les Berlines.',
             'insurance_company.required_if' => 'La compagnie d\'assurance est obligatoire si le vehicule est assure.',

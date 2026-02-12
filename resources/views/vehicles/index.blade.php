@@ -11,11 +11,18 @@
         <p class="text-[13px] text-slate-500">
             <span class="font-semibold text-slate-900">{{ $vehicles->total() }}</span> vehicule(s) trouve(s)
         </p>
-        <a href="{{ route('vehicles.export') }}?{{ request()->getQueryString() }}"
-           class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition">
-            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-            Exporter Excel
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('vehicles.export') }}?{{ request()->getQueryString() }}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                Exporter Excel
+            </a>
+            <a href="{{ route('vehicles.exportPdf') }}?{{ request()->getQueryString() }}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                Exporter PDF
+            </a>
+        </div>
     </div>
 
     {{-- Search --}}
@@ -28,7 +35,7 @@
                 <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
             </div>
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
-                   class="block w-full h-10 pl-10 pr-4 bg-white border border-slate-200 text-sm text-slate-900 placeholder-slate-300/70 focus:outline-none focus:border-slate-900 focus:ring-0 transition">
+                   class="filter-input block w-full pl-10 pr-4">
         </div>
     </form>
 
@@ -38,26 +45,34 @@
                 @if(request('search'))<input type="hidden" name="search" value="{{ request('search') }}">@endif
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <select name="form_status" class="flex-1 min-w-0 h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none">
+                    <select name="form_status" class="filter-input flex-1 min-w-0">
                         <option value="">Fiche : Tous</option>
                         <option value="draft" @selected(request('form_status') === 'draft')>Brouillon</option>
                         <option value="synchronized" @selected(request('form_status') === 'synchronized')>Synchronise</option>
                         <option value="validated" @selected(request('form_status') === 'validated')>Valide</option>
                         <option value="rejected" @selected(request('form_status') === 'rejected')>Rejete</option>
                     </select>
-                    <select name="vehicle_status" class="flex-1 min-w-0 h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none">
+                    <select name="vehicle_status" class="filter-input flex-1 min-w-0">
                         <option value="">Statut : Tous</option>
                         <option value="En service" @selected(request('vehicle_status') === 'En service')>En service</option>
                         <option value="En reparation" @selected(request('vehicle_status') === 'En reparation')>En reparation</option>
                         <option value="Reforme" @selected(request('vehicle_status') === 'Reforme')>Reforme</option>
                         <option value="Cede" @selected(request('vehicle_status') === 'Cede')>Cede</option>
                     </select>
-                    <select name="vehicle_type" class="flex-1 min-w-0 h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none">
+                    <select name="vehicle_type" class="filter-input flex-1 min-w-0">
                         <option value="">Type : Tous</option>
                         <option value="Auto" @selected(request('vehicle_type') === 'Auto')>Auto</option>
                         <option value="Moto" @selected(request('vehicle_type') === 'Moto')>Moto</option>
                     </select>
-                    <select name="brand" class="flex-1 min-w-0 h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none">
+                    <select name="category" class="filter-input flex-1 min-w-0">
+                        <option value="">Categorie : Toutes</option>
+                        <option value="Berline" @selected(request('category') === 'Berline')>Berline</option>
+                        <option value="Pick-up" @selected(request('category') === 'Pick-up')>Pick-up</option>
+                        <option value="Utilitaire" @selected(request('category') === 'Utilitaire')>Utilitaire</option>
+                        <option value="Camion" @selected(request('category') === 'Camion')>Camion</option>
+                        <option value="Moto" @selected(request('category') === 'Moto')>Moto</option>
+                    </select>
+                    <select name="brand" class="filter-input flex-1 min-w-0">
                         <option value="">Marque : Toutes</option>
                         @foreach($brands as $brand)
                             <option value="{{ $brand }}" @selected(request('brand') === $brand)>{{ $brand }}</option>
@@ -65,24 +80,24 @@
                     </select>
                 </div>
                 <div class="flex flex-wrap items-center gap-3 mt-3">
-                    <select name="agent" class="flex-1 min-w-0 h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none">
+                    <select name="agent" class="filter-input flex-1 min-w-0">
                         <option value="">Agent : Tous</option>
                         @foreach($agents as $agent)
                             <option value="{{ $agent->id }}" @selected(request('agent') === $agent->id)>{{ $agent->full_name }}</option>
                         @endforeach
                     </select>
-                    <select name="region" class="flex-1 min-w-0 h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none">
+                    <select name="region" class="filter-input flex-1 min-w-0">
                         <option value="">Region : Toutes</option>
                         @foreach($regions as $r)
                             <option value="{{ $r }}" @selected(request('region') === $r)>{{ $r }}</option>
                         @endforeach
                     </select>
                     <input type="date" name="date_from" value="{{ request('date_from') }}"
-                           class="h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0">
+                           class="filter-input">
                     <input type="date" name="date_to" value="{{ request('date_to') }}"
-                           class="h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0">
-                    <button type="submit" class="inline-flex items-center justify-center rounded-full bg-slate-900 hover:bg-black text-white text-[13px] font-medium h-10 px-4 transition-colors">Filtrer</button>
-                    @if(request()->hasAny(['form_status', 'vehicle_status', 'vehicle_type', 'brand', 'agent', 'region', 'date_from', 'date_to']))
+                           class="filter-input">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">Filtrer</button>
+                    @if(request()->hasAny(['form_status', 'vehicle_status', 'vehicle_type', 'category', 'brand', 'agent', 'region', 'date_from', 'date_to']))
                         <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Reinitialiser</a>
                     @endif
                 </div>
@@ -109,6 +124,7 @@
                             @foreach([
                                 'registration_number' => 'Immatriculation',
                                 'brand' => 'Marque / Modele',
+                                'category' => 'Categorie',
                                 'vehicle_type' => 'Type',
                                 'form_status' => 'Statut fiche',
                                 'status' => 'Statut vehicule',
@@ -145,6 +161,9 @@
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-3 text-sm text-slate-600 border-l border-slate-100">{{ $vehicle->brand }} {{ $vehicle->model }}</td>
                                 <td class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
+                                    <span class="text-[12px] text-slate-500">{{ $vehicle->category ?? '-' }}</span>
+                                </td>
+                                <td class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
                                     <span class="text-[12px] text-slate-500">{{ $vehicle->vehicle_type }}</span>
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
@@ -155,8 +174,15 @@
                                             'rejected' => 'text-red-600',
                                             default => 'text-slate-400',
                                         };
+                                        $fLabel = match($vehicle->form_status) {
+                                            'validated' => 'Valide',
+                                            'synchronized' => 'Synchronise',
+                                            'rejected' => 'Rejete',
+                                            'draft' => 'Brouillon',
+                                            default => $vehicle->form_status,
+                                        };
                                     @endphp
-                                    <span class="text-[12px] font-medium {{ $fClass }}">{{ ucfirst($vehicle->form_status) }}</span>
+                                    <span class="text-[12px] font-medium {{ $fClass }}">{{ $fLabel }}</span>
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
                                     @php

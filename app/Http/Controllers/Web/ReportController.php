@@ -13,13 +13,20 @@ class ReportController extends Controller
     public function regional(Request $request)
     {
         $structures = Structure::where('is_active', true)->orderBy('name')->get();
+        $regions = Structure::where('is_active', true)
+            ->whereNotNull('region')
+            ->distinct()
+            ->orderBy('region')
+            ->pluck('region');
         $selectedRegion = $request->input('region');
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
 
         $query = Vehicle::query();
+        $structureCodes = null;
         if ($selectedRegion) {
-            $query->where('structure_ci', 'like', "%{$selectedRegion}%");
+            $structureCodes = Structure::where('region', $selectedRegion)->pluck('code');
+            $query->whereIn('structure_ci', $structureCodes);
         }
         if ($dateFrom) {
             $query->whereDate('collected_at', '>=', $dateFrom);
@@ -45,6 +52,9 @@ class ReportController extends Controller
             ->whereNotNull('vehicles.structure_ci')
             ->where('vehicles.structure_ci', '!=', '');
 
+        if ($selectedRegion) {
+            $byRegion->whereIn('vehicles.structure_ci', $structureCodes);
+        }
         if ($dateFrom) $byRegion->whereDate('vehicles.collected_at', '>=', $dateFrom);
         if ($dateTo) $byRegion->whereDate('vehicles.collected_at', '<=', $dateTo);
 
@@ -53,7 +63,7 @@ class ReportController extends Controller
             ->get();
 
         return view('reports.regional', compact(
-            'structures', 'selectedRegion', 'dateFrom', 'dateTo',
+            'structures', 'regions', 'selectedRegion', 'dateFrom', 'dateTo',
             'total', 'validated', 'rejected', 'synchronized',
             'completionRate', 'rejectionRate', 'byRegion'
         ));

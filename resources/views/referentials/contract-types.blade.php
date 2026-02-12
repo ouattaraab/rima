@@ -31,7 +31,7 @@
     <div class="flex items-center justify-between mb-6">
         <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Types de contrat</p>
         <div class="flex items-center gap-2">
-            <button @click="addErrors = {}; showAddModal = true" class="inline-flex items-center gap-2 rounded-full bg-slate-900 hover:bg-black text-white text-[13px] px-4 h-10 transition-colors">
+            <button @click="addErrors = {}; showAddModal = true" class="inline-flex items-center gap-2 rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                 Ajouter un type de contrat
             </button>
@@ -99,7 +99,7 @@
                             <label for="add-name" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Nom</label>
                             <input type="text" name="name" id="add-name" x-ref="add_name" value="{{ old('name') }}" placeholder="Nom du type de contrat"
                                 class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
-                                :class="addErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-slate-900'"
+                                :class="addErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                 @input="delete addErrors.name">
                             <p x-show="addErrors.name" x-text="addErrors.name" class="mt-1 text-[12px] text-red-500"></p>
                             @error('name')
@@ -109,7 +109,7 @@
                     </div>
                     <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
                         <button type="button" @click="showAddModal = false" class="rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">Annuler</button>
-                        <button type="submit" class="rounded-full bg-slate-900 hover:bg-black text-white text-[13px] px-4 h-10 transition-colors">Enregistrer</button>
+                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Enregistrer</button>
                     </div>
                 </form>
             </div>
@@ -131,7 +131,7 @@
                             <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Nom</label>
                             <input type="text" name="name" x-model="editItem.name"
                                 class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
-                                :class="editErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-slate-900'"
+                                :class="editErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                 @input="delete editErrors.name">
                             <p x-show="editErrors.name" x-text="editErrors.name" class="mt-1 text-[12px] text-red-500"></p>
                             @error('name')
@@ -147,7 +147,7 @@
                                 <input type="hidden" name="is_active" value="0">
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" name="is_active" value="1" x-model="editItem.is_active" class="sr-only peer">
-                                    <div class="w-9 h-5 bg-slate-200 peer-checked:bg-slate-900 transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-full"></div>
+                                    <div class="w-9 h-5 bg-slate-200 peer-checked:bg-[#2DB56B] transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-full"></div>
                                     <span class="ml-3 text-[13px] text-slate-600" x-text="editItem.is_active ? 'Actif' : 'Inactif'"></span>
                                 </label>
                             </div>
@@ -155,7 +155,7 @@
                     </div>
                     <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
                         <button type="button" @click="showEditModal = false" class="rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">Annuler</button>
-                        <button type="submit" class="rounded-full bg-slate-900 hover:bg-black text-white text-[13px] px-4 h-10 transition-colors">Mettre a jour</button>
+                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Mettre a jour</button>
                     </div>
                 </form>
             </div>

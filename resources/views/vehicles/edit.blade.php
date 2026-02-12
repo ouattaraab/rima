@@ -25,6 +25,17 @@
         @csrf
         @method('PUT')
 
+        @if($errors->any())
+        <div class="mb-6 px-4 py-3 bg-red-50 border border-red-200">
+            <p class="text-[13px] font-semibold text-red-700 mb-2">Des erreurs de coherence ont ete detectees :</p>
+            <ul class="list-disc pl-5 space-y-1">
+                @foreach($errors->all() as $error)
+                    <li class="text-[12px] text-red-600">{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
         {{-- Motif de modification --}}
         <div class="border-b border-slate-200 pb-6 mb-6">
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -34,7 +45,7 @@
                 </div>
                 <div class="lg:col-span-2">
                     <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Motif <span class="text-red-500">*</span></label>
-                    <textarea name="modification_reason" rows="2" required placeholder="Raison de la modification..." class="w-full px-3 py-2 border border-slate-200 bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:border-slate-900 focus:ring-0">{{ old('modification_reason') }}</textarea>
+                    <textarea name="modification_reason" rows="2" required placeholder="Raison de la modification..." class="w-full px-3 py-2 border border-slate-200 bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:border-[#2DB56B] focus:ring-0">{{ old('modification_reason') }}</textarea>
                     @error('modification_reason')<p class="text-[12px] text-red-500 mt-1">{{ $message }}</p>@enderror
                 </div>
             </div>
@@ -50,7 +61,7 @@
                 <div class="lg:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type</label>
-                        <select name="vehicle_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="vehicle_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             @foreach(['Auto','Moto'] as $t)
                                 <option value="{{ $t }}" {{ old('vehicle_type', $vehicle->vehicle_type) == $t ? 'selected' : '' }}>{{ $t }}</option>
                             @endforeach
@@ -58,7 +69,7 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Categorie</label>
-                        <select name="category" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="category" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             @foreach(['Berline','Pick-up','Utilitaire','Camion','Moto'] as $c)
                                 <option value="{{ $c }}" {{ old('category', $vehicle->category) == $c ? 'selected' : '' }}>{{ $c }}</option>
                             @endforeach
@@ -68,23 +79,23 @@
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Marque</label>
                         <input type="text" name="brand" x-ref="brand" value="{{ old('brand', $vehicle->brand) }}"
                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
-                               :class="errors.brand ? 'border-red-400' : 'border-slate-200 focus:border-slate-900'">
+                               :class="errors.brand ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
                         <p x-show="errors.brand" x-text="errors.brand" class="text-[12px] text-red-500 mt-1"></p>
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Modele</label>
                         <input type="text" name="model" x-ref="model" value="{{ old('model', $vehicle->model) }}"
                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
-                               :class="errors.model ? 'border-red-400' : 'border-slate-200 focus:border-slate-900'">
+                               :class="errors.model ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
                         <p x-show="errors.model" x-text="errors.model" class="text-[12px] text-red-500 mt-1"></p>
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Version</label>
-                        <input type="text" name="version" value="{{ old('version', $vehicle->version) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="version" value="{{ old('version', $vehicle->version) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Couleur</label>
-                        <select name="color" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="color" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             @foreach(['Blanc','Gris','Noir','Autre'] as $c)
                                 <option value="{{ $c }}" {{ old('color', $vehicle->color) == $c ? 'selected' : '' }}>{{ $c }}</option>
                             @endforeach
@@ -92,11 +103,11 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date mise en circulation</label>
-                        <input type="date" name="commissioning_date" value="{{ old('commissioning_date', $vehicle->commissioning_date?->format('Y-m-d')) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="date" name="commissioning_date" value="{{ old('commissioning_date', $vehicle->commissioning_date?->format('Y-m-d')) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type contrat</label>
-                        <select name="contract_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="contract_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             @foreach(['Sous contrat','Flotte'] as $c)
                                 <option value="{{ $c }}" {{ old('contract_type', $vehicle->contract_type) == $c ? 'selected' : '' }}>{{ $c }}</option>
                             @endforeach
@@ -116,19 +127,19 @@
                 <div class="lg:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Immatriculation definitive</label>
-                        <input type="text" name="registration_number" value="{{ old('registration_number', $vehicle->registration_number) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="registration_number" value="{{ old('registration_number', $vehicle->registration_number) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Immatriculation provisoire</label>
-                        <input type="text" name="temporary_registration" value="{{ old('temporary_registration', $vehicle->temporary_registration) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="temporary_registration" value="{{ old('temporary_registration', $vehicle->temporary_registration) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">N chassis</label>
-                        <input type="text" name="chassis_number" value="{{ old('chassis_number', $vehicle->chassis_number) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 font-mono focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="chassis_number" value="{{ old('chassis_number', $vehicle->chassis_number) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 font-mono focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Chassis lisible</label>
-                        <select name="chassis_readable" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="chassis_readable" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             <option value="1" {{ old('chassis_readable', $vehicle->chassis_readable) ? 'selected' : '' }}>Oui</option>
                             <option value="0" {{ !old('chassis_readable', $vehicle->chassis_readable) ? 'selected' : '' }}>Non</option>
                         </select>
@@ -147,7 +158,7 @@
                 <div class="lg:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Carburant</label>
-                        <select name="fuel_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="fuel_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             @foreach(['Essence','Gasoil','Hybride','Electrique'] as $f)
                                 <option value="{{ $f }}" {{ old('fuel_type', $vehicle->fuel_type) == $f ? 'selected' : '' }}>{{ $f }}</option>
                             @endforeach
@@ -155,7 +166,7 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Transmission</label>
-                        <select name="transmission" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="transmission" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             <option value="">-</option>
                             @foreach(['Automatique','Manuelle'] as $t)
                                 <option value="{{ $t }}" {{ old('transmission', $vehicle->transmission) == $t ? 'selected' : '' }}>{{ $t }}</option>
@@ -164,23 +175,23 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Cylindree</label>
-                        <input type="number" name="engine_displacement" value="{{ old('engine_displacement', $vehicle->engine_displacement) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="number" name="engine_displacement" value="{{ old('engine_displacement', $vehicle->engine_displacement) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Nb places</label>
-                        <input type="number" name="seats_count" value="{{ old('seats_count', $vehicle->seats_count) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="number" name="seats_count" value="{{ old('seats_count', $vehicle->seats_count) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Charge utile (kg)</label>
-                        <input type="number" name="load_capacity" value="{{ old('load_capacity', $vehicle->load_capacity) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="number" name="load_capacity" value="{{ old('load_capacity', $vehicle->load_capacity) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Kilometrage</label>
-                        <input type="number" name="mileage" value="{{ old('mileage', $vehicle->mileage) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="number" name="mileage" value="{{ old('mileage', $vehicle->mileage) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Statut vehicule</label>
-                        <select name="status" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="status" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             @foreach(['En service','En reparation','Reforme','Cede'] as $s)
                                 <option value="{{ $s }}" {{ old('status', $vehicle->status) == $s ? 'selected' : '' }}>{{ $s }}</option>
                             @endforeach
@@ -188,11 +199,11 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Structure / CI</label>
-                        <input type="text" name="structure_ci" value="{{ old('structure_ci', $vehicle->structure_ci) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="structure_ci" value="{{ old('structure_ci', $vehicle->structure_ci) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Arceaux de securite</label>
-                        <select name="has_roll_bars" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="has_roll_bars" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             <option value="">-</option>
                             <option value="1" {{ old('has_roll_bars', $vehicle->has_roll_bars) === true ? 'selected' : '' }}>Oui</option>
                             <option value="0" {{ old('has_roll_bars', $vehicle->has_roll_bars) === false ? 'selected' : '' }}>Non</option>
@@ -200,11 +211,11 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Equipements speciaux</label>
-                        <input type="text" name="special_equipment" value="{{ old('special_equipment', $vehicle->special_equipment) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="special_equipment" value="{{ old('special_equipment', $vehicle->special_equipment) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date controle technique</label>
-                        <input type="date" name="technical_inspection_date" value="{{ old('technical_inspection_date', $vehicle->technical_inspection_date?->format('Y-m-d')) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="date" name="technical_inspection_date" value="{{ old('technical_inspection_date', $vehicle->technical_inspection_date?->format('Y-m-d')) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                 </div>
             </div>
@@ -220,22 +231,22 @@
                 <div class="lg:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Assure</label>
-                        <select name="is_insured" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="is_insured" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             <option value="1" {{ old('is_insured', $vehicle->is_insured) ? 'selected' : '' }}>Oui</option>
                             <option value="0" {{ !old('is_insured', $vehicle->is_insured) ? 'selected' : '' }}>Non</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Compagnie</label>
-                        <input type="text" name="insurance_company" value="{{ old('insurance_company', $vehicle->insurance_company) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="insurance_company" value="{{ old('insurance_company', $vehicle->insurance_company) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">N police</label>
-                        <input type="text" name="policy_number" value="{{ old('policy_number', $vehicle->policy_number) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="policy_number" value="{{ old('policy_number', $vehicle->policy_number) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type couverture</label>
-                        <select name="coverage_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <select name="coverage_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                             <option value="">-</option>
                             @foreach(['Tout risque','Tiers'] as $c)
                                 <option value="{{ $c }}" {{ old('coverage_type', $vehicle->coverage_type) == $c ? 'selected' : '' }}>{{ $c }}</option>
@@ -244,11 +255,11 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Debut assurance</label>
-                        <input type="date" name="insurance_start_date" value="{{ old('insurance_start_date', $vehicle->insurance_start_date?->format('Y-m-d')) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="date" name="insurance_start_date" value="{{ old('insurance_start_date', $vehicle->insurance_start_date?->format('Y-m-d')) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Fin assurance</label>
-                        <input type="date" name="insurance_end_date" value="{{ old('insurance_end_date', $vehicle->insurance_end_date?->format('Y-m-d')) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="date" name="insurance_end_date" value="{{ old('insurance_end_date', $vehicle->insurance_end_date?->format('Y-m-d')) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                 </div>
             </div>
@@ -264,15 +275,15 @@
                 <div class="lg:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Direction</label>
-                        <input type="text" name="user_direction" value="{{ old('user_direction', $vehicle->user_direction) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="user_direction" value="{{ old('user_direction', $vehicle->user_direction) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Matricule</label>
-                        <input type="text" name="user_matricule" value="{{ old('user_matricule', $vehicle->user_matricule) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="user_matricule" value="{{ old('user_matricule', $vehicle->user_matricule) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">N permis de conduire</label>
-                        <input type="text" name="user_driver_license" value="{{ old('user_driver_license', $vehicle->user_driver_license) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0">
+                        <input type="text" name="user_driver_license" value="{{ old('user_driver_license', $vehicle->user_driver_license) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                 </div>
             </div>
@@ -281,7 +292,7 @@
         {{-- Submit --}}
         <div class="flex items-center justify-end gap-3">
             <a href="{{ route('vehicles.show', $vehicle) }}" class="px-5 py-2 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition">Annuler</a>
-            <button type="submit" class="px-5 py-2 text-[13px] font-medium text-white bg-slate-900 hover:bg-black rounded-full transition">Enregistrer les modifications</button>
+            <button type="submit" class="px-5 py-2 text-[13px] font-medium text-white bg-[#2DB56B] hover:bg-[#2AAE64] rounded-full transition">Enregistrer les modifications</button>
         </div>
     </form>
 </div>

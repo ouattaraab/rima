@@ -37,6 +37,12 @@ class VehicleService
             throw new \App\Exceptions\IncompleteFormException($missing, $vehicle->completion_percentage);
         }
 
+        // CDC: Verification des regles de coherence avant synchronisation
+        $coherenceErrors = $vehicle->getCoherenceErrors();
+        if (!empty($coherenceErrors)) {
+            throw new \App\Exceptions\CoherenceException($coherenceErrors);
+        }
+
         $vehicle->update([
             'form_status' => 'synchronized',
         ]);
@@ -44,6 +50,9 @@ class VehicleService
         $vehicle->increment('revision');
 
         $this->recordHistory($vehicle, 'synchronized', $userId, comment: 'Fiche synchronisee');
+
+        // Notify supervisors and admins about the new synchronized vehicle
+        $this->notificationService->notifySynchronization($vehicle);
 
         return $vehicle->fresh();
     }

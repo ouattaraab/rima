@@ -32,7 +32,7 @@ class UpdateVehicleRequest extends FormRequest
             ],
             'commissioning_date' => 'sometimes|date|before_or_equal:today',
             'contract_type' => 'sometimes|in:Sous contrat,Flotte',
-            'color' => 'sometimes|string|max:30|in:Blanc,Gris,Noir,Autre',
+            'color' => 'sometimes|string|max:30|in:Blanc,Noir,Gris,Bleu,Rouge,Vert,Jaune,Beige,Marron,Autre',
 
             'registration_number' => [
                 'nullable', 'string', 'max:10', 'regex:/^[A-Z0-9\s\-]+$/i',
@@ -64,11 +64,22 @@ class UpdateVehicleRequest extends FormRequest
                 'nullable', 'boolean',
                 Rule::requiredIf(fn() => $category === 'Pick-up' && $this->has('category')),
             ],
-            'special_equipment' => 'nullable|string|max:100',
+            'special_equipment' => [
+                'nullable', 'string', 'max:100',
+                Rule::prohibitedIf(fn() => $category !== 'Camion'),
+            ],
 
             'technical_inspection_date' => 'sometimes|date|before_or_equal:today',
 
-            'is_insured' => 'sometimes|boolean',
+            'is_insured' => [
+                'sometimes', 'boolean',
+                function (string $attribute, mixed $value, \Closure $fail) use ($status) {
+                    // CDC: Assurance obligatoire si vehicule "En service"
+                    if ($status === 'En service' && !$value) {
+                        $fail('L\'assurance est obligatoire pour les vehicules en service.');
+                    }
+                },
+            ],
             'insurance_company' => [
                 'nullable', 'string', 'max:50',
                 Rule::requiredIf(fn() => $isInsured === true),
@@ -95,6 +106,35 @@ class UpdateVehicleRequest extends FormRequest
             'user_direction' => 'sometimes|string|max:100',
             'user_matricule' => 'sometimes|string|size:7|regex:/^[A-Z0-9]{7}$/i',
             'user_driver_license' => 'sometimes|string|max:50',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'registration_number.max' => 'L\'immatriculation ne doit pas depasser 10 caracteres.',
+            'registration_number.regex' => 'L\'immatriculation ne doit contenir que des lettres, chiffres, espaces et tirets.',
+            'temporary_registration.regex' => 'L\'immatriculation temporaire ne doit contenir que des lettres, chiffres, espaces et tirets.',
+            'chassis_number.regex' => 'Le numero de chassis ne doit contenir que des lettres et chiffres.',
+            'commissioning_date.before_or_equal' => 'La date de mise en circulation ne peut pas etre dans le futur.',
+            'technical_inspection_date.before_or_equal' => 'La date de controle technique ne peut pas etre dans le futur.',
+            'transmission.required' => 'La transmission est obligatoire pour les vehicules de type Auto.',
+            'structure_ci.required' => 'Le centre d\'imputation est obligatoire pour les vehicules en service ou en reparation.',
+            'has_roll_bars.required' => 'L\'indication des arceaux est obligatoire pour les Pick-up.',
+            'load_capacity.required' => 'La charge utile est obligatoire pour les Camions et Pick-up.',
+            'load_capacity.min' => 'La charge utile doit etre superieure a 0.',
+            'mileage.min' => 'Le kilometrage doit etre strictement positif.',
+            'seats_count.min' => 'Le nombre de places doit etre superieur a 0.',
+            'color.in' => 'La couleur doit etre : Blanc, Noir, Gris, Bleu, Rouge, Vert, Jaune, Beige, Marron ou Autre.',
+            'special_equipment.prohibited' => 'Les equipements speciaux ne concernent que les Camions.',
+            'version.prohibited' => 'La version ne concerne que les Berlines.',
+            'insurance_company.required' => 'La compagnie d\'assurance est obligatoire si le vehicule est assure.',
+            'policy_number.required' => 'Le numero de police est obligatoire si le vehicule est assure.',
+            'insurance_start_date.required' => 'La date de debut d\'assurance est obligatoire si le vehicule est assure.',
+            'insurance_end_date.required' => 'La date de fin d\'assurance est obligatoire si le vehicule est assure.',
+            'insurance_end_date.after' => 'La date de fin d\'assurance doit etre posterieure a la date de debut.',
+            'user_matricule.size' => 'Le matricule doit comporter exactement 7 caracteres.',
+            'user_matricule.regex' => 'Le matricule ne doit contenir que des lettres et chiffres.',
         ];
     }
 }

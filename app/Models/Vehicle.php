@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Vehicle extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         // Identification
@@ -199,6 +200,62 @@ class Vehicle extends Model
         if (!in_array('side', $photoTypes)) $missing[] = 'photo_side';
 
         return $missing;
+    }
+
+    /**
+     * CDC Coherence rules: returns field → error message for logical inconsistencies.
+     */
+    public function getCoherenceErrors(): array
+    {
+        $errors = [];
+
+        // CDC ID-05: Version uniquement pour Berline
+        if (!empty($this->version) && $this->category !== 'Berline') {
+            $errors['version'] = 'La version ne concerne que les Berlines.';
+        }
+
+        // CDC ID-06: Date mise en circulation <= aujourd'hui
+        if ($this->commissioning_date && $this->commissioning_date->isFuture()) {
+            $errors['commissioning_date'] = 'La date de mise en circulation ne peut pas etre dans le futur.';
+        }
+
+        // CDC TE-04: Nombre de places > 0
+        if ($this->seats_count !== null && $this->seats_count <= 0) {
+            $errors['seats_count'] = 'Le nombre de places doit etre superieur a 0.';
+        }
+
+        // CDC TE-05: Charge utile > 0 si renseignee
+        if ($this->load_capacity !== null && $this->load_capacity <= 0) {
+            $errors['load_capacity'] = 'La charge utile doit etre superieure a 0.';
+        }
+
+        // CDC TE-06: Kilometrage strictement positif
+        if ($this->mileage !== null && $this->mileage <= 0) {
+            $errors['mileage'] = 'Le kilometrage doit etre strictement positif.';
+        }
+
+        // CDC ST-03: Equipements speciaux uniquement Camion
+        if (!empty($this->special_equipment) && $this->category !== 'Camion') {
+            $errors['special_equipment'] = 'Les equipements speciaux ne concernent que les Camions.';
+        }
+
+        // CDC AS-05/AS-06: Date debut assurance < date fin assurance
+        if ($this->insurance_start_date && $this->insurance_end_date
+            && $this->insurance_start_date->greaterThanOrEqualTo($this->insurance_end_date)) {
+            $errors['insurance_end_date'] = 'La date de fin d\'assurance doit etre posterieure a la date de debut.';
+        }
+
+        // CDC VT-01: Date visite technique <= aujourd'hui
+        if ($this->technical_inspection_date && $this->technical_inspection_date->isFuture()) {
+            $errors['technical_inspection_date'] = 'La date de controle technique ne peut pas etre dans le futur.';
+        }
+
+        // CDC 5.7: Matricule exactement 7 caracteres alphanumeriques
+        if (!empty($this->user_matricule) && !preg_match('/^[A-Z0-9]{7}$/i', $this->user_matricule)) {
+            $errors['user_matricule'] = 'Le matricule doit comporter exactement 7 caracteres alphanumeriques.';
+        }
+
+        return $errors;
     }
 
     public function getStatusBadgeAttribute(): string

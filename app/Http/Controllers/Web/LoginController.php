@@ -1,13 +1,17 @@
 <?php
+
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class LoginController extends Controller
 {
+    public function __construct(private AuditService $auditService) {}
+
     public function showLoginForm()
     {
         return view('auth.login');
@@ -41,6 +45,9 @@ class LoginController extends Controller
             }
 
             $user->update(['last_login_at' => now(), 'failed_login_attempts' => 0, 'locked_until' => null]);
+
+            $this->auditService->log('login', 'auth', $user->id, $request, 200, 'web', $user->id);
+
             return redirect()->intended('/dashboard');
         }
 
@@ -56,6 +63,12 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user) {
+            $this->auditService->log('logout', 'auth', $user->id, $request, 200, 'web', $user->id);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

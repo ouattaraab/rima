@@ -16,20 +16,20 @@
     </div>
 
     {{-- Summary cards --}}
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div class="border border-slate-200 bg-white p-5">
+    <div class="grid grid-cols-2 gap-0 lg:grid-cols-4">
+        <div class="p-5">
             <p class="text-3xl font-bold {{ $expiredInsurance->count() > 0 ? 'text-red-600' : 'text-slate-900' }}">{{ $expiredInsurance->count() }}</p>
             <p class="mt-1 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Assurances expirees</p>
         </div>
-        <div class="border border-slate-200 bg-white p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold {{ $expiredInspection->count() > 0 ? 'text-red-600' : 'text-slate-900' }}">{{ $expiredInspection->count() }}</p>
             <p class="mt-1 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Controle technique expire</p>
         </div>
-        <div class="border border-slate-200 bg-white p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold {{ $noRegistration->count() > 0 ? 'text-amber-600' : 'text-slate-900' }}">{{ $noRegistration->count() }}</p>
             <p class="mt-1 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Sans immatriculation</p>
         </div>
-        <div class="border border-slate-200 bg-white p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold {{ $noInsurance->count() > 0 ? 'text-red-600' : 'text-slate-900' }}">{{ $noInsurance->count() }}</p>
             <p class="mt-1 text-[11px] font-medium text-slate-400 uppercase tracking-wide">En service sans assurance</p>
         </div>
@@ -163,7 +163,7 @@
 
     {{-- All clear --}}
     @if($expiredInsurance->count() == 0 && $expiredInspection->count() == 0 && $noRegistration->count() == 0 && $noInsurance->count() == 0)
-    <div class="border border-slate-200 bg-white px-5 py-16 text-center">
+    <div class="px-5 py-16 text-center border-t border-dashed border-slate-200">
         <p class="text-[13px] text-slate-400">Aucune anomalie de conformite detectee</p>
         <p class="text-[11px] text-slate-300 mt-1">Tous les vehicules valides sont conformes</p>
     </div>

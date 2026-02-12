@@ -8,17 +8,17 @@
     <div class="mb-6">
         <form method="GET" action="{{ route('dashboard') }}" class="border-b border-slate-200 pb-4">
             <div class="flex flex-wrap items-center gap-3">
-                <select name="region" class="flex-1 min-w-0 h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none">
+                <select name="region" class="filter-input flex-1 min-w-0">
                     <option value="">Region : Toutes</option>
                     @foreach($regions as $r)
                         <option value="{{ $r }}" @selected(request('region') === $r)>{{ $r }}</option>
                     @endforeach
                 </select>
                 <input type="date" name="date_from" value="{{ request('date_from') }}"
-                       class="h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0">
+                       class="filter-input">
                 <input type="date" name="date_to" value="{{ request('date_to') }}"
-                       class="h-10 px-3 bg-white border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0">
-                <button type="submit" class="inline-flex items-center justify-center rounded-full bg-slate-900 hover:bg-black text-white text-[13px] font-medium h-10 px-4 transition-colors">Filtrer</button>
+                       class="filter-input">
+                <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">Filtrer</button>
                 @if(request()->hasAny(['region', 'date_from', 'date_to']))
                     <a href="{{ route('dashboard') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Reinitialiser</a>
                 @endif
@@ -27,44 +27,44 @@
     </div>
 
     {{-- KPI Cards --}}
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <div class="bg-white border border-slate-200 p-5">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-0 mb-8">
+        <div class="p-5">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($total) }}</p>
             <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Total vehicules</p>
         </div>
-        <div class="bg-white border border-slate-200 p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($validated) }}</p>
             <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Validees</p>
         </div>
-        <div class="bg-white border border-slate-200 p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($synchronized) }}</p>
             <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Synchronisees</p>
         </div>
-        <div class="bg-white border border-slate-200 p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($rejected) }}</p>
             <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Rejetees</p>
         </div>
-        <div class="bg-white border border-slate-200 p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($draft) }}</p>
             <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Brouillons</p>
         </div>
     </div>
 
     {{-- Charts --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white border border-slate-200 p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 mb-8 border-t border-dashed border-slate-200 border-b">
+        <div class="p-6">
             <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Repartition par type</h3>
             <div class="flex items-center justify-center" style="height: 260px;">
                 <canvas id="typeChart"></canvas>
             </div>
         </div>
-        <div class="bg-white border border-slate-200 p-6">
+        <div class="p-6 lg:border-l lg:border-dashed lg:border-slate-200">
             <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Repartition par categorie</h3>
             <div class="flex items-center justify-center" style="height: 260px;">
                 <canvas id="categoryChart"></canvas>
             </div>
         </div>
-        <div class="bg-white border border-slate-200 p-6">
+        <div class="p-6 lg:border-l lg:border-dashed lg:border-slate-200">
             <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Statut des fiches</h3>
             <div style="height: 260px;">
                 <canvas id="statusChart"></canvas>
@@ -73,7 +73,7 @@
     </div>
 
     {{-- Map --}}
-    <div class="bg-white border border-slate-200 p-6 mb-8">
+    <div class="p-6 mb-8 border-t border-dashed border-slate-200 border-b">
         <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Carte des collectes</h3>
         <div id="dashboardMap" style="height: 420px; z-index: 0;"></div>
         @if(empty($mapData['features']))
@@ -82,10 +82,10 @@
     </div>
 
     {{-- Recent Vehicles + Top Agents --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 border-t border-dashed border-slate-200">
         {{-- Recent Vehicles --}}
-        <div class="lg:col-span-2 bg-white border border-slate-200">
-            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+        <div class="lg:col-span-2">
+            <div class="px-5 py-3.5 border-b border-dashed border-slate-200 flex items-center justify-between">
                 <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide">Vehicules recents</h3>
                 <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition">Voir tout</a>
             </div>
@@ -117,8 +117,15 @@
                                         'rejected' => 'text-red-600',
                                         default => 'text-slate-400',
                                     };
+                                    $statusLabel = match($vehicle->form_status) {
+                                        'validated' => 'Valide',
+                                        'synchronized' => 'Synchronise',
+                                        'rejected' => 'Rejete',
+                                        'draft' => 'Brouillon',
+                                        default => $vehicle->form_status,
+                                    };
                                 @endphp
-                                <span class="text-[12px] font-medium {{ $statusClass }}">{{ ucfirst($vehicle->form_status) }}</span>
+                                <span class="text-[12px] font-medium {{ $statusClass }}">{{ $statusLabel }}</span>
                             </td>
                             <td class="px-5 py-2.5 text-slate-500 border-l border-slate-100">{{ $vehicle->collector->full_name ?? '-' }}</td>
                             <td class="px-5 py-2.5 text-slate-400 text-[12px] border-l border-slate-100">{{ $vehicle->collected_at ? $vehicle->collected_at->format('d/m/Y') : '-' }}</td>
@@ -134,15 +141,15 @@
         </div>
 
         {{-- Top Agents --}}
-        <div class="bg-white border border-slate-200">
-            <div class="px-5 py-3.5 border-b border-slate-200">
+        <div class="lg:border-l lg:border-dashed lg:border-slate-200">
+            <div class="px-5 py-3.5 border-b border-dashed border-slate-200">
                 <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide">Top agents</h3>
             </div>
             <div class="divide-y divide-slate-50">
                 @forelse($topAgents as $index => $agent)
                 <div class="flex items-center gap-3 px-5 py-3">
                     <span class="text-[12px] font-bold text-slate-300 w-5 text-right shrink-0">{{ $index + 1 }}</span>
-                    <div class="w-7 h-7 bg-slate-900 flex items-center justify-center shrink-0">
+                    <div class="w-7 h-7 bg-[#2DB56B] flex items-center justify-center shrink-0">
                         <span class="text-white text-[10px] font-bold">{{ $agent->initials }}</span>
                     </div>
                     <div class="flex-1 min-w-0">
@@ -172,7 +179,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const chartColors = ['#0f172a', '#334155', '#64748b', '#94a3b8', '#cbd5e1', '#e2e8f0'];
+        const chartColors = ['#0f172a', '#2DB56B', '#f59e0b', '#6366f1', '#ec4899', '#94a3b8'];
 
         const byTypeData = @json($byType);
         const typeLabels = Object.keys(byTypeData);
@@ -213,13 +220,17 @@
         const byStatusData = @json($byStatus);
         const statusLabels = Object.keys(byStatusData);
         const statusValues = Object.values(byStatusData);
+        const statusLabelMap = { 'validated': 'Valide', 'synchronized': 'Synchronise', 'rejected': 'Rejete', 'draft': 'Brouillon' };
+        const statusColorMap = { 'validated': '#2DB56B', 'synchronized': '#f59e0b', 'rejected': '#ef4444', 'draft': '#94a3b8' };
+        const statusBarColors = statusLabels.map(l => statusColorMap[l.toLowerCase()] || '#94a3b8');
+        const statusLabelsFr = statusLabels.map(l => statusLabelMap[l.toLowerCase()] || l);
 
         if (statusLabels.length > 0) {
             new Chart(document.getElementById('statusChart').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: statusLabels,
-                    datasets: [{ label: 'Fiches', data: statusValues, backgroundColor: chartColors.slice(0, statusLabels.length), borderRadius: 2, borderSkipped: false, barPercentage: 0.5 }]
+                    labels: statusLabelsFr,
+                    datasets: [{ label: 'Fiches', data: statusValues, backgroundColor: statusBarColors, borderRadius: 2, borderSkipped: false, barPercentage: 0.5 }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
@@ -273,10 +284,11 @@
                     fillOpacity: 0.85
                 }).addTo(map);
 
+                var mapStatusLabels = { 'validated': 'Valide', 'synchronized': 'Synchronise', 'rejected': 'Rejete', 'draft': 'Brouillon' };
                 var popupContent = '<div style="font-family: DM Sans, sans-serif; font-size: 11px; line-height: 1.4; font-weight: 400;">'
                     + '<span style="font-weight: 500;">' + (props.registration_number || '-') + '</span><br>'
                     + '<span style="color: #64748b;">' + ((props.brand || '') + ' ' + (props.model || '')).trim() + '</span><br>'
-                    + '<span style="color: ' + color + '; font-weight: 500; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">' + (props.form_status ? props.form_status.charAt(0).toUpperCase() + props.form_status.slice(1) : '-') + '</span>'
+                    + '<span style="color: ' + color + '; font-weight: 500; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">' + (mapStatusLabels[props.form_status] || props.form_status || '-') + '</span>'
                     + '</div>';
 
                 marker.bindPopup(popupContent);

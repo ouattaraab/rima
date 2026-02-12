@@ -67,7 +67,7 @@
                             <label for="bank_name" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Banque <span class="text-red-500">*</span></label>
                             <input type="text" name="bank_name" id="bank_name" x-ref="bank_name" value="{{ old('bank_name', $vehicle->bank_name) }}" placeholder="Nom de la banque"
                                    class="w-full h-10 px-3 border focus:outline-none focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 transition"
-                                   :class="errors.bank_name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-slate-900'"
+                                   :class="errors.bank_name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                    @input="delete errors.bank_name">
                             <p x-show="errors.bank_name" x-text="errors.bank_name" class="mt-1 text-[12px] text-red-500"></p>
                             @error('bank_name')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
@@ -76,7 +76,7 @@
                             <label for="contract_number" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Numero de contrat <span class="text-red-500">*</span></label>
                             <input type="text" name="contract_number" id="contract_number" x-ref="contract_number" value="{{ old('contract_number', $vehicle->contract_number) }}" placeholder="Numero du contrat"
                                    class="w-full h-10 px-3 border focus:outline-none focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 transition"
-                                   :class="errors.contract_number ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-slate-900'"
+                                   :class="errors.contract_number ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                    @input="delete errors.contract_number">
                             <p x-show="errors.contract_number" x-text="errors.contract_number" class="mt-1 text-[12px] text-red-500"></p>
                             @error('contract_number')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
@@ -86,13 +86,13 @@
                         <div>
                             <label for="withdrawal_start_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date debut prelevement</label>
                             <input type="date" name="withdrawal_start_date" id="withdrawal_start_date" value="{{ old('withdrawal_start_date', $vehicle->withdrawal_start_date?->format('Y-m-d')) }}"
-                                   class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-900 transition">
+                                   class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
                             @error('withdrawal_start_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
                         </div>
                         <div>
                             <label for="withdrawal_end_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date fin prelevement</label>
                             <input type="date" name="withdrawal_end_date" id="withdrawal_end_date" value="{{ old('withdrawal_end_date', $vehicle->withdrawal_end_date?->format('Y-m-d')) }}"
-                                   class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-900 transition">
+                                   class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
                             @error('withdrawal_end_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
                         </div>
                     </div>
@@ -110,13 +110,13 @@
                 <div>
                     <label for="contract_start_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date debut contrat</label>
                     <input type="date" name="contract_start_date" id="contract_start_date" value="{{ old('contract_start_date', $vehicle->contract_start_date?->format('Y-m-d')) }}"
-                           class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-900 transition">
+                           class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
                     @error('contract_start_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label for="provision_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date mise a disposition</label>
                     <input type="date" name="provision_date" id="provision_date" value="{{ old('provision_date', $vehicle->provision_date?->format('Y-m-d')) }}"
-                           class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-900 transition">
+                           class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
                     @error('provision_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
@@ -125,7 +125,7 @@
         {{-- Actions --}}
         <div class="flex items-center justify-end gap-3 pt-6">
             <a href="{{ route('vehicles.show', $vehicle) }}" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] font-medium h-10 px-5 hover:bg-slate-50 transition-colors">Annuler</a>
-            <button type="submit" class="inline-flex items-center justify-center rounded-full bg-slate-900 hover:bg-black text-white text-[13px] font-medium h-10 px-5 transition-colors">
+            <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">
                 Enregistrer
             </button>
         </div>

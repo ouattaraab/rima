@@ -28,7 +28,11 @@
         <div class="flex items-start gap-4 px-5 py-4 border-b border-slate-100 {{ $notification->isRead() ? 'bg-white' : 'bg-slate-50/70' }} hover:bg-slate-50/50 transition-colors">
             {{-- Icon --}}
             <div class="shrink-0 mt-0.5">
-                @if($notification->type === 'vehicle_validated')
+                @if($notification->type === 'vehicle_synchronized')
+                    <div class="w-8 h-8 flex items-center justify-center bg-amber-50">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.183"/></svg>
+                    </div>
+                @elseif($notification->type === 'vehicle_validated')
                     <div class="w-8 h-8 flex items-center justify-center bg-emerald-50">
                         <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>

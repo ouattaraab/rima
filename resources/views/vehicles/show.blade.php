@@ -168,7 +168,7 @@
                 && $vehicle->form_status === 'synchronized'
             )
                 <button @click="showValidateModal = true"
-                        class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-black">
+                        class="inline-flex items-center gap-2 rounded-full bg-[#2DB56B] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#2AAE64]">
                     Valider
                 </button>
                 <button @click="showRejectModal = true"
@@ -187,6 +187,11 @@
                     Donnees financieres
                 </a>
             @endif
+            <a href="{{ route('vehicles.downloadPdf', $vehicle) }}"
+               class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-50">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                Telecharger PDF
+            </a>
         </div>
     </div>
 
@@ -477,7 +482,7 @@
                                      alt="{{ $photoTypeLabels[$photo->photo_type] ?? $photo->photo_type ?? 'Photo vehicule' }}"
                                      class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                                      loading="lazy">
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-[#2AAE64]/20 transition-colors duration-200 flex items-center justify-center">
                                     <svg class="w-7 h-7 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"/>
                                     </svg>
@@ -528,7 +533,7 @@
 
             <button x-show="galleryPhotos.length > 1"
                     @click.stop="prevPhoto()"
-                    class="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 text-white/70 hover:text-white transition-colors bg-black/30 hover:bg-black/50">
+                    class="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 text-white/70 hover:text-white transition-colors bg-black/30 hover:bg-[#2AAE64]/50">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -536,7 +541,7 @@
 
             <button x-show="galleryPhotos.length > 1"
                     @click.stop="nextPhoto()"
-                    class="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2 text-white/70 hover:text-white transition-colors bg-black/30 hover:bg-black/50">
+                    class="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2 text-white/70 hover:text-white transition-colors bg-black/30 hover:bg-[#2AAE64]/50">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                 </svg>
@@ -569,7 +574,7 @@
                                 $changedFields = $hasChanges ? array_unique(array_merge(array_keys($history->old_values), array_keys($history->new_values))) : [];
                             @endphp
                             <div class="relative flex gap-4 pl-8" x-data="{ expanded: false }">
-                                <div class="absolute left-0 top-1.5 h-[14px] w-[14px] rounded-full border-2 border-white bg-slate-900"></div>
+                                <div class="absolute left-0 top-1.5 h-[14px] w-[14px] rounded-full border-2 border-white bg-[#2DB56B]"></div>
 
                                 <div class="flex-1">
                                     <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -677,7 +682,7 @@
                                   name="comment"
                                   rows="3"
                                   placeholder="Ajouter un commentaire..."
-                                  class="block w-full rounded-none border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-0"></textarea>
+                                  class="block w-full rounded-none border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#2DB56B] focus:outline-none focus:ring-0"></textarea>
                     </div>
                     <div class="flex justify-end gap-3">
                         <button type="button"
@@ -686,7 +691,7 @@
                             Annuler
                         </button>
                         <button type="submit"
-                                class="rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-black">
+                                class="rounded-full bg-[#2DB56B] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#2AAE64]">
                             Confirmer la validation
                         </button>
                     </div>
@@ -729,7 +734,7 @@
                                 id="rejection_reason"
                                 x-ref="rejection_reason"
                                 class="block w-full rounded-none border bg-white py-2 pl-3 pr-8 text-sm text-slate-900 focus:outline-none focus:ring-0 transition"
-                                :class="rejectErrors.reason ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-slate-900'"
+                                :class="rejectErrors.reason ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                 @change="delete rejectErrors.reason">
                             <option value="">Selectionnez un motif</option>
                             @foreach($rejectionReasons as $value => $label)
@@ -746,7 +751,7 @@
                                   rows="3"
                                   placeholder="Preciser le motif du rejet (min. 20 caracteres)..."
                                   class="block w-full rounded-none border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 transition"
-                                  :class="rejectErrors.comment ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-slate-900'"
+                                  :class="rejectErrors.comment ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                   @input="delete rejectErrors.comment"></textarea>
                         <p x-show="rejectErrors.comment" x-text="rejectErrors.comment" class="mt-1 text-[12px] text-red-500"></p>
                         @error('rejection_comment')

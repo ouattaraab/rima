@@ -26,7 +26,9 @@ Route::middleware(['auth', 'audit'])->group(function () {
     // --- Vehicules (tous les authentifies) ---
     Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
     Route::get('/vehicles/export', [VehicleController::class, 'export'])->name('vehicles.export');
+    Route::get('/vehicles/export-pdf', [VehicleController::class, 'exportPdf'])->name('vehicles.exportPdf');
     Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('vehicles.show');
+    Route::get('/vehicles/{vehicle}/pdf', [VehicleController::class, 'downloadPdf'])->name('vehicles.downloadPdf');
 
     // --- Validation/Rejet (supervisor_sodeci + admin_sodeci) ---
     Route::middleware('role:supervisor_sodeci,admin_sodeci')->group(function () {

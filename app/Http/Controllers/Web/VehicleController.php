@@ -6,6 +6,7 @@ use App\Models\Vehicle;
 use App\Models\VehicleHistory;
 use App\Models\User;
 use App\Exports\VehiclesExport;
+use App\Exports\VehiclePdfExport;
 use App\Services\NotificationService;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class VehicleController extends Controller
 
         $sort = $request->get('sort', 'collected_at');
         $direction = $request->get('direction', 'desc');
-        $allowed = ['registration_number','brand','vehicle_type','form_status','collected_at','status'];
+        $allowed = ['registration_number','brand','category','vehicle_type','form_status','collected_at','status','collected_by'];
         if (in_array($sort, $allowed)) $query->orderBy($sort, $direction);
         else $query->orderByDesc('collected_at');
 
@@ -70,7 +71,7 @@ class VehicleController extends Controller
         // Quality Score computation (US-022)
         $qualityData = null;
         $user = request()->user();
-        if ($vehicle->form_status === 'synchronized' && in_array($user->role, ['supervisor_sodeci', 'admin_sodeci'])) {
+        if (in_array($vehicle->form_status, ['synchronized', 'validated']) && in_array($user->role, ['supervisor_sodeci', 'admin_sodeci'])) {
             $missingFields = $vehicle->getMissingFields();
 
             $checks = [];
@@ -211,6 +212,19 @@ class VehicleController extends Controller
             'withdrawal_end_date' => 'nullable|date|after_or_equal:withdrawal_start_date|required_if:financing_mode,Leasing',
             'contract_start_date' => 'nullable|date',
             'provision_date' => 'required|date',
+        ], [
+            'financing_mode.required' => 'Le mode de financement est obligatoire.',
+            'financing_mode.in' => 'Le mode de financement doit etre Leasing ou Direct.',
+            'bank_name.required_if' => 'Le nom de la banque est obligatoire pour le leasing.',
+            'bank_name.max' => 'Le nom de la banque ne doit pas depasser 50 caracteres.',
+            'contract_number.required_if' => 'Le numero de contrat est obligatoire pour le leasing.',
+            'contract_number.max' => 'Le numero de contrat ne doit pas depasser 50 caracteres.',
+            'withdrawal_start_date.required_if' => 'La date de debut de prelevement est obligatoire pour le leasing.',
+            'withdrawal_end_date.required_if' => 'La date de fin de prelevement est obligatoire pour le leasing.',
+            'withdrawal_end_date.after_or_equal' => 'La date de fin de prelevement doit etre posterieure ou egale a la date de debut.',
+            'provision_date.required' => 'La date de mise a disposition est obligatoire.',
+            'provision_date.date' => 'La date de mise a disposition doit etre une date valide.',
+            'contract_start_date.date' => 'La date de debut de contrat doit etre une date valide.',
         ]);
 
         $vehicle = Vehicle::findOrFail($id);
@@ -247,6 +261,35 @@ class VehicleController extends Controller
         return Excel::download(new VehiclesExport($filters), $filename);
     }
 
+    /**
+     * Export a single vehicle as PDF (CDC Chapter 8 - Export PDF).
+     */
+    public function downloadPdf(string $id)
+    {
+        $vehicle = Vehicle::findOrFail($id);
+        return VehiclePdfExport::generate($vehicle);
+    }
+
+    /**
+     * Export filtered vehicle list as PDF (CDC Chapter 8 - Export PDF).
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = Vehicle::with('collector');
+
+        if ($request->filled('form_status')) $query->where('form_status', $request->form_status);
+        if ($request->filled('vehicle_type')) $query->where('vehicle_type', $request->vehicle_type);
+        if ($request->filled('brand')) $query->where('brand', $request->brand);
+        if ($request->filled('category')) $query->where('category', $request->category);
+        if ($request->filled('date_from')) $query->whereDate('collected_at', '>=', $request->date_from);
+        if ($request->filled('date_to')) $query->whereDate('collected_at', '<=', $request->date_to);
+
+        $vehicles = $query->orderByDesc('collected_at')->get();
+        $filters = $request->only(['form_status', 'vehicle_type', 'brand', 'category', 'date_from', 'date_to']);
+
+        return VehiclePdfExport::generateList($vehicles, $filters);
+    }
+
     public function edit(string $id)
     {
         $vehicle = Vehicle::findOrFail($id);
@@ -257,44 +300,85 @@ class VehicleController extends Controller
     {
         $request->validate([
             'modification_reason' => 'required|string|min:5|max:500',
-            'vehicle_type' => 'nullable|string',
-            'category' => 'nullable|string',
+            'vehicle_type' => 'nullable|string|in:Auto,Moto',
+            'category' => 'nullable|string|in:Berline,Pick-up,Utilitaire,Camion,Moto',
             'brand' => 'nullable|string|max:100',
             'model' => 'nullable|string|max:100',
             'version' => 'nullable|string|max:50',
-            'color' => 'nullable|string|max:30',
-            'commissioning_date' => 'nullable|date',
-            'contract_type' => 'nullable|string',
-            'registration_number' => 'nullable|string|max:10',
-            'temporary_registration' => 'nullable|string|max:10',
-            'chassis_number' => 'nullable|string|max:30',
+            'color' => 'nullable|string|max:30|in:Blanc,Noir,Gris,Bleu,Rouge,Vert,Jaune,Beige,Marron,Autre',
+            'commissioning_date' => 'nullable|date|before_or_equal:today',
+            'contract_type' => 'nullable|string|in:Sous contrat,Flotte',
+            'registration_number' => 'nullable|string|max:10|regex:/^[A-Z0-9\s\-]+$/i',
+            'temporary_registration' => 'nullable|string|max:10|regex:/^[A-Z0-9\s\-]+$/i',
+            'chassis_number' => 'nullable|string|max:30|regex:/^[A-Z0-9]+$/i',
             'chassis_readable' => 'nullable|boolean',
-            'fuel_type' => 'nullable|string',
-            'transmission' => 'nullable|string',
-            'engine_displacement' => 'nullable|integer',
-            'seats_count' => 'nullable|integer|min:1',
-            'load_capacity' => 'nullable|integer',
-            'mileage' => 'nullable|integer|min:0',
-            'status' => 'nullable|string',
+            'fuel_type' => 'nullable|string|in:Essence,Gasoil,Hybride,Electrique',
+            'transmission' => 'nullable|string|in:Automatique,Manuelle',
+            'engine_displacement' => 'nullable|integer|min:50|max:99999',
+            'seats_count' => 'nullable|integer|min:1|max:99',
+            'load_capacity' => 'nullable|integer|min:1|max:99999',
+            'mileage' => 'nullable|integer|min:1|max:9999999',
+            'status' => 'nullable|string|in:En service,En reparation,Reforme,Cede',
             'structure_ci' => 'nullable|string|max:50',
             'has_roll_bars' => 'nullable|boolean',
             'special_equipment' => 'nullable|string|max:100',
-            'technical_inspection_date' => 'nullable|date',
+            'technical_inspection_date' => 'nullable|date|before_or_equal:today',
             'is_insured' => 'nullable|boolean',
             'insurance_company' => 'nullable|string|max:50',
             'policy_number' => 'nullable|string|max:30',
             'coverage_type' => 'nullable|string',
             'insurance_start_date' => 'nullable|date',
-            'insurance_end_date' => 'nullable|date',
+            'insurance_end_date' => 'nullable|date|after:insurance_start_date',
             'user_direction' => 'nullable|string|max:100',
-            'user_matricule' => 'nullable|string|max:7',
+            'user_matricule' => 'nullable|string|size:7|regex:/^[A-Z0-9]+$/i',
             'user_driver_license' => 'nullable|string|max:50',
         ], [
             'modification_reason.required' => 'Le motif de modification est obligatoire.',
             'modification_reason.min' => 'Le motif doit contenir au moins 5 caracteres.',
+            'commissioning_date.before_or_equal' => 'La date de mise en circulation ne peut pas etre dans le futur.',
+            'technical_inspection_date.before_or_equal' => 'La date de controle technique ne peut pas etre dans le futur.',
+            'seats_count.min' => 'Le nombre de places doit etre superieur a 0.',
+            'mileage.min' => 'Le kilometrage doit etre strictement positif.',
+            'load_capacity.min' => 'La charge utile doit etre superieure a 0.',
+            'insurance_end_date.after' => 'La date de fin d\'assurance doit etre posterieure a la date de debut.',
+            'user_matricule.size' => 'Le matricule doit comporter exactement 7 caracteres.',
+            'user_matricule.regex' => 'Le matricule doit etre compose uniquement de caracteres alphanumeriques.',
+            'engine_displacement.min' => 'La cylindree doit etre au moins 50 cm3.',
+            'registration_number.regex' => 'L\'immatriculation ne doit contenir que des lettres, chiffres, espaces et tirets.',
+            'chassis_number.regex' => 'Le numero de chassis ne doit contenir que des lettres et chiffres.',
         ]);
 
         $vehicle = Vehicle::findOrFail($id);
+
+        $errors = [];
+        $category = $request->input('category', $vehicle->category);
+        $vehicleType = $request->input('vehicle_type', $vehicle->vehicle_type);
+        $status = $request->input('status', $vehicle->status);
+
+        // CDC ID-05: Version only for Berline
+        if (!empty($request->version) && $category !== 'Berline') {
+            $errors['version'] = 'La version ne concerne que les Berlines.';
+        }
+        // CDC ST-03: Special equipment only for Camion
+        if (!empty($request->special_equipment) && $category !== 'Camion') {
+            $errors['special_equipment'] = 'Les equipements speciaux ne concernent que les Camions.';
+        }
+        // CDC: Transmission prohibited for Moto
+        if (!empty($request->transmission) && $vehicleType === 'Moto') {
+            $errors['transmission'] = 'La transmission n\'est pas applicable pour les Motos.';
+        }
+        // CDC: Insurance required for "En service"
+        if ($status === 'En service' && $request->has('is_insured') && !$request->boolean('is_insured')) {
+            $errors['is_insured'] = 'L\'assurance est obligatoire pour les vehicules en service.';
+        }
+        // CDC: Structure required for "En service" / "En reparation"
+        if (in_array($status, ['En service', 'En reparation']) && empty($request->input('structure_ci', $vehicle->structure_ci))) {
+            $errors['structure_ci'] = 'La structure est obligatoire pour les vehicules en service ou en reparation.';
+        }
+
+        if (!empty($errors)) {
+            return back()->withErrors($errors)->withInput();
+        }
 
         $editableFields = [
             'vehicle_type', 'category', 'brand', 'model', 'version', 'color',

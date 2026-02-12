@@ -18,15 +18,15 @@
     {{-- Filters --}}
     <form method="GET" action="{{ route('reports.regional') }}" class="border-b border-slate-200 pb-4">
         <div class="flex flex-wrap items-center gap-3">
-            <select name="region" class="flex-1 min-w-0 h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none">
+            <select name="region" class="filter-input flex-1 min-w-0">
                 <option value="">Region : Toutes</option>
-                @foreach($structures as $s)
-                    <option value="{{ $s->name }}" {{ $selectedRegion == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                @foreach($regions as $r)
+                    <option value="{{ $r }}" {{ $selectedRegion == $r ? 'selected' : '' }}>{{ $r }}</option>
                 @endforeach
             </select>
-            <input type="date" name="date_from" value="{{ $dateFrom }}" class="h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0">
-            <input type="date" name="date_to" value="{{ $dateTo }}" class="h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:border-slate-900 focus:ring-0">
-            <button type="submit" class="inline-flex items-center justify-center rounded-full bg-slate-900 hover:bg-black text-white text-[13px] font-medium h-10 px-4 transition-colors">Filtrer</button>
+            <input type="date" name="date_from" value="{{ $dateFrom }}" class="filter-input">
+            <input type="date" name="date_to" value="{{ $dateTo }}" class="filter-input">
+            <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-4 transition-colors">Filtrer</button>
             @if($selectedRegion || $dateFrom || $dateTo)
                 <a href="{{ route('reports.regional') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Reinitialiser</a>
             @endif
@@ -34,20 +34,20 @@
     </form>
 
     {{-- KPI Cards --}}
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div class="border border-slate-200 bg-white p-5">
+    <div class="grid grid-cols-2 gap-0 lg:grid-cols-4">
+        <div class="p-5">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($total) }}</p>
             <p class="mt-1 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Total inventories</p>
         </div>
-        <div class="border border-slate-200 bg-white p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($validated) }}</p>
             <p class="mt-1 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Valides</p>
         </div>
-        <div class="border border-slate-200 bg-white p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-emerald-600">{{ $completionRate }}%</p>
             <p class="mt-1 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Taux completude</p>
         </div>
-        <div class="border border-slate-200 bg-white p-5">
+        <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold {{ $rejectionRate > 5 ? 'text-red-600' : 'text-slate-900' }}">{{ $rejectionRate }}%</p>
             <p class="mt-1 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Taux rejet</p>
         </div>
@@ -55,7 +55,7 @@
 
     {{-- Bar Chart --}}
     @if($byRegion->count() > 0)
-    <div class="border border-slate-200 bg-white p-6">
+    <div class="p-6 border-t border-dashed border-slate-200 border-b">
         <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Vehicules par structure</h3>
         <div class="relative" style="height: {{ max(300, $byRegion->count() * 28 + 80) }}px;">
             <canvas id="regionalChart"></canvas>
@@ -125,23 +125,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 {
                     label: 'Valides',
                     data: dataValidated,
-                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                    borderColor: 'rgba(16, 185, 129, 1)',
-                    borderWidth: 1,
+                    backgroundColor: '#2DB56B',
+                    borderColor: '#2AAE64',
+                    borderWidth: 0,
+                    borderRadius: 2,
                 },
                 {
                     label: 'En attente',
                     data: dataSynchronized,
-                    backgroundColor: 'rgba(245, 158, 11, 0.8)',
-                    borderColor: 'rgba(245, 158, 11, 1)',
-                    borderWidth: 1,
+                    backgroundColor: '#f59e0b',
+                    borderColor: '#d97706',
+                    borderWidth: 0,
+                    borderRadius: 2,
                 },
                 {
                     label: 'Rejetes',
                     data: dataRejected,
-                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                    borderColor: 'rgba(239, 68, 68, 1)',
-                    borderWidth: 1,
+                    backgroundColor: '#ef4444',
+                    borderColor: '#dc2626',
+                    borderWidth: 0,
+                    borderRadius: 2,
                 },
             ],
         },

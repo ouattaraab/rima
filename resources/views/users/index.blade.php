@@ -17,7 +17,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                 Exporter Excel
             </a>
-            <a href="{{ route('users.create') }}" class="inline-flex items-center gap-2 rounded-full bg-slate-900 hover:bg-black text-white text-[13px] font-medium px-5 h-10 transition-colors">
+            <a href="{{ route('users.create') }}" class="inline-flex items-center gap-2 rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium px-5 h-10 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Nouvel utilisateur
             </a>
@@ -28,10 +28,10 @@
     <div class="border-b border-slate-200 pb-4 mb-6">
         <form method="GET" action="{{ route('users.index') }}" class="flex flex-col sm:flex-row gap-3">
             <div class="flex-1">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par nom, username ou email..." class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-700 placeholder-slate-300">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par nom, username ou email..." class="filter-input w-full">
             </div>
             <div class="sm:w-48">
-                <select name="role" class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-700 bg-white appearance-none">
+                <select name="role" class="filter-input w-full">
                     <option value="">Tous les roles</option>
                     <option value="agent_cidec" {{ request('role') === 'agent_cidec' ? 'selected' : '' }}>Agent CIDEC</option>
                     <option value="supervisor_cidec" {{ request('role') === 'supervisor_cidec' ? 'selected' : '' }}>Superviseur CIDEC</option>
@@ -40,14 +40,14 @@
                 </select>
             </div>
             <div class="sm:w-40">
-                <select name="organization" class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-700 bg-white appearance-none">
+                <select name="organization" class="filter-input w-full">
                     <option value="">Toutes les org.</option>
                     <option value="CIDEC" {{ request('organization') === 'CIDEC' ? 'selected' : '' }}>CIDEC</option>
                     <option value="SODECI" {{ request('organization') === 'SODECI' ? 'selected' : '' }}>SODECI</option>
                 </select>
             </div>
             <div class="flex gap-2 items-center">
-                <button type="submit" class="inline-flex items-center justify-center rounded-full bg-slate-900 hover:bg-black text-white text-[13px] font-medium h-10 px-4 transition-colors">
+                <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">
                     Filtrer
                 </button>
                 @if(request()->hasAny(['search', 'role', 'organization']))
@@ -77,7 +77,7 @@
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-5 py-3.5">
                             <div class="flex items-center gap-3">
-                                <div class="w-7 h-7 bg-slate-900 flex items-center justify-center shrink-0">
+                                <div class="w-7 h-7 bg-[#2DB56B] flex items-center justify-center shrink-0">
                                     <span class="text-white text-[10px] font-bold">{{ strtoupper(substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1)) }}</span>
                                 </div>
                                 <div>

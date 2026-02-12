@@ -14,33 +14,33 @@
         <a href="{{ route('audit.export', request()->only(['action', 'entity_type', 'user_id', 'date_from', 'date_to', 'source'])) }}"
            class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-900 text-[13px] font-medium px-5 h-10 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-            Exporter CSV
+            Exporter Excel
         </a>
     </div>
 
     {{-- Filters --}}
     <div class="border-b border-slate-200 pb-4 mb-6">
         <form method="GET" action="{{ route('audit.index') }}" class="flex flex-wrap items-center gap-3">
-            <select name="action" class="flex-1 min-w-0 h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-700 bg-white appearance-none">
+            <select name="action" class="filter-input flex-1 min-w-0">
                 <option value="">Action : Toutes</option>
                 @foreach($actions as $action)
                     <option value="{{ $action }}" {{ request('action') === $action ? 'selected' : '' }}>{{ ucfirst($action) }}</option>
                 @endforeach
             </select>
-            <select name="entity_type" class="flex-1 min-w-0 h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-700 bg-white appearance-none">
+            <select name="entity_type" class="filter-input flex-1 min-w-0">
                 <option value="">Entite : Toutes</option>
                 @foreach($entityTypes as $type)
                     <option value="{{ $type }}" {{ request('entity_type') === $type ? 'selected' : '' }}>{{ $type }}</option>
                 @endforeach
             </select>
-            <input type="date" name="date_from" value="{{ request('date_from') }}" class="h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-700">
-            <input type="date" name="date_to" value="{{ request('date_to') }}" class="h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-700">
-            <select name="source" class="flex-1 min-w-0 h-10 px-3 border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-0 text-[13px] text-slate-700 bg-white appearance-none">
+            <input type="date" name="date_from" value="{{ request('date_from') }}" class="filter-input">
+            <input type="date" name="date_to" value="{{ request('date_to') }}" class="filter-input">
+            <select name="source" class="filter-input flex-1 min-w-0">
                 <option value="">Source : Toutes</option>
                 <option value="web" {{ request('source') === 'web' ? 'selected' : '' }}>Web</option>
                 <option value="api" {{ request('source') === 'api' ? 'selected' : '' }}>Mobile (API)</option>
             </select>
-            <button type="submit" class="inline-flex items-center justify-center rounded-full bg-slate-900 hover:bg-black text-white text-[13px] font-medium h-10 px-4 transition-colors">
+            <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">
                 Filtrer
             </button>
             @if(request()->hasAny(['action', 'entity_type', 'date_from', 'date_to', 'source']))
@@ -62,9 +62,10 @@
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Details</th>
                 </tr>
             </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($logs as $log)
-                    <tr class="hover:bg-slate-50/50 transition-colors" x-data="{ expanded: false }">
+            @if($logs->count())
+                @foreach($logs as $log)
+                <tbody x-data="{ expanded: false }">
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100">
                         <td class="px-5 py-3.5 whitespace-nowrap">
                             <div class="text-[13px] text-slate-900">{{ $log->created_at->format('d/m/Y') }}</div>
                             <div class="text-[11px] text-slate-400">{{ $log->created_at->format('H:i:s') }}</div>
@@ -118,20 +119,22 @@
                             @endif
                         </td>
                     </tr>
-                    {{-- Expandable Detail Row --}}
                     @if($log->request_body)
                     <tr x-show="expanded" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak>
                         <td colspan="6" class="px-5 py-4 bg-slate-50/50">
                             <div class="max-w-4xl">
                                 <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Donnees envoyees</p>
-                                <div class="border border-slate-200 bg-white p-3 overflow-x-auto">
+                                <div class="bg-white p-3 overflow-x-auto">
                                     <pre class="text-[12px] text-slate-600 whitespace-pre-wrap break-words font-mono">{{ json_encode($log->request_body, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                                 </div>
                             </div>
                         </td>
                     </tr>
                     @endif
-                    @empty
+                </tbody>
+                @endforeach
+            @else
+                <tbody>
                     <tr>
                         <td colspan="6" class="px-5 py-16 text-center">
                             <div class="flex flex-col items-center">
@@ -141,10 +144,10 @@
                             </div>
                         </td>
                     </tr>
-                    @endforelse
                 </tbody>
-            </table>
-        </div>
+            @endif
+        </table>
+    </div>
 
     {{-- Pagination --}}
     @if($logs->hasPages())

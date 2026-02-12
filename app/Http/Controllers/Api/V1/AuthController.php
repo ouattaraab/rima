@@ -47,7 +47,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token', ['*'], now()->addHours(24));
 
-        $this->auditService->log('login', 'auth', $user->id, $request, 200);
+        $this->auditService->log('login', 'auth', $user->id, $request, 200, 'api', $user->id);
 
         return response()->json([
             'success' => true,
@@ -71,7 +71,11 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+
+        $this->auditService->log('logout', 'auth', $user->id, $request, 204, 'api', $user->id);
+
+        $user->currentAccessToken()->delete();
 
         return response()->json(null, 204);
     }

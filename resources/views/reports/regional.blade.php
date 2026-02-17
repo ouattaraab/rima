@@ -86,9 +86,21 @@
                         @endif
                     </td>
                     <td class="px-5 py-3.5 text-[13px] text-slate-900 text-right font-mono border-l border-slate-100">{{ $row->total }}</td>
-                    <td class="px-5 py-3.5 text-[13px] text-emerald-600 text-right font-mono border-l border-slate-100">{{ $row->validated }}</td>
+                    <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
+                        @if($row->validated > 0)
+                            <a href="{{ route('vehicles.index', ['form_status' => 'validated', 'region' => $row->structure_ci]) }}" class="text-emerald-600 hover:underline">{{ $row->validated }}</a>
+                        @else
+                            <span class="text-emerald-600">{{ $row->validated }}</span>
+                        @endif
+                    </td>
                     <td class="px-5 py-3.5 text-[13px] text-amber-600 text-right font-mono border-l border-slate-100">{{ $row->synchronized }}</td>
-                    <td class="px-5 py-3.5 text-[13px] text-red-600 text-right font-mono border-l border-slate-100">{{ $row->rejected }}</td>
+                    <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
+                        @if($row->rejected > 0)
+                            <a href="{{ route('vehicles.index', ['form_status' => 'rejected', 'region' => $row->structure_ci]) }}" class="text-red-600 hover:underline">{{ $row->rejected }}</a>
+                        @else
+                            <span class="text-red-600">{{ $row->rejected }}</span>
+                        @endif
+                    </td>
                     <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
                         {{ $row->total > 0 ? round(($row->validated / $row->total) * 100, 1) : 0 }}%
                     </td>

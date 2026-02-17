@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Fiche Vehicule - RIMA</title>
+    <title>Fiche Véhicule - RIMA</title>
     <style>
         @page {
             margin: 25mm 20mm 20mm 20mm;
@@ -209,11 +209,11 @@
         <div class="header-top">
             <div class="header-left">
                 <h1><span>RIMA</span> &middot; SODECI</h1>
-                <div class="header-subtitle">Referentiel et Inventaire de la Mobilite et des Autos</div>
+                <div class="header-subtitle">Référentiel et Inventaire de la Mobilité et des Autos</div>
             </div>
             <div class="header-right">
                 <div class="header-meta">
-                    <strong>Document genere le</strong><br>
+                    <strong>Document généré le</strong><br>
                     {{ $generatedAt }}
                 </div>
             </div>
@@ -221,24 +221,24 @@
     </div>
 
     {{-- Document title --}}
-    <div class="doc-title">Fiche vehicule</div>
+    <div class="doc-title">Fiche véhicule</div>
     <div class="doc-registration">{{ $vehicle->registration_number ?? $vehicle->temporary_registration ?? 'N/A' }}</div>
     <div class="accent-line"></div>
 
     {{-- 1. Identification --}}
     <div class="section">
-        <div class="section-title"><span>01</span> Identification du vehicule</div>
+        <div class="section-title"><span>01</span> Identification du véhicule</div>
         <table>
             <tr>
                 <td class="label">Type</td>
                 <td class="value">{{ $vehicle->vehicle_type }}</td>
-                <td class="label">Categorie</td>
+                <td class="label">Catégorie</td>
                 <td class="value">{{ $vehicle->category }}</td>
             </tr>
             <tr>
                 <td class="label">Marque</td>
                 <td class="value">{{ $vehicle->brand }}</td>
-                <td class="label">Modele</td>
+                <td class="label">Modèle</td>
                 <td class="value">{{ $vehicle->model }}</td>
             </tr>
             <tr>
@@ -261,7 +261,7 @@
         <div class="section-title"><span>02</span> Immatriculation et chassis</div>
         <table>
             <tr>
-                <td class="label">Immat. definitive</td>
+                <td class="label">Immat. définitive</td>
                 <td class="value">{{ $vehicle->registration_number ?? '-' }}</td>
                 <td class="label">Immat. provisoire</td>
                 <td class="value">{{ $vehicle->temporary_registration ?? '-' }}</td>
@@ -277,7 +277,7 @@
 
     {{-- 3. Technique --}}
     <div class="section">
-        <div class="section-title"><span>03</span> Caracteristiques techniques</div>
+        <div class="section-title"><span>03</span> Caractéristiques techniques</div>
         <table>
             <tr>
                 <td class="label">Carburant</td>
@@ -286,7 +286,7 @@
                 <td class="value">{{ $vehicle->transmission ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Cylindree</td>
+                <td class="label">Cylindrée</td>
                 <td class="value">{{ $vehicle->engine_displacement ?? '-' }}</td>
                 <td class="label">Nombre de places</td>
                 <td class="value">{{ $vehicle->seats_count }}</td>
@@ -294,7 +294,7 @@
             <tr>
                 <td class="label">Charge utile</td>
                 <td class="value">{{ $vehicle->load_capacity ? $vehicle->load_capacity . ' kg' : '-' }}</td>
-                <td class="label">Kilometrage</td>
+                <td class="label">Kilométrage</td>
                 <td class="value">{{ number_format($vehicle->mileage ?? 0, 0, ',', ' ') }} km</td>
             </tr>
         </table>
@@ -302,10 +302,10 @@
 
     {{-- 4. Statut --}}
     <div class="section">
-        <div class="section-title"><span>04</span> Statut et equipements</div>
+        <div class="section-title"><span>04</span> Statut et équipements</div>
         <table>
             <tr>
-                <td class="label">Statut vehicule</td>
+                <td class="label">Statut véhicule</td>
                 <td class="value">{{ $vehicle->status }}</td>
                 <td class="label">Structure / CI</td>
                 <td class="value">{{ $vehicle->structure_ci ?? '-' }}</td>
@@ -313,7 +313,7 @@
             <tr>
                 <td class="label">Arceaux</td>
                 <td class="value">{{ $vehicle->has_roll_bars === null ? '-' : ($vehicle->has_roll_bars ? 'Oui' : 'Non') }}</td>
-                <td class="label">Equip. speciaux</td>
+                <td class="label">Équip. spéciaux</td>
                 <td class="value">{{ $vehicle->special_equipment ?? '-' }}</td>
             </tr>
         </table>
@@ -321,12 +321,12 @@
 
     {{-- 5. Reglementaire --}}
     <div class="section">
-        <div class="section-title"><span>05</span> Donnees reglementaires</div>
+        <div class="section-title"><span>05</span> Données réglementaires</div>
         <table>
             <tr>
                 <td class="label">Visite technique</td>
                 <td class="value">{{ $vehicle->technical_inspection_date?->format('d/m/Y') }}</td>
-                <td class="label">Assure</td>
+                <td class="label">Assuré</td>
                 <td class="value">{{ $vehicle->is_insured ? 'Oui' : 'Non' }}</td>
             </tr>
             @if($vehicle->is_insured)
@@ -339,7 +339,7 @@
             <tr>
                 <td class="label">Couverture</td>
                 <td class="value">{{ $vehicle->coverage_type ?? '-' }}</td>
-                <td class="label">Periode</td>
+                <td class="label">Période</td>
                 <td class="value">{{ $vehicle->insurance_start_date?->format('d/m/Y') }} — {{ $vehicle->insurance_end_date?->format('d/m/Y') }}</td>
             </tr>
             @endif
@@ -363,10 +363,10 @@
         </table>
     </div>
 
-    {{-- 7. Donnees financieres --}}
+    {{-- 7. Données financières --}}
     @if($vehicle->financing_mode)
     <div class="section">
-        <div class="section-title"><span>07</span> Donnees financieres</div>
+        <div class="section-title"><span>07</span> Données financières</div>
         <table>
             <tr>
                 <td class="label">Mode financement</td>
@@ -377,14 +377,14 @@
             <tr>
                 <td class="label">N. contrat</td>
                 <td class="value">{{ $vehicle->contract_number ?? '-' }}</td>
-                <td class="label">Mise a disposition</td>
+                <td class="label">Mise à disposition</td>
                 <td class="value">{{ $vehicle->provision_date?->format('d/m/Y') ?? '-' }}</td>
             </tr>
             @if($vehicle->financing_mode === 'Leasing')
             <tr>
-                <td class="label">Debut prelevement</td>
+                <td class="label">Début prélèvement</td>
                 <td class="value">{{ $vehicle->withdrawal_start_date?->format('d/m/Y') }}</td>
-                <td class="label">Fin prelevement</td>
+                <td class="label">Fin prélèvement</td>
                 <td class="value">{{ $vehicle->withdrawal_end_date?->format('d/m/Y') }}</td>
             </tr>
             @endif
@@ -392,18 +392,18 @@
     </div>
     @endif
 
-    {{-- 8. Metadonnees --}}
+    {{-- 8. Métadonnées --}}
     <div class="section">
-        <div class="section-title"><span>{{ $vehicle->financing_mode ? '08' : '07' }}</span> Metadonnees de collecte</div>
+        <div class="section-title"><span>{{ $vehicle->financing_mode ? '08' : '07' }}</span> Métadonnées de collecte</div>
         <table>
             <tr>
                 <td class="label">Statut fiche</td>
                 <td class="value">
                     @php
                         $fLabel = match($vehicle->form_status) {
-                            'validated' => 'Valide',
-                            'synchronized' => 'Synchronise',
-                            'rejected' => 'Rejete',
+                            'validated' => 'Validé',
+                            'synchronized' => 'Synchronisé',
+                            'rejected' => 'Rejeté',
                             'draft' => 'Brouillon',
                             default => $vehicle->form_status,
                         };
@@ -414,20 +414,20 @@
                 <td class="value">{{ $vehicle->revision }}</td>
             </tr>
             <tr>
-                <td class="label">Collecte par</td>
+                <td class="label">Collecté par</td>
                 <td class="value">{{ $vehicle->collector?->full_name ?? '-' }}</td>
                 <td class="label">Date collecte</td>
                 <td class="value">{{ $vehicle->collected_at?->format('d/m/Y H:i') }}</td>
             </tr>
             <tr>
-                <td class="label">Coordonnees GPS</td>
+                <td class="label">Coordonnées GPS</td>
                 <td class="value">{{ $vehicle->gps_latitude }}, {{ $vehicle->gps_longitude }}</td>
-                <td class="label">Precision GPS</td>
+                <td class="label">Précision GPS</td>
                 <td class="value">{{ $vehicle->gps_accuracy ? $vehicle->gps_accuracy . ' m' : '-' }}</td>
             </tr>
             @if($vehicle->validated_by)
             <tr>
-                <td class="label">Valide / Rejete par</td>
+                <td class="label">Validé / Rejeté par</td>
                 <td class="value">{{ $vehicle->validator?->full_name ?? '-' }}</td>
                 <td class="label">Date validation</td>
                 <td class="value">{{ $vehicle->validated_at?->format('d/m/Y H:i') }}</td>

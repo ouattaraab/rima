@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Liste Vehicules - RIMA</title>
+    <title>Liste Véhicules - RIMA</title>
     <style>
         @page {
             margin: 18mm 12mm 18mm 12mm;
@@ -198,11 +198,11 @@
         <div class="header-top">
             <div class="header-left">
                 <h1><span>RIMA</span> &middot; SODECI</h1>
-                <div class="header-subtitle">Referentiel et Inventaire de la Mobilite et des Autos</div>
+                <div class="header-subtitle">Référentiel et Inventaire de la Mobilité et des Autos</div>
             </div>
             <div class="header-right">
                 <div class="header-meta">
-                    <strong>Document genere le</strong><br>
+                    <strong>Document généré le</strong><br>
                     {{ $generatedAt }}
                 </div>
             </div>
@@ -211,7 +211,7 @@
 
     {{-- Summary --}}
     <div class="summary">
-        Total : <strong>{{ $total }}</strong> vehicule(s)
+        Total : <strong>{{ $total }}</strong> véhicule(s)
         @if(!empty($filters))
             &nbsp;&nbsp;|&nbsp;&nbsp;Filtres actifs :
             @foreach($filters as $key => $value)
@@ -227,17 +227,17 @@
         <thead>
             <tr>
                 <th>Type</th>
-                <th>Categorie</th>
+                <th>Catégorie</th>
                 <th>Marque</th>
-                <th>Modele</th>
+                <th>Modèle</th>
                 <th>Immatriculation</th>
-                <th>Statut vehicule</th>
+                <th>Statut véhicule</th>
                 <th>Statut fiche</th>
                 <th>Carburant</th>
                 <th>Km</th>
-                <th>Assure</th>
+                <th>Assuré</th>
                 <th>Direction</th>
-                <th>Collecte par</th>
+                <th>Collecté par</th>
                 <th>Date</th>
             </tr>
         </thead>
@@ -251,9 +251,9 @@
                     default => 'st-draft',
                 };
                 $fLabel = match($v->form_status) {
-                    'validated' => 'Valide',
-                    'synchronized' => 'Synchronise',
-                    'rejected' => 'Rejete',
+                    'validated' => 'Validé',
+                    'synchronized' => 'Synchronisé',
+                    'rejected' => 'Rejeté',
                     'draft' => 'Brouillon',
                     default => $v->form_status,
                 };

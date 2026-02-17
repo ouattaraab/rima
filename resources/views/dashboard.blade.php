@@ -9,7 +9,7 @@
         <form method="GET" action="{{ route('dashboard') }}" class="border-b border-slate-200 pb-4">
             <div class="flex flex-wrap items-center gap-3">
                 <select name="region" class="filter-input flex-1 min-w-0">
-                    <option value="">Region : Toutes</option>
+                    <option value="">Région : Toutes</option>
                     @foreach($regions as $r)
                         <option value="{{ $r }}" @selected(request('region') === $r)>{{ $r }}</option>
                     @endforeach
@@ -20,7 +20,7 @@
                        class="filter-input">
                 <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">Filtrer</button>
                 @if(request()->hasAny(['region', 'date_from', 'date_to']))
-                    <a href="{{ route('dashboard') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Reinitialiser</a>
+                    <a href="{{ route('dashboard') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Réinitialiser</a>
                 @endif
             </div>
         </form>
@@ -30,19 +30,19 @@
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-0 mb-8">
         <div class="p-5">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($total) }}</p>
-            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Total vehicules</p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Total véhicules</p>
         </div>
         <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($validated) }}</p>
-            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Validees</p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Validées</p>
         </div>
         <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($synchronized) }}</p>
-            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Synchronisees</p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Synchronisées</p>
         </div>
         <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($rejected) }}</p>
-            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Rejetees</p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Rejetées</p>
         </div>
         <div class="p-5 border-l border-dashed border-slate-200">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($draft) }}</p>
@@ -53,13 +53,13 @@
     {{-- Charts --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 mb-8 border-t border-dashed border-slate-200 border-b">
         <div class="p-6">
-            <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Repartition par type</h3>
+            <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Répartition par type</h3>
             <div class="flex items-center justify-center" style="height: 260px;">
                 <canvas id="typeChart"></canvas>
             </div>
         </div>
         <div class="p-6 lg:border-l lg:border-dashed lg:border-slate-200">
-            <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Repartition par categorie</h3>
+            <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Répartition par catégorie</h3>
             <div class="flex items-center justify-center" style="height: 260px;">
                 <canvas id="categoryChart"></canvas>
             </div>
@@ -77,7 +77,7 @@
         <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Carte des collectes</h3>
         <div id="dashboardMap" style="height: 420px; z-index: 0;"></div>
         @if(empty($mapData['features']))
-            <p class="text-[12px] text-slate-400 mt-2">Aucune donnee de localisation disponible.</p>
+            <p class="text-[12px] text-slate-400 mt-2">Aucune donnée de localisation disponible.</p>
         @endif
     </div>
 
@@ -86,7 +86,7 @@
         {{-- Recent Vehicles --}}
         <div class="lg:col-span-2">
             <div class="px-5 py-3.5 border-b border-dashed border-slate-200 flex items-center justify-between">
-                <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide">Vehicules recents</h3>
+                <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide">Véhicules récents</h3>
                 <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition">Voir tout</a>
             </div>
             <div class="overflow-x-auto">
@@ -95,7 +95,7 @@
                         <tr class="border-b border-slate-200">
                             <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Immatriculation</th>
                             <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Marque</th>
-                            <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Modele</th>
+                            <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Modèle</th>
                             <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Statut</th>
                             <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Agent</th>
                             <th class="text-left px-5 py-2.5 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Date</th>
@@ -118,9 +118,9 @@
                                         default => 'text-slate-400',
                                     };
                                     $statusLabel = match($vehicle->form_status) {
-                                        'validated' => 'Valide',
-                                        'synchronized' => 'Synchronise',
-                                        'rejected' => 'Rejete',
+                                        'validated' => 'Validé',
+                                        'synchronized' => 'Synchronisé',
+                                        'rejected' => 'Rejeté',
                                         'draft' => 'Brouillon',
                                         default => $vehicle->form_status,
                                     };
@@ -132,7 +132,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-8 text-center text-[13px] text-slate-400">Aucun vehicule enregistre.</td>
+                            <td colspan="6" class="px-5 py-8 text-center text-[13px] text-slate-400">Aucun véhicule enregistré.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -158,7 +158,7 @@
                     <span class="text-[12px] font-semibold text-slate-500">{{ $agent->vehicles_count }}</span>
                 </div>
                 @empty
-                <div class="px-5 py-8 text-center text-[13px] text-slate-400">Aucun agent enregistre.</div>
+                <div class="px-5 py-8 text-center text-[13px] text-slate-400">Aucun agent enregistré.</div>
                 @endforelse
             </div>
         </div>
@@ -220,7 +220,7 @@
         const byStatusData = @json($byStatus);
         const statusLabels = Object.keys(byStatusData);
         const statusValues = Object.values(byStatusData);
-        const statusLabelMap = { 'validated': 'Valide', 'synchronized': 'Synchronise', 'rejected': 'Rejete', 'draft': 'Brouillon' };
+        const statusLabelMap = { 'validated': 'Validé', 'synchronized': 'Synchronisé', 'rejected': 'Rejeté', 'draft': 'Brouillon' };
         const statusColorMap = { 'validated': '#2DB56B', 'synchronized': '#f59e0b', 'rejected': '#ef4444', 'draft': '#94a3b8' };
         const statusBarColors = statusLabels.map(l => statusColorMap[l.toLowerCase()] || '#94a3b8');
         const statusLabelsFr = statusLabels.map(l => statusLabelMap[l.toLowerCase()] || l);
@@ -284,7 +284,7 @@
                     fillOpacity: 0.85
                 }).addTo(map);
 
-                var mapStatusLabels = { 'validated': 'Valide', 'synchronized': 'Synchronise', 'rejected': 'Rejete', 'draft': 'Brouillon' };
+                var mapStatusLabels = { 'validated': 'Validé', 'synchronized': 'Synchronisé', 'rejected': 'Rejeté', 'draft': 'Brouillon' };
                 var popupContent = '<div style="font-family: DM Sans, sans-serif; font-size: 11px; line-height: 1.4; font-weight: 400;">'
                     + '<span style="font-weight: 500;">' + (props.registration_number || '-') + '</span><br>'
                     + '<span style="color: #64748b;">' + ((props.brand || '') + ' ' + (props.model || '')).trim() + '</span><br>'

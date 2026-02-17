@@ -9,7 +9,7 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <p class="text-[13px] text-slate-500">
-            <span class="font-semibold text-slate-900">{{ $vehicles->total() }}</span> vehicule(s) trouve(s)
+            <span class="font-semibold text-slate-900">{{ $vehicles->total() }}</span> véhicule(s) trouvé(s)
         </p>
         <div class="flex items-center gap-2">
             <a href="{{ route('vehicles.export') }}?{{ request()->getQueryString() }}"
@@ -48,16 +48,16 @@
                     <select name="form_status" class="filter-input flex-1 min-w-0">
                         <option value="">Fiche : Tous</option>
                         <option value="draft" @selected(request('form_status') === 'draft')>Brouillon</option>
-                        <option value="synchronized" @selected(request('form_status') === 'synchronized')>Synchronise</option>
-                        <option value="validated" @selected(request('form_status') === 'validated')>Valide</option>
-                        <option value="rejected" @selected(request('form_status') === 'rejected')>Rejete</option>
+                        <option value="synchronized" @selected(request('form_status') === 'synchronized')>Synchronisé</option>
+                        <option value="validated" @selected(request('form_status') === 'validated')>Validé</option>
+                        <option value="rejected" @selected(request('form_status') === 'rejected')>Rejeté</option>
                     </select>
                     <select name="vehicle_status" class="filter-input flex-1 min-w-0">
                         <option value="">Statut : Tous</option>
                         <option value="En service" @selected(request('vehicle_status') === 'En service')>En service</option>
-                        <option value="En reparation" @selected(request('vehicle_status') === 'En reparation')>En reparation</option>
-                        <option value="Reforme" @selected(request('vehicle_status') === 'Reforme')>Reforme</option>
-                        <option value="Cede" @selected(request('vehicle_status') === 'Cede')>Cede</option>
+                        <option value="En reparation" @selected(request('vehicle_status') === 'En reparation')>En réparation</option>
+                        <option value="Reforme" @selected(request('vehicle_status') === 'Reforme')>Réformé</option>
+                        <option value="Cede" @selected(request('vehicle_status') === 'Cede')>Cédé</option>
                     </select>
                     <select name="vehicle_type" class="filter-input flex-1 min-w-0">
                         <option value="">Type : Tous</option>
@@ -65,7 +65,7 @@
                         <option value="Moto" @selected(request('vehicle_type') === 'Moto')>Moto</option>
                     </select>
                     <select name="category" class="filter-input flex-1 min-w-0">
-                        <option value="">Categorie : Toutes</option>
+                        <option value="">Catégorie : Toutes</option>
                         <option value="Berline" @selected(request('category') === 'Berline')>Berline</option>
                         <option value="Pick-up" @selected(request('category') === 'Pick-up')>Pick-up</option>
                         <option value="Utilitaire" @selected(request('category') === 'Utilitaire')>Utilitaire</option>
@@ -87,7 +87,7 @@
                         @endforeach
                     </select>
                     <select name="region" class="filter-input flex-1 min-w-0">
-                        <option value="">Region : Toutes</option>
+                        <option value="">Région : Toutes</option>
                         @foreach($regions as $r)
                             <option value="{{ $r }}" @selected(request('region') === $r)>{{ $r }}</option>
                         @endforeach
@@ -98,7 +98,7 @@
                            class="filter-input">
                     <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">Filtrer</button>
                     @if(request()->hasAny(['form_status', 'vehicle_status', 'vehicle_type', 'category', 'brand', 'agent', 'region', 'date_from', 'date_to']))
-                        <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Reinitialiser</a>
+                        <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Réinitialiser</a>
                     @endif
                 </div>
         </form>
@@ -108,8 +108,8 @@
     <div>
         @if($vehicles->isEmpty())
             <div class="flex flex-col items-center justify-center px-6 py-16">
-                <p class="text-[13px] font-medium text-slate-900">Aucun vehicule trouve</p>
-                <p class="text-[12px] text-slate-400 mt-1">Essayez de modifier vos criteres de recherche.</p>
+                <p class="text-[13px] font-medium text-slate-900">Aucun véhicule trouvé</p>
+                <p class="text-[12px] text-slate-400 mt-1">Essayez de modifier vos critères de recherche.</p>
             </div>
         @else
             <div class="overflow-x-auto">
@@ -123,8 +123,8 @@
                             @endphp
                             @foreach([
                                 'registration_number' => 'Immatriculation',
-                                'brand' => 'Marque / Modele',
-                                'category' => 'Categorie',
+                                'brand' => 'Marque / Modèle',
+                                'category' => 'Catégorie',
                                 'vehicle_type' => 'Type',
                                 'form_status' => 'Statut fiche',
                                 'status' => 'Statut vehicule',
@@ -175,9 +175,9 @@
                                             default => 'text-slate-400',
                                         };
                                         $fLabel = match($vehicle->form_status) {
-                                            'validated' => 'Valide',
-                                            'synchronized' => 'Synchronise',
-                                            'rejected' => 'Rejete',
+                                            'validated' => 'Validé',
+                                            'synchronized' => 'Synchronisé',
+                                            'rejected' => 'Rejeté',
                                             'draft' => 'Brouillon',
                                             default => $vehicle->form_status,
                                         };

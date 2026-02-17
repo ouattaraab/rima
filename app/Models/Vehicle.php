@@ -255,6 +255,18 @@ class Vehicle extends Model
             $errors['technical_inspection_date'] = 'La date de controle technique ne peut pas etre dans le futur.';
         }
 
+        // Cross-field: visite technique >= mise en circulation
+        if ($this->technical_inspection_date && $this->commissioning_date
+            && $this->technical_inspection_date->lessThan($this->commissioning_date)) {
+            $errors['technical_inspection_date'] = 'La date de controle technique ne peut pas etre anterieure a la mise en circulation.';
+        }
+
+        // Cross-field: assurance debut >= mise en circulation
+        if ($this->insurance_start_date && $this->commissioning_date
+            && $this->insurance_start_date->lessThan($this->commissioning_date)) {
+            $errors['insurance_start_date'] = 'La date de debut d\'assurance ne peut pas etre anterieure a la mise en circulation.';
+        }
+
         // CDC 5.7: Matricule exactement 7 caracteres alphanumeriques
         if (!empty($this->user_matricule) && !preg_match('/^[A-Z0-9]{7}$/i', $this->user_matricule)) {
             $errors['user_matricule'] = 'Le matricule doit comporter exactement 7 caracteres alphanumeriques.';
@@ -267,9 +279,9 @@ class Vehicle extends Model
     {
         return match($this->form_status) {
             'draft' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Brouillon</span>',
-            'synchronized' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Synchronisee</span>',
-            'validated' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Validee</span>',
-            'rejected' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700">Rejetee</span>',
+            'synchronized' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Synchronisée</span>',
+            'validated' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Validée</span>',
+            'rejected' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700">Rejetée</span>',
             default => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">-</span>',
         };
     }
@@ -278,9 +290,9 @@ class Vehicle extends Model
     {
         return match($this->status) {
             'En service' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">En service</span>',
-            'En reparation' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">En reparation</span>',
-            'Reforme' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Reforme</span>',
-            'Cede' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Cede</span>',
+            'En reparation' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">En réparation</span>',
+            'Reforme' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Réformé</span>',
+            'Cede' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Cédé</span>',
             default => '',
         };
     }

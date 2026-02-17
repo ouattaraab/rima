@@ -18,13 +18,13 @@
             validate(e) {
                 this.errors = {};
                 const f = (id) => (this.$refs[id]?.value || '').trim();
-                if (!f('first_name')) this.errors.first_name = 'Le prenom est obligatoire.';
+                if (!f('first_name')) this.errors.first_name = 'Le prénom est obligatoire.';
                 if (!f('last_name')) this.errors.last_name = 'Le nom est obligatoire.';
                 if (!f('username')) this.errors.username = 'Le nom d\'utilisateur est obligatoire.';
                 if (!f('email')) this.errors.email = 'L\'email est obligatoire.';
                 const pwd = f('password');
-                if (pwd && pwd.length < 8) this.errors.password = 'Le mot de passe doit contenir au moins 8 caracteres.';
-                if (!f('role')) this.errors.role = 'Le role est obligatoire.';
+                if (pwd && pwd.length < 8) this.errors.password = 'Le mot de passe doit contenir au moins 8 caractères.';
+                if (!f('role')) this.errors.role = 'Le rôle est obligatoire.';
                 if (!f('organization')) this.errors.organization = 'L\'organisation est obligatoire.';
                 if (Object.keys(this.errors).length) { e.preventDefault(); return; }
             }
@@ -33,15 +33,15 @@
         @csrf
         @method('PUT')
 
-        {{-- Section: Identite --}}
+        {{-- Section: Identité --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
             <div>
-                <p class="text-[13px] font-semibold text-slate-900">Identite</p>
-                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Nom et prenom de l'utilisateur tels qu'ils apparaitront dans le systeme.</p>
+                <p class="text-[13px] font-semibold text-slate-900">Identité</p>
+                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Nom et prénom de l'utilisateur tels qu'ils apparaîtront dans le système.</p>
             </div>
             <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="first_name" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Prenom <span class="text-red-500">*</span></label>
+                    <label for="first_name" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Prénom <span class="text-red-500">*</span></label>
                     <input type="text" name="first_name" id="first_name" x-ref="first_name" value="{{ old('first_name', $user->first_name) }}"
                         class="w-full h-10 px-3 border focus:outline-none focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 transition"
                         :class="errors.first_name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
@@ -63,7 +63,7 @@
                     @enderror
                 </div>
                 <div class="sm:col-span-2">
-                    <label for="phone" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Telephone</label>
+                    <label for="phone" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Téléphone</label>
                     <input type="tel" name="phone" id="phone" value="{{ old('phone', $user->phone) }}" placeholder="+225 XX XX XX XX XX"
                         class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 transition">
                     @error('phone')
@@ -118,21 +118,21 @@
             </div>
         </div>
 
-        {{-- Section: Role & Affectation --}}
+        {{-- Section: Rôle & Affectation --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
             <div>
-                <p class="text-[13px] font-semibold text-slate-900">Role & affectation</p>
-                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Definit les permissions et le perimetre d'action de l'utilisateur dans le systeme.</p>
+                <p class="text-[13px] font-semibold text-slate-900">Rôle & affectation</p>
+                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Définit les permissions et le périmètre d'action de l'utilisateur dans le système.</p>
             </div>
             <div class="lg:col-span-2 space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="role" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Role <span class="text-red-500">*</span></label>
+                        <label for="role" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Rôle <span class="text-red-500">*</span></label>
                         <select name="role" id="role" x-ref="role"
                             class="w-full h-10 px-3 border focus:outline-none focus:ring-0 text-[13px] text-slate-900 bg-white transition"
                             :class="errors.role ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                             @change="delete errors.role">
-                            <option value="">Selectionner un role</option>
+                            <option value="">Sélectionner un rôle</option>
                             <option value="agent_cidec" {{ old('role', $user->role) === 'agent_cidec' ? 'selected' : '' }}>Agent CIDEC</option>
                             <option value="supervisor_cidec" {{ old('role', $user->role) === 'supervisor_cidec' ? 'selected' : '' }}>Superviseur CIDEC</option>
                             <option value="supervisor_sodeci" {{ old('role', $user->role) === 'supervisor_sodeci' ? 'selected' : '' }}>Superviseur SODECI</option>
@@ -149,7 +149,7 @@
                             class="w-full h-10 px-3 border focus:outline-none focus:ring-0 text-[13px] text-slate-900 bg-white transition"
                             :class="errors.organization ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                             @change="delete errors.organization">
-                            <option value="">Selectionner</option>
+                            <option value="">Sélectionner</option>
                             <option value="CIDEC" {{ old('organization', $user->organization) === 'CIDEC' ? 'selected' : '' }}>CIDEC</option>
                             <option value="SODECI" {{ old('organization', $user->organization) === 'SODECI' ? 'selected' : '' }}>SODECI</option>
                         </select>
@@ -160,8 +160,8 @@
                     </div>
                 </div>
                 <div>
-                    <label for="region" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Region</label>
-                    <input type="text" name="region" id="region" value="{{ old('region', $user->region) }}" placeholder="Region d'affectation"
+                    <label for="region" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Région</label>
+                    <input type="text" name="region" id="region" value="{{ old('region', $user->region) }}" placeholder="Région d'affectation"
                         class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 sm:max-w-sm transition">
                     @error('region')
                         <p class="mt-1 text-[12px] text-red-600">{{ $message }}</p>
@@ -174,7 +174,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
             <div>
                 <p class="text-[13px] font-semibold text-slate-900">Statut du compte</p>
-                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Desactiver le compte empechera l'utilisateur de se connecter.</p>
+                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Désactiver le compte empêchera l'utilisateur de se connecter.</p>
             </div>
             <div class="lg:col-span-2 flex items-center">
                 <input type="hidden" name="is_active" value="0">
@@ -190,7 +190,7 @@
         <div class="flex items-center justify-end gap-3 pt-6">
             <a href="{{ route('users.index') }}" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] font-medium h-10 px-5 hover:bg-slate-50 transition-colors">Annuler</a>
             <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">
-                Mettre a jour
+                Mettre à jour
             </button>
         </div>
     </form>

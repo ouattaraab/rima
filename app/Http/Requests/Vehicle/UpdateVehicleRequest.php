@@ -70,7 +70,7 @@ class UpdateVehicleRequest extends FormRequest
                 Rule::prohibitedIf(fn() => $category !== 'Camion'),
             ],
 
-            'technical_inspection_date' => 'sometimes|date|before_or_equal:today',
+            'technical_inspection_date' => 'sometimes|date|before_or_equal:today|after_or_equal:commissioning_date',
 
             'is_insured' => [
                 'sometimes', 'boolean',
@@ -91,7 +91,7 @@ class UpdateVehicleRequest extends FormRequest
             ],
             'coverage_type' => 'nullable|string|max:30',
             'insurance_start_date' => [
-                'nullable', 'date',
+                'nullable', 'date', 'after_or_equal:commissioning_date',
                 Rule::requiredIf(fn() => $isInsured === true),
             ],
             'insurance_end_date' => [
@@ -135,6 +135,8 @@ class UpdateVehicleRequest extends FormRequest
             'insurance_start_date.required' => 'La date de debut d\'assurance est obligatoire si le vehicule est assure.',
             'insurance_end_date.required' => 'La date de fin d\'assurance est obligatoire si le vehicule est assure.',
             'insurance_end_date.after' => 'La date de fin d\'assurance doit etre posterieure a la date de debut.',
+            'technical_inspection_date.after_or_equal' => 'La date de controle technique ne peut pas etre anterieure a la mise en circulation.',
+            'insurance_start_date.after_or_equal' => 'La date de debut d\'assurance ne peut pas etre anterieure a la mise en circulation.',
             'user_matricule.size' => 'Le matricule doit comporter exactement 7 caracteres.',
             'user_matricule.regex' => 'Le matricule ne doit contenir que des lettres et chiffres.',
         ];

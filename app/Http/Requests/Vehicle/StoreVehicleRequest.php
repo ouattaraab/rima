@@ -64,7 +64,7 @@ class StoreVehicleRequest extends FormRequest
                 Rule::prohibitedIf(fn() => $this->input('category') !== 'Camion'),
             ],
 
-            'technical_inspection_date' => 'required|date|before_or_equal:today',
+            'technical_inspection_date' => 'required|date|before_or_equal:today|after_or_equal:commissioning_date',
 
             'is_insured' => [
                 'required', 'boolean',
@@ -78,7 +78,7 @@ class StoreVehicleRequest extends FormRequest
             'insurance_company' => 'nullable|string|max:50|required_if:is_insured,true',
             'policy_number' => 'nullable|string|max:30|required_if:is_insured,true',
             'coverage_type' => 'nullable|string|max:30',
-            'insurance_start_date' => 'nullable|date|required_if:is_insured,true',
+            'insurance_start_date' => 'nullable|date|required_if:is_insured,true|after_or_equal:commissioning_date',
             'insurance_end_date' => 'nullable|date|after:insurance_start_date|required_if:is_insured,true',
 
             'gps_latitude' => 'nullable|numeric|between:-90,90',
@@ -112,6 +112,8 @@ class StoreVehicleRequest extends FormRequest
             'insurance_company.required_if' => 'La compagnie d\'assurance est obligatoire si le vehicule est assure.',
             'policy_number.required_if' => 'Le numero de police est obligatoire si le vehicule est assure.',
             'insurance_end_date.after' => 'La date de fin d\'assurance doit etre posterieure a la date de debut.',
+            'technical_inspection_date.after_or_equal' => 'La date de controle technique ne peut pas etre anterieure a la mise en circulation.',
+            'insurance_start_date.after_or_equal' => 'La date de debut d\'assurance ne peut pas etre anterieure a la mise en circulation.',
             'user_direction.required' => 'La direction de l\'utilisateur est obligatoire.',
             'user_matricule.required' => 'Le matricule de l\'utilisateur est obligatoire.',
             'user_matricule.size' => 'Le matricule doit comporter exactement 7 caracteres.',

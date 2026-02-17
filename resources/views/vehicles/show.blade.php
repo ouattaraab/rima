@@ -7,88 +7,90 @@
 @section('content')
 @php
     $rejectionReasons = [
-        'photo_issue' => 'Probleme photo',
+        'photo_issue' => 'Problème photo',
         'registration_error' => 'Erreur immatriculation',
-        'data_inconsistency' => 'Incoherence donnees',
+        'data_inconsistency' => 'Incohérence données',
         'missing_information' => 'Information manquante',
         'other' => 'Autre',
     ];
 
     $photoTypeLabels = [
         'front' => 'Face avant',
-        'rear' => 'Face arriere',
-        'side' => 'Vue laterale',
-        'left' => 'Cote gauche',
-        'right' => 'Cote droit',
-        'interior' => 'Interieur',
+        'rear' => 'Face arrière',
+        'side' => 'Vue latérale',
+        'left' => 'Côté gauche',
+        'right' => 'Côté droit',
+        'interior' => 'Intérieur',
         'dashboard' => 'Tableau de bord',
-        'chassis' => 'Chassis',
+        'chassis' => 'Châssis',
+        'driver_license' => 'Permis de conduire',
         'FRONT' => 'Face avant',
-        'REAR' => 'Face arriere',
-        'SIDE' => 'Vue laterale',
-        'LEFT' => 'Cote gauche',
-        'RIGHT' => 'Cote droit',
-        'INTERIOR' => 'Interieur',
+        'REAR' => 'Face arrière',
+        'SIDE' => 'Vue latérale',
+        'LEFT' => 'Côté gauche',
+        'RIGHT' => 'Côté droit',
+        'INTERIOR' => 'Intérieur',
         'DASHBOARD' => 'Tableau de bord',
-        'CHASSIS' => 'Chassis',
+        'CHASSIS' => 'Châssis',
+        'DRIVER_LICENSE' => 'Permis de conduire',
     ];
 
     $fieldLabels = [
-        'registration_number' => 'Immatriculation definitive',
+        'registration_number' => 'Immatriculation définitive',
         'temporary_registration' => 'Immatriculation provisoire',
-        'chassis_number' => 'Numero de chassis',
-        'chassis_readable' => 'Chassis lisible',
+        'chassis_number' => 'Numéro de châssis',
+        'chassis_readable' => 'Châssis lisible',
         'brand' => 'Marque',
-        'model' => 'Modele',
+        'model' => 'Modèle',
         'version' => 'Version',
         'color' => 'Couleur',
-        'vehicle_type' => 'Type de vehicule',
-        'category' => 'Categorie',
+        'vehicle_type' => 'Type de véhicule',
+        'category' => 'Catégorie',
         'fuel_type' => 'Carburant',
         'transmission' => 'Transmission',
-        'engine_displacement' => 'Cylindree',
+        'engine_displacement' => 'Cylindrée',
         'seats_count' => 'Nombre de places',
         'load_capacity' => 'Charge utile',
-        'mileage' => 'Kilometrage',
-        'status' => 'Statut vehicule',
+        'mileage' => 'Kilométrage',
+        'status' => 'Statut véhicule',
         'structure_ci' => 'Structure / CI',
-        'has_roll_bars' => 'Arceaux de securite',
-        'special_equipment' => 'Equipements speciaux',
+        'has_roll_bars' => 'Arceaux de sécurité',
+        'special_equipment' => 'Équipements spéciaux',
         'commissioning_date' => 'Date mise en circulation',
         'contract_type' => 'Type de contrat',
-        'is_insured' => 'Assure',
+        'is_insured' => 'Assuré',
         'insurance_company' => 'Compagnie d\'assurance',
-        'policy_number' => 'Numero de police',
+        'policy_number' => 'Numéro de police',
         'coverage_type' => 'Type de couverture',
-        'insurance_start_date' => 'Debut assurance',
+        'insurance_start_date' => 'Début assurance',
         'insurance_end_date' => 'Fin assurance',
-        'technical_inspection_date' => 'Date controle technique',
+        'technical_inspection_date' => 'Date contrôle technique',
         'user_direction' => 'Direction',
         'user_matricule' => 'Matricule',
         'user_driver_license' => 'Permis de conduire',
         'form_status' => 'Statut fiche',
         'collected_at' => 'Date de collecte',
         'validated_at' => 'Date de validation',
-        'validated_by' => 'Valide par',
+        'validated_by' => 'Validé par',
         'rejection_reason' => 'Motif de rejet',
         'rejection_comment' => 'Commentaire de rejet',
         'financing_mode' => 'Mode de financement',
         'bank_name' => 'Nom de la banque',
-        'contract_number' => 'Numero de contrat',
-        'contract_start_date' => 'Date debut contrat',
-        'provision_date' => 'Date mise a disposition',
-        'withdrawal_start_date' => 'Date debut prelevement',
-        'withdrawal_end_date' => 'Date fin prelevement',
+        'contract_number' => 'Numéro de contrat',
+        'contract_start_date' => 'Date début contrat',
+        'provision_date' => 'Date mise à disposition',
+        'withdrawal_start_date' => 'Date début prélèvement',
+        'withdrawal_end_date' => 'Date fin prélèvement',
         'gps_latitude' => 'Latitude GPS',
         'gps_longitude' => 'Longitude GPS',
-        'gps_precision' => 'Precision GPS',
+        'gps_precision' => 'Précision GPS',
         'modification_reason' => 'Motif de modification',
     ];
 
     $actionLabels = [
-        'created' => 'Creation de la fiche',
-        'updated' => 'Mise a jour',
-        'update_financial' => 'Mise a jour financiere',
+        'created' => 'Création de la fiche',
+        'updated' => 'Mise à jour',
+        'update_financial' => 'Mise à jour financière',
         'validated' => 'Validation',
         'validate_vehicle' => 'Validation',
         'rejected' => 'Rejet',
@@ -97,7 +99,7 @@
         'synced' => 'Synchronisation',
         'deleted' => 'Suppression',
         'login' => 'Connexion',
-        'logout' => 'Deconnexion',
+        'logout' => 'Déconnexion',
     ];
 @endphp
 
@@ -111,7 +113,7 @@
         const comment = (this.$refs.rejection_comment?.value || '').trim();
         if (!reason) this.rejectErrors.reason = 'Le motif est obligatoire.';
         if (!comment) this.rejectErrors.comment = 'Le commentaire est obligatoire.';
-        else if (comment.length < 20) this.rejectErrors.comment = 'Le commentaire doit contenir au moins 20 caracteres.';
+        else if (comment.length < 20) this.rejectErrors.comment = 'Le commentaire doit contenir au moins 20 caractères.';
         if (Object.keys(this.rejectErrors).length) { e.preventDefault(); return; }
     },
     galleryOpen: false,
@@ -184,13 +186,13 @@
                 </a>
                 <a href="{{ route('vehicles.financial', $vehicle) }}"
                    class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-50">
-                    Donnees financieres
+                    Données financières
                 </a>
             @endif
             <a href="{{ route('vehicles.downloadPdf', $vehicle) }}"
                class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-50">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                Telecharger PDF
+                Télécharger PDF
             </a>
         </div>
     </div>
@@ -205,7 +207,7 @@
     <div class="bg-white mb-8">
         <div class="px-6 py-5">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Controle qualite</h3>
+                <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Contrôle qualité</h3>
                 <span class="text-lg font-bold {{ $qualityPct >= 80 ? 'text-emerald-600' : ($qualityPct >= 50 ? 'text-amber-600' : 'text-red-600') }}">{{ $qualityPct }}%</span>
             </div>
             <div class="w-full h-1.5 bg-slate-100 mb-4">
@@ -248,10 +250,10 @@
             <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Identification</h3>
             <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
                 @foreach([
-                    ['Type de vehicule', $vehicle->vehicle_type],
-                    ['Categorie', $vehicle->category],
+                    ['Type de véhicule', $vehicle->vehicle_type],
+                    ['Catégorie', $vehicle->category],
                     ['Marque', $vehicle->brand],
-                    ['Modele', $vehicle->model],
+                    ['Modèle', $vehicle->model],
                     ['Version', $vehicle->version],
                     ['Couleur', $vehicle->color],
                     ['Mise en service', $vehicle->commissioning_date?->format('d/m/Y')],
@@ -272,7 +274,7 @@
             <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Immatriculation</h3>
             <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
                 <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Numero d'immatriculation</p>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Numéro d'immatriculation</p>
                     <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->registration_number ?? '-' }}</p>
                 </div>
                 <div>
@@ -280,11 +282,11 @@
                     <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->temporary_registration ?? '-' }}</p>
                 </div>
                 <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Numero de chassis</p>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Numéro de châssis</p>
                     <p class="mt-0.5 font-mono text-[13px] text-slate-900">{{ $vehicle->chassis_number ?? '-' }}</p>
                 </div>
                 <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Chassis lisible</p>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Châssis lisible</p>
                     <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->chassis_readable !== null ? ($vehicle->chassis_readable ? 'Oui' : 'Non') : '-' }}</p>
                 </div>
             </div>
@@ -299,10 +301,10 @@
                 @foreach([
                     ['Carburant', $vehicle->fuel_type],
                     ['Transmission', $vehicle->transmission],
-                    ['Cylindree', $vehicle->engine_displacement ? $vehicle->engine_displacement . ' cm3' : null],
+                    ['Cylindrée', $vehicle->engine_displacement ? $vehicle->engine_displacement . ' cm3' : null],
                     ['Nombre de places', $vehicle->seats_count],
                     ['Charge utile', $vehicle->load_capacity ? $vehicle->load_capacity . ' kg' : null],
-                    ['Kilometrage', $vehicle->mileage !== null ? number_format($vehicle->mileage, 0, ',', ' ') . ' km' : null],
+                    ['Kilométrage', $vehicle->mileage !== null ? number_format($vehicle->mileage, 0, ',', ' ') . ' km' : null],
                 ] as [$label, $value])
                 <div>
                     <p class="text-[11px] uppercase tracking-wide text-slate-400">{{ $label }}</p>
@@ -316,7 +318,7 @@
 
         {{-- 4. Statut & Equipement --}}
         <div class="px-6 py-5">
-            <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Statut & Equipement</h3>
+            <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Statut & Équipement</h3>
             <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
                 <div>
                     <p class="text-[11px] uppercase tracking-wide text-slate-400">Statut</p>
@@ -327,15 +329,15 @@
                     <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->structure_ci ?? '-' }}</p>
                 </div>
                 <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Arceaux de securite</p>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Arceaux de sécurité</p>
                     <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->has_roll_bars !== null ? ($vehicle->has_roll_bars ? 'Oui' : 'Non') : '-' }}</p>
                 </div>
                 <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Equipement special</p>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Équipement spécial</p>
                     <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->special_equipment ?? '-' }}</p>
                 </div>
                 <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Controle technique</p>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Contrôle technique</p>
                     <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->technical_inspection_date?->format('d/m/Y') ?? '-' }}</p>
                 </div>
             </div>
@@ -348,11 +350,11 @@
             <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Assurance</h3>
             <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
                 @foreach([
-                    ['Assure', $vehicle->is_insured !== null ? ($vehicle->is_insured ? 'Oui' : 'Non') : null],
+                    ['Assuré', $vehicle->is_insured !== null ? ($vehicle->is_insured ? 'Oui' : 'Non') : null],
                     ['Compagnie', $vehicle->insurance_company],
-                    ['Numero de police', $vehicle->policy_number],
+                    ['Numéro de police', $vehicle->policy_number],
                     ['Couverture', $vehicle->coverage_type],
-                    ['Date debut', $vehicle->insurance_start_date?->format('d/m/Y')],
+                    ['Date début', $vehicle->insurance_start_date?->format('d/m/Y')],
                     ['Date fin', $vehicle->insurance_end_date?->format('d/m/Y')],
                 ] as [$label, $value])
                 <div>
@@ -393,11 +395,11 @@
                 @foreach([
                     ['Mode de financement', $vehicle->financing_mode],
                     ['Banque', $vehicle->bank_name],
-                    ['Numero de contrat', $vehicle->contract_number],
-                    ['Debut prelevement', $vehicle->withdrawal_start_date?->format('d/m/Y')],
-                    ['Fin prelevement', $vehicle->withdrawal_end_date?->format('d/m/Y')],
-                    ['Debut contrat', $vehicle->contract_start_date?->format('d/m/Y')],
-                    ['Mise a disposition', $vehicle->provision_date?->format('d/m/Y')],
+                    ['Numéro de contrat', $vehicle->contract_number],
+                    ['Début prélèvement', $vehicle->withdrawal_start_date?->format('d/m/Y')],
+                    ['Fin prélèvement', $vehicle->withdrawal_end_date?->format('d/m/Y')],
+                    ['Début contrat', $vehicle->contract_start_date?->format('d/m/Y')],
+                    ['Mise à disposition', $vehicle->provision_date?->format('d/m/Y')],
                 ] as [$label, $value])
                 <div>
                     <p class="text-[11px] uppercase tracking-wide text-slate-400">{{ $label }}</p>
@@ -467,7 +469,7 @@
     {{-- Photos --}}
     @if($vehicle->photos && $vehicle->photos->count())
         <div class="bg-white mt-8"
-             x-init="galleryPhotos = {{ Js::from($vehicle->photos->map(fn($p) => ['url' => $p->url, 'type' => $photoTypeLabels[$p->photo_type] ?? $p->photo_type ?? 'Photo vehicule'])->values()) }}">
+             x-init="galleryPhotos = {{ Js::from($vehicle->photos->map(fn($p) => ['url' => $p->url, 'type' => $photoTypeLabels[$p->photo_type] ?? $p->photo_type ?? 'Photo véhicule'])->values()) }}">
             <div class="px-6 py-5">
                 <div class="flex items-center gap-2 mb-4">
                     <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Photos</h3>
@@ -479,7 +481,7 @@
                              @click="openGallery({{ $index }})">
                             <div class="aspect-square relative">
                                 <img src="{{ $photo->url }}"
-                                     alt="{{ $photoTypeLabels[$photo->photo_type] ?? $photo->photo_type ?? 'Photo vehicule' }}"
+                                     alt="{{ $photoTypeLabels[$photo->photo_type] ?? $photo->photo_type ?? 'Photo véhicule' }}"
                                      class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                                      loading="lazy">
                                 <div class="absolute inset-0 bg-black/0 group-hover:bg-[#2AAE64]/20 transition-colors duration-200 flex items-center justify-center">
@@ -670,7 +672,7 @@
                  x-transition:leave-end="opacity-0 scale-95"
                  class="w-full max-w-md bg-white p-6">
                 <div class="mb-5">
-                    <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Valider le vehicule</h3>
+                    <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Valider le véhicule</h3>
                     <p class="mt-1 text-sm text-slate-500">{{ $vehicle->registration_number }}</p>
                 </div>
 
@@ -722,7 +724,7 @@
                  x-transition:leave-end="opacity-0 scale-95"
                  class="w-full max-w-md bg-white p-6">
                 <div class="mb-5">
-                    <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Rejeter le vehicule</h3>
+                    <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Rejeter le véhicule</h3>
                     <p class="mt-1 text-sm text-slate-500">{{ $vehicle->registration_number }}</p>
                 </div>
 
@@ -736,7 +738,7 @@
                                 class="block w-full rounded-none border bg-white py-2 pl-3 pr-8 text-sm text-slate-900 focus:outline-none focus:ring-0 transition"
                                 :class="rejectErrors.reason ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                 @change="delete rejectErrors.reason">
-                            <option value="">Selectionnez un motif</option>
+                            <option value="">Sélectionnez un motif</option>
                             @foreach($rejectionReasons as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
@@ -744,12 +746,12 @@
                         <p x-show="rejectErrors.reason" x-text="rejectErrors.reason" class="mt-1 text-[12px] text-red-500"></p>
                     </div>
                     <div class="mb-4">
-                        <label for="reject_comment" class="mb-1.5 block text-[11px] uppercase tracking-wide text-slate-400">Commentaire <span class="text-red-600">*</span> <span class="normal-case text-slate-300">(min. 20 caracteres)</span></label>
+                        <label for="reject_comment" class="mb-1.5 block text-[11px] uppercase tracking-wide text-slate-400">Commentaire <span class="text-red-600">*</span> <span class="normal-case text-slate-300">(min. 20 caractères)</span></label>
                         <textarea id="reject_comment"
                                   name="rejection_comment"
                                   x-ref="rejection_comment"
                                   rows="3"
-                                  placeholder="Preciser le motif du rejet (min. 20 caracteres)..."
+                                  placeholder="Préciser le motif du rejet (min. 20 caractères)..."
                                   class="block w-full rounded-none border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 transition"
                                   :class="rejectErrors.comment ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                   @input="delete rejectErrors.comment"></textarea>

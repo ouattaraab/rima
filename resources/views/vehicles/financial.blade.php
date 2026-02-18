@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Données financières')
-@section('header', 'Données financières')
+@section('title', 'Donn&eacute;es financi&egrave;res')
+@section('header', 'Donn&eacute;es financi&egrave;res')
 
 @section('content')
 <div class="mx-auto max-w-4xl"
@@ -21,7 +21,7 @@
     {{-- Back link --}}
     <a href="{{ route('vehicles.show', $vehicle) }}" class="inline-flex items-center gap-1.5 text-[12px] text-slate-500 underline hover:text-slate-900 transition mb-6">
         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
-        Retour à la fiche
+        Retour &agrave; la fiche
     </a>
 
     <form method="POST" action="{{ route('vehicles.updateFinancial', $vehicle->id) }}" novalidate
@@ -33,7 +33,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
             <div>
                 <p class="text-[13px] font-semibold text-slate-900">Mode de financement</p>
-                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Définit comment le véhicule a été acquis par la SODECI.</p>
+                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">D&eacute;finit comment le v&eacute;hicule a &eacute;t&eacute; acquis par la SODECI.</p>
             </div>
             <div class="lg:col-span-2">
                 <div class="flex items-center gap-6">
@@ -59,7 +59,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
                 <div>
                     <p class="text-[13px] font-semibold text-slate-900">Informations leasing</p>
-                    <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Banque, numéro de contrat et période de prélèvement du leasing.</p>
+                    <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Banque, num&eacute;ro de contrat et p&eacute;riode de pr&eacute;l&egrave;vement du leasing.</p>
                 </div>
                 <div class="lg:col-span-2 space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -73,8 +73,8 @@
                             @error('bank_name')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
                         </div>
                         <div>
-                            <label for="contract_number" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Numéro de contrat <span class="text-red-500">*</span></label>
-                            <input type="text" name="contract_number" id="contract_number" x-ref="contract_number" value="{{ old('contract_number', $vehicle->contract_number) }}" placeholder="Numéro du contrat"
+                            <label for="contract_number" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Num&eacute;ro de contrat <span class="text-red-500">*</span></label>
+                            <input type="text" name="contract_number" id="contract_number" x-ref="contract_number" value="{{ old('contract_number', $vehicle->contract_number) }}" placeholder="Num&eacute;ro du contrat"
                                    class="w-full h-10 px-3 border focus:outline-none focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 transition"
                                    :class="errors.contract_number ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                    @input="delete errors.contract_number">
@@ -84,13 +84,13 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="withdrawal_start_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date début prélèvement</label>
+                            <label for="withdrawal_start_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date d&eacute;but pr&eacute;l&egrave;vement</label>
                             <input type="date" name="withdrawal_start_date" id="withdrawal_start_date" value="{{ old('withdrawal_start_date', $vehicle->withdrawal_start_date?->format('Y-m-d')) }}"
                                    class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
                             @error('withdrawal_start_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
                         </div>
                         <div>
-                            <label for="withdrawal_end_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date fin prélèvement</label>
+                            <label for="withdrawal_end_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date fin pr&eacute;l&egrave;vement</label>
                             <input type="date" name="withdrawal_end_date" id="withdrawal_end_date" value="{{ old('withdrawal_end_date', $vehicle->withdrawal_end_date?->format('Y-m-d')) }}"
                                    class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
                             @error('withdrawal_end_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
@@ -104,17 +104,17 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
             <div>
                 <p class="text-[13px] font-semibold text-slate-900">Dates du contrat</p>
-                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Date de début du contrat et date de mise à disposition du véhicule.</p>
+                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Date de d&eacute;but du contrat et date de mise &agrave; disposition du v&eacute;hicule.</p>
             </div>
             <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="contract_start_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date début contrat</label>
+                    <label for="contract_start_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date d&eacute;but contrat</label>
                     <input type="date" name="contract_start_date" id="contract_start_date" value="{{ old('contract_start_date', $vehicle->contract_start_date?->format('Y-m-d')) }}"
                            class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
                     @error('contract_start_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="provision_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date mise à disposition</label>
+                    <label for="provision_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date mise &agrave; disposition</label>
                     <input type="date" name="provision_date" id="provision_date" value="{{ old('provision_date', $vehicle->provision_date?->format('Y-m-d')) }}"
                            class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
                     @error('provision_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror

@@ -15,7 +15,7 @@ class UploadPhotoRequest extends FormRequest
     {
         return [
             'vehicle_id' => 'required|uuid|exists:vehicles,id',
-            'photo_type' => 'required|in:front,rear,side,additional,registration_card,chassis',
+            'photo_type' => 'required|in:front,rear,side,additional,registration_card,chassis,driver_license,registration_plate,temp_registration_plate',
             'file' => 'required|file|mimes:jpeg,jpg,png|max:10240',
             'comment' => 'nullable|string|max:500',
         ];

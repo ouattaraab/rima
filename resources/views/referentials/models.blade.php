@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Modeles')
-@section('header', 'Modeles')
+@section('title', 'Mod&egrave;les')
+@section('header', 'Mod&egrave;les')
 
 @section('content')
 <div x-data="{
@@ -32,7 +32,7 @@
 
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
-        <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Modeles</p>
+        <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Mod&egrave;les</p>
         <div class="flex items-center gap-2">
             <a href="{{ route('referentials.models.export') }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
@@ -44,7 +44,7 @@
             </button>
             <button @click="addErrors = {}; showAddModal = true" class="inline-flex items-center gap-2 rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Ajouter un modele
+                Ajouter un mod&egrave;le
             </button>
         </div>
     </div>
@@ -56,7 +56,7 @@
                 <tr class="border-b border-slate-200">
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Marque</th>
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Nom</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Categorie</th>
+                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Cat&eacute;gorie</th>
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Statut</th>
                     <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Actions</th>
                 </tr>
@@ -83,8 +83,8 @@
                 @empty
                 <tr>
                     <td colspan="5" class="px-5 py-16 text-center">
-                        <p class="text-[13px] text-slate-400">Aucun modele trouve</p>
-                        <p class="text-[11px] text-slate-300 mt-1">Commencez par ajouter un modele</p>
+                        <p class="text-[13px] text-slate-400">Aucun mod&egrave;le trouv&eacute;</p>
+                        <p class="text-[11px] text-slate-300 mt-1">Commencez par ajouter un mod&egrave;le</p>
                     </td>
                 </tr>
                 @endforelse
@@ -103,7 +103,7 @@
         <div x-show="showAddModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="showAddModal = false" x-cloak>
             <div x-show="showAddModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-200">
-                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Ajouter un modele</p>
+                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Ajouter un mod&egrave;le</p>
                 </div>
                 <form action="{{ route('referentials.models.store') }}" method="POST" novalidate @submit="validateAdd($event)">
                     @csrf
@@ -114,7 +114,7 @@
                                 class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
                                 :class="addErrors.brand_id ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                 @change="delete addErrors.brand_id">
-                                <option value="">Selectionner une marque</option>
+                                <option value="">S&eacute;lectionner une marque</option>
                                 @foreach($brands as $brand)
                                     <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
                                 @endforeach
@@ -126,7 +126,7 @@
                         </div>
                         <div>
                             <label for="add-name" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Nom</label>
-                            <input type="text" name="name" id="add-name" x-ref="add_name" value="{{ old('name') }}" placeholder="Nom du modele"
+                            <input type="text" name="name" id="add-name" x-ref="add_name" value="{{ old('name') }}" placeholder="Nom du mod&egrave;le"
                                 class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
                                 :class="addErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                 @input="delete addErrors.name">
@@ -136,10 +136,10 @@
                             @enderror
                         </div>
                         <div>
-                            <label for="add-category" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Categorie</label>
+                            <label for="add-category" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Cat&eacute;gorie</label>
                             <select name="category" id="add-category"
                                 class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0 transition">
-                                <option value="">Selectionner une categorie</option>
+                                <option value="">S&eacute;lectionner une cat&eacute;gorie</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->name }}" {{ old('category') == $cat->name ? 'selected' : '' }}>{{ $cat->name }}</option>
                                 @endforeach
@@ -163,7 +163,7 @@
         <div x-show="showEditModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="showEditModal = false" x-cloak>
             <div x-show="showEditModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-200">
-                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Modifier le modele</p>
+                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Modifier le mod&egrave;le</p>
                 </div>
                 <form :action="'{{ route('referentials.models.update', ':id') }}'.replace(':id', editItem.id)" method="POST" novalidate @submit="validateEdit($event)">
                     @csrf
@@ -175,7 +175,7 @@
                                 class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
                                 :class="editErrors.brand_id ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                 @change="delete editErrors.brand_id">
-                                <option value="">Selectionner une marque</option>
+                                <option value="">S&eacute;lectionner une marque</option>
                                 @foreach($brands as $brand)
                                     <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                                 @endforeach
@@ -197,10 +197,10 @@
                             @enderror
                         </div>
                         <div>
-                            <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Categorie</label>
+                            <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Cat&eacute;gorie</label>
                             <select name="category" x-model="editItem.category"
                                 class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0 transition">
-                                <option value="">Selectionner une categorie</option>
+                                <option value="">S&eacute;lectionner une cat&eacute;gorie</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->name }}">{{ $cat->name }}</option>
                                 @endforeach
@@ -212,7 +212,7 @@
                         <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
                             <div>
                                 <p class="text-[13px] font-medium text-slate-900">Statut</p>
-                                <p class="text-[12px] text-slate-400">Activer ou desactiver cet element</p>
+                                <p class="text-[12px] text-slate-400">Activer ou d&eacute;sactiver cet &eacute;l&eacute;ment</p>
                             </div>
                             <div class="flex items-center">
                                 <input type="hidden" name="is_active" value="0">
@@ -226,7 +226,7 @@
                     </div>
                     <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
                         <button type="button" @click="showEditModal = false" class="rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">Annuler</button>
-                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Mettre a jour</button>
+                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Mettre &agrave; jour</button>
                     </div>
                 </form>
             </div>
@@ -238,12 +238,12 @@
         <div x-show="showImportModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="showImportModal = false" x-cloak>
             <div x-show="showImportModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-200">
-                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Importer des modeles</p>
+                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Importer des mod&egrave;les</p>
                 </div>
                 <form action="{{ route('referentials.models.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="p-6 space-y-4">
-                        <p class="text-[13px] text-slate-500">Selectionnez un fichier Excel (.xlsx, .xls) ou CSV contenant les colonnes <strong>Marque</strong>, <strong>Nom</strong> et optionnellement <strong>Categorie</strong>.</p>
+                        <p class="text-[13px] text-slate-500">S&eacute;lectionnez un fichier Excel (.xlsx, .xls) ou CSV contenant les colonnes <strong>Marque</strong>, <strong>Nom</strong> et optionnellement <strong>Cat&eacute;gorie</strong>.</p>
                         <div>
                             <label for="import-file" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Fichier</label>
                             <input type="file" name="file" id="import-file" accept=".xlsx,.xls,.csv" required

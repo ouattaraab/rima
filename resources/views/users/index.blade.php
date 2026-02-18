@@ -32,7 +32,7 @@
             </div>
             <div class="sm:w-48">
                 <select name="role" class="filter-input w-full">
-                    <option value="">Tous les roles</option>
+                    <option value="">Tous les r&ocirc;les</option>
                     <option value="agent_cidec" {{ request('role') === 'agent_cidec' ? 'selected' : '' }}>Agent CIDEC</option>
                     <option value="supervisor_cidec" {{ request('role') === 'supervisor_cidec' ? 'selected' : '' }}>Superviseur CIDEC</option>
                     <option value="supervisor_sodeci" {{ request('role') === 'supervisor_sodeci' ? 'selected' : '' }}>Superviseur SODECI</option>
@@ -51,7 +51,7 @@
                     Filtrer
                 </button>
                 @if(request()->hasAny(['search', 'role', 'organization']))
-                    <a href="{{ route('users.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Reinitialiser</a>
+                    <a href="{{ route('users.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">R&eacute;initialiser</a>
                 @endif
             </div>
         </form>
@@ -64,11 +64,11 @@
                 <tr class="border-b border-slate-200">
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Utilisateur</th>
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Email</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Role</th>
+                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">R&ocirc;le</th>
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Organisation</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Region</th>
+                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">R&eacute;gion</th>
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Statut</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Derniere connexion</th>
+                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Derni&egrave;re connexion</th>
                     <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Actions</th>
                 </tr>
             </thead>
@@ -124,7 +124,7 @@
                         <td colspan="8" class="px-5 py-16 text-center">
                             <div class="flex flex-col items-center">
                                 <svg class="w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                                <p class="text-[13px] font-medium text-slate-900">Aucun utilisateur trouve</p>
+                                <p class="text-[13px] font-medium text-slate-900">Aucun utilisateur trouv&eacute;</p>
                                 <p class="text-[12px] text-slate-400 mt-1">Modifiez vos filtres ou ajoutez un utilisateur</p>
                             </div>
                         </td>

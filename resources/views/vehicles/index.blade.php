@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Vehicules')
-@section('header', 'Vehicules')
+@section('title', 'V&eacute;hicules')
+@section('header', 'V&eacute;hicules')
 
 @section('content')
 <div class="space-y-5">
@@ -9,7 +9,7 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <p class="text-[13px] text-slate-500">
-            <span class="font-semibold text-slate-900">{{ $vehicles->total() }}</span> véhicule(s) trouvé(s)
+            <span class="font-semibold text-slate-900">{{ $vehicles->total() }}</span> v&eacute;hicule(s) trouv&eacute;(s)
         </p>
         <div class="flex items-center gap-2">
             <a href="{{ route('vehicles.export') }}?{{ request()->getQueryString() }}"
@@ -48,16 +48,16 @@
                     <select name="form_status" class="filter-input flex-1 min-w-0">
                         <option value="">Fiche : Tous</option>
                         <option value="draft" @selected(request('form_status') === 'draft')>Brouillon</option>
-                        <option value="synchronized" @selected(request('form_status') === 'synchronized')>Synchronisé</option>
-                        <option value="validated" @selected(request('form_status') === 'validated')>Validé</option>
-                        <option value="rejected" @selected(request('form_status') === 'rejected')>Rejeté</option>
+                        <option value="synchronized" @selected(request('form_status') === 'synchronized')>Synchronis&eacute;</option>
+                        <option value="validated" @selected(request('form_status') === 'validated')>Valid&eacute;</option>
+                        <option value="rejected" @selected(request('form_status') === 'rejected')>Rejet&eacute;</option>
                     </select>
                     <select name="vehicle_status" class="filter-input flex-1 min-w-0">
                         <option value="">Statut : Tous</option>
                         <option value="En service" @selected(request('vehicle_status') === 'En service')>En service</option>
-                        <option value="En reparation" @selected(request('vehicle_status') === 'En reparation')>En réparation</option>
-                        <option value="Reforme" @selected(request('vehicle_status') === 'Reforme')>Réformé</option>
-                        <option value="Cede" @selected(request('vehicle_status') === 'Cede')>Cédé</option>
+                        <option value="En reparation" @selected(request('vehicle_status') === 'En reparation')>En r&eacute;paration</option>
+                        <option value="Reforme" @selected(request('vehicle_status') === 'Reforme')>R&eacute;form&eacute;</option>
+                        <option value="Cede" @selected(request('vehicle_status') === 'Cede')>C&eacute;d&eacute;</option>
                     </select>
                     <select name="vehicle_type" class="filter-input flex-1 min-w-0">
                         <option value="">Type : Tous</option>
@@ -65,7 +65,7 @@
                         <option value="Moto" @selected(request('vehicle_type') === 'Moto')>Moto</option>
                     </select>
                     <select name="category" class="filter-input flex-1 min-w-0">
-                        <option value="">Catégorie : Toutes</option>
+                        <option value="">Cat&eacute;gorie : Toutes</option>
                         <option value="Berline" @selected(request('category') === 'Berline')>Berline</option>
                         <option value="Pick-up" @selected(request('category') === 'Pick-up')>Pick-up</option>
                         <option value="Utilitaire" @selected(request('category') === 'Utilitaire')>Utilitaire</option>
@@ -87,7 +87,7 @@
                         @endforeach
                     </select>
                     <select name="region" class="filter-input flex-1 min-w-0">
-                        <option value="">Région : Toutes</option>
+                        <option value="">R&eacute;gion : Toutes</option>
                         @foreach($regions as $r)
                             <option value="{{ $r }}" @selected(request('region') === $r)>{{ $r }}</option>
                         @endforeach
@@ -98,7 +98,7 @@
                            class="filter-input">
                     <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">Filtrer</button>
                     @if(request()->hasAny(['form_status', 'vehicle_status', 'vehicle_type', 'category', 'brand', 'agent', 'region', 'date_from', 'date_to']))
-                        <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Réinitialiser</a>
+                        <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">R&eacute;initialiser</a>
                     @endif
                 </div>
         </form>
@@ -108,8 +108,8 @@
     <div>
         @if($vehicles->isEmpty())
             <div class="flex flex-col items-center justify-center px-6 py-16">
-                <p class="text-[13px] font-medium text-slate-900">Aucun véhicule trouvé</p>
-                <p class="text-[12px] text-slate-400 mt-1">Essayez de modifier vos critères de recherche.</p>
+                <p class="text-[13px] font-medium text-slate-900">Aucun v&eacute;hicule trouv&eacute;</p>
+                <p class="text-[12px] text-slate-400 mt-1">Essayez de modifier vos crit&egrave;res de recherche.</p>
             </div>
         @else
             <div class="overflow-x-auto">
@@ -127,7 +127,7 @@
                                 'category' => 'Catégorie',
                                 'vehicle_type' => 'Type',
                                 'form_status' => 'Statut fiche',
-                                'status' => 'Statut vehicule',
+                                'status' => 'Statut véhicule',
                                 'collected_by' => 'Agent',
                                 'collected_at' => 'Date',
                             ] as $sortField => $label)

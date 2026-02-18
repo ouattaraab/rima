@@ -80,7 +80,7 @@
                             <input type="checkbox" name="remember" id="remember" class="w-3.5 h-3.5 border-slate-300 text-[#2DB56B] focus:ring-0 focus:ring-offset-0">
                             <label for="remember" class="text-[13px] text-slate-500 select-none">Se souvenir de moi</label>
                         </div>
-                        <a href="#" class="text-[13px] text-slate-500 hover:text-slate-900 underline transition">Mot de passe oublie ?</a>
+                        <a href="#" class="text-[13px] text-slate-500 hover:text-slate-900 underline transition">Mot de passe oublié ?</a>
                     </div>
 
                     <button type="submit" class="w-full h-10 bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-sm font-medium rounded-full transition">

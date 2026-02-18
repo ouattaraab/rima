@@ -35,11 +35,11 @@
         this.showEditModal = true;
     },
     typeLabels: {
-        vehicle_type: 'Type de vehicule',
-        category: 'Categorie',
+        vehicle_type: 'Type de véhicule',
+        category: 'Catégorie',
         fuel_type: 'Carburant',
         transmission: 'Transmission',
-        status: 'Statut vehicule',
+        status: 'Statut véhicule',
         contract_type: 'Type de contrat',
         coverage_type: 'Type de couverture',
         color: 'Couleur'
@@ -118,7 +118,7 @@
                 @empty
                 <tr>
                     <td colspan="6" class="px-5 py-16 text-center">
-                        <p class="text-[13px] text-slate-400">Aucune option trouvee</p>
+                        <p class="text-[13px] text-slate-400">Aucune option trouvée</p>
                         <p class="text-[11px] text-slate-300 mt-1">Commencez par ajouter une option</p>
                     </td>
                 </tr>
@@ -148,7 +148,7 @@
                             <select name="type" x-ref="add_type"
                                 class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
                                 :class="addErrors.type ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
-                                <option value="">Selectionner un type</option>
+                                <option value="">Sélectionner un type</option>
                                 @foreach($types as $t)
                                     <option value="{{ $t }}">{{ $t }}</option>
                                 @endforeach
@@ -237,7 +237,7 @@
                         <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
                             <div>
                                 <p class="text-[13px] font-medium text-slate-900">Statut</p>
-                                <p class="text-[12px] text-slate-400">Activer ou desactiver cet element</p>
+                                <p class="text-[12px] text-slate-400">Activer ou désactiver cet élément</p>
                             </div>
                             <div class="flex items-center">
                                 <input type="hidden" name="is_active" value="0">
@@ -251,7 +251,7 @@
                     </div>
                     <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
                         <button type="button" @click="showEditModal = false" class="rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">Annuler</button>
-                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Mettre a jour</button>
+                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Mettre à jour</button>
                     </div>
                 </form>
             </div>

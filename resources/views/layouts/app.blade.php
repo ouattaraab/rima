@@ -36,7 +36,7 @@
 
                 <a href="{{ route('vehicles.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition {{ request()->routeIs('vehicles.*') ? 'text-[#2DB56B] bg-[#ECFDF5]' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
-                    Vehicules
+                    Véhicules
                 </a>
 
                 @if(in_array(auth()->user()->role, ['supervisor_sodeci', 'admin_sodeci']))
@@ -45,12 +45,12 @@
 
                     <a href="{{ route('reports.regional') }}" class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition {{ request()->routeIs('reports.regional') ? 'text-[#2DB56B] bg-[#ECFDF5]' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
-                        Avancement regional
+                        Avancement régional
                     </a>
 
                     <a href="{{ route('reports.compliance') }}" class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition {{ request()->routeIs('reports.compliance*') ? 'text-[#2DB56B] bg-[#ECFDF5]' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
-                        Conformite
+                        Conformité
                     </a>
                 </div>
                 @endif
@@ -63,18 +63,18 @@
                         <button @click="open = !open" class="flex items-center justify-between w-full px-3 py-2 text-[13px] font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition">
                             <span class="flex items-center gap-2.5">
                                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125v-3.75"/></svg>
-                                Referentiels
+                                Référentiels
                             </span>
                             <svg :class="open && 'rotate-90'" class="w-3.5 h-3.5 text-slate-400 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                         </button>
                         <div x-show="open" x-collapse x-cloak class="ml-7 mt-0.5 space-y-0.5 border-l border-slate-200 pl-3">
                             <a href="{{ route('referentials.brands') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.brands*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Marques</a>
-                            <a href="{{ route('referentials.models') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.models*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Modeles</a>
+                            <a href="{{ route('referentials.models') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.models*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Modèles</a>
                             <a href="{{ route('referentials.structures') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.structures*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Structures</a>
                             <a href="{{ route('referentials.insurances') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.insurances*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Assurances</a>
                             <a href="{{ route('referentials.directions') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.directions*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Directions</a>
-                            <a href="{{ route('referentials.vehicle-types') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.vehicle-types*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Types vehicule</a>
-                            <a href="{{ route('referentials.vehicle-categories') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.vehicle-categories*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Categories</a>
+                            <a href="{{ route('referentials.vehicle-types') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.vehicle-types*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Types véhicule</a>
+                            <a href="{{ route('referentials.vehicle-categories') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.vehicle-categories*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Catégories</a>
                             <a href="{{ route('referentials.fuel-types') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.fuel-types*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Carburants</a>
                             <a href="{{ route('referentials.transmissions') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.transmissions*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Transmissions</a>
                             <a href="{{ route('referentials.vehicle-statuses') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.vehicle-statuses*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Statuts</a>
@@ -149,7 +149,7 @@
                                 <p class="text-[11px] text-slate-400">{{ auth()->user()->email }}</p>
                             </div>
                             <form method="POST" action="{{ route('logout') }}">@csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 text-[13px] text-red-600 hover:bg-red-50/50 transition">Deconnexion</button>
+                                <button type="submit" class="w-full text-left px-4 py-2 text-[13px] text-red-600 hover:bg-red-50/50 transition">Déconnexion</button>
                             </form>
                         </div>
                     </div>

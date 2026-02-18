@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Vehicules')
-@section('header', 'Vehicules')
+@section('title', 'Véhicules')
+@section('header', 'Véhicules')
 
 @section('content')
 <div class="space-y-5">
@@ -127,7 +127,7 @@
                                 'category' => 'Catégorie',
                                 'vehicle_type' => 'Type',
                                 'form_status' => 'Statut fiche',
-                                'status' => 'Statut vehicule',
+                                'status' => 'Statut véhicule',
                                 'collected_by' => 'Agent',
                                 'collected_at' => 'Date',
                             ] as $sortField => $label)

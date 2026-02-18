@@ -38,7 +38,7 @@ class UpdateVehicleRequest extends FormRequest
                 'nullable', 'string', 'max:10', 'regex:/^[A-Z0-9\s\-]+$/i',
                 Rule::unique('vehicles')->ignore($this->route('vehicle')),
             ],
-            'temporary_registration' => 'nullable|string|max:10|regex:/^[A-Z0-9\s\-]+$/i',
+            'temporary_registration' => 'nullable|string|max:30|regex:/^[A-Z0-9\s\-]+$/i',
             'chassis_number' => 'nullable|string|max:30|regex:/^[A-Z0-9]+$/i',
             'chassis_readable' => 'sometimes|boolean',
 

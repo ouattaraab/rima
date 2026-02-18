@@ -32,7 +32,7 @@ class StoreVehicleRequest extends FormRequest
                 Rule::unique('vehicles')->ignore($this->route('vehicle')),
                 'required_without:temporary_registration',
             ],
-            'temporary_registration' => 'nullable|string|max:10|regex:/^[A-Z0-9\s\-]+$/i|required_without:registration_number',
+            'temporary_registration' => 'nullable|string|max:30|regex:/^[A-Z0-9\s\-]+$/i|required_without:registration_number',
             'chassis_number' => 'nullable|string|max:30|regex:/^[A-Z0-9]+$/i',
             'chassis_readable' => 'required|boolean',
 

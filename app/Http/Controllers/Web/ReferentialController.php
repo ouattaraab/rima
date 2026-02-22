@@ -86,8 +86,9 @@ class ReferentialController extends Controller
     }
     public function importStructures(Request $request) {
         $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);
-        Excel::import(new StructuresImport(), $request->file('file'));
-        return back()->with('success', 'Import des structures effectue avec succes.');
+        $import = new StructuresImport();
+        Excel::import($import, $request->file('file'));
+        return back()->with('success', "{$import->imported} structure(s) importee(s), {$import->updated} mise(s) a jour, {$import->skipped} ignoree(s).");
     }
 
     // ===================== INSURANCES =====================

@@ -8,23 +8,40 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class StructuresImport implements ToModel, WithHeadingRow
 {
+    public int $imported = 0;
+    public int $updated = 0;
+    public int $skipped = 0;
+
     public function model(array $row)
     {
-        $code = trim($row['code'] ?? '');
-        $name = trim($row['nom'] ?? '');
+        // Support both old format (code/nom/region) and SODECI format (ci/exploitation/libelle_direction/site/type_direction)
+        $code = trim($row['ci'] ?? $row['code'] ?? '');
+        $name = trim($row['exploitation'] ?? $row['nom'] ?? '');
 
         if (empty($code) || empty($name)) {
+            $this->skipped++;
             return null;
         }
 
-        Structure::updateOrCreate(
-            ['code' => $code],
-            [
+        $region = trim($row['libelle_direction'] ?? $row['region'] ?? '') ?: null;
+
+        $existing = Structure::where('code', $code)->first();
+        if ($existing) {
+            $existing->update([
                 'name' => $name,
-                'region' => trim($row['region'] ?? '') ?: null,
+                'region' => $region,
                 'is_active' => true,
-            ]
-        );
+            ]);
+            $this->updated++;
+        } else {
+            Structure::create([
+                'code' => $code,
+                'name' => $name,
+                'region' => $region,
+                'is_active' => true,
+            ]);
+            $this->imported++;
+        }
 
         return null;
     }

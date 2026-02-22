@@ -9,7 +9,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h2 class="text-base font-semibold text-slate-900">Journal d'audit</h2>
-            <p class="text-[13px] text-slate-400 mt-0.5">Historique de toutes les actions effectu&eacute;es dans le syst&egrave;me</p>
+            <p class="text-[13px] text-slate-400 mt-0.5">Historique de toutes les actions effectuées dans le système</p>
         </div>
         <a href="{{ route('audit.export', request()->only(['action', 'entity_type', 'user_id', 'date_from', 'date_to', 'source'])) }}"
            class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-900 text-[13px] font-medium px-5 h-10 transition-colors">
@@ -28,7 +28,7 @@
                 @endforeach
             </select>
             <select name="entity_type" class="filter-input flex-1 min-w-0">
-                <option value="">Entit&eacute; : Toutes</option>
+                <option value="">Entité : Toutes</option>
                 @foreach($entityTypes as $type)
                     <option value="{{ $type }}" {{ request('entity_type') === $type ? 'selected' : '' }}>{{ $type }}</option>
                 @endforeach
@@ -44,7 +44,7 @@
                 Filtrer
             </button>
             @if(request()->hasAny(['action', 'entity_type', 'date_from', 'date_to', 'source']))
-                <a href="{{ route('audit.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">R&eacute;initialiser</a>
+                <a href="{{ route('audit.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Réinitialiser</a>
             @endif
         </form>
     </div>
@@ -58,8 +58,8 @@
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Source</th>
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Utilisateur</th>
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Action</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Entit&eacute;</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">D&eacute;tails</th>
+                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Entité</th>
+                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Détails</th>
                 </tr>
             </thead>
             @if($logs->count())
@@ -112,7 +112,7 @@
                             @if($log->request_body)
                                 <button @click="expanded = !expanded" class="inline-flex items-center gap-1.5 text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">
                                     <svg :class="expanded && 'rotate-90'" class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                    <span x-text="expanded ? 'Masquer' : 'Voir les d&eacute;tails'"></span>
+                                    <span x-text="expanded ? 'Masquer' : 'Voir les détails'"></span>
                                 </button>
                             @else
                                 <span class="text-[12px] text-slate-300">---</span>
@@ -123,7 +123,7 @@
                     <tr x-show="expanded" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak>
                         <td colspan="6" class="px-5 py-4 bg-slate-50/50">
                             <div class="max-w-4xl">
-                                <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Donn&eacute;es envoy&eacute;es</p>
+                                <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Données envoyées</p>
                                 <div class="bg-white p-3 overflow-x-auto">
                                     <pre class="text-[12px] text-slate-600 whitespace-pre-wrap break-words font-mono">{{ json_encode($log->request_body, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                                 </div>
@@ -139,8 +139,8 @@
                         <td colspan="6" class="px-5 py-16 text-center">
                             <div class="flex flex-col items-center">
                                 <svg class="w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                <p class="text-[13px] font-medium text-slate-900">Aucune entr&eacute;e trouv&eacute;e</p>
-                                <p class="text-[12px] text-slate-400 mt-1">Modifiez vos filtres pour voir d'autres r&eacute;sultats</p>
+                                <p class="text-[13px] font-medium text-slate-900">Aucune entrée trouvée</p>
+                                <p class="text-[12px] text-slate-400 mt-1">Modifiez vos filtres pour voir d'autres résultats</p>
                             </div>
                         </td>
                     </tr>

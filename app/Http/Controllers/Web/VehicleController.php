@@ -42,8 +42,9 @@ class VehicleController extends Controller
         if ($request->filled('date_from')) $query->whereDate('collected_at', '>=', $request->date_from);
         if ($request->filled('date_to')) $query->whereDate('collected_at', '<=', $request->date_to);
         if ($request->filled('agent')) $query->where('collected_by', $request->agent);
-        if ($request->filled('region')) {
-            $query->whereHas('collector', fn($q) => $q->where('region', $request->region));
+        if ($request->filled('structures')) {
+            $structureCodes = $request->structures;
+            $query->whereIn('structure_ci', $structureCodes);
         }
 
         $sort = $request->get('sort', 'collected_at');
@@ -55,13 +56,9 @@ class VehicleController extends Controller
         $vehicles = $query->paginate(20)->withQueryString();
         $brands = Vehicle::distinct()->whereNotNull('brand')->pluck('brand')->sort()->values();
         $agents = User::where('role', 'agent_cidec')->where('is_active', true)->orderBy('last_name')->get();
-        $regions = \App\Models\Structure::where('is_active', true)
-            ->whereNotNull('region')
-            ->distinct()
-            ->orderBy('region')
-            ->pluck('region');
+        $structures = \App\Models\Structure::where('is_active', true)->orderBy('code')->get();
 
-        return view('vehicles.index', compact('vehicles', 'brands', 'agents', 'regions'));
+        return view('vehicles.index', compact('vehicles', 'brands', 'agents', 'structures'));
     }
 
     public function show(string $id)
@@ -117,6 +114,15 @@ class VehicleController extends Controller
             $insuranceOk = true;
             if ($vehicle->status === 'En service' && !$vehicle->is_insured) $insuranceOk = false;
             $checks[] = ['label' => 'Assurance (obligatoire si en service)', 'ok' => $insuranceOk];
+
+            // Financial data completeness
+            $financialFields = ['financing_mode', 'contract_start_date', 'provision_date', 'code_immo'];
+            $financialFilled = 0;
+            foreach ($financialFields as $ff) {
+                if (!empty($vehicle->$ff)) $financialFilled++;
+            }
+            $financialOk = $financialFilled === count($financialFields);
+            $checks[] = ['label' => 'Données financières complètes (' . $financialFilled . '/' . count($financialFields) . ')', 'ok' => $financialOk];
 
             $passedChecks = count(array_filter($checks, fn($c) => $c['ok']));
             $totalChecks = count($checks);
@@ -212,6 +218,7 @@ class VehicleController extends Controller
             'withdrawal_end_date' => 'nullable|date|after_or_equal:withdrawal_start_date|required_if:financing_mode,Leasing',
             'contract_start_date' => 'nullable|date',
             'provision_date' => 'required|date',
+            'code_immo' => 'nullable|string|size:7|regex:/^[0-9]{7}$/',
         ], [
             'financing_mode.required' => 'Le mode de financement est obligatoire.',
             'financing_mode.in' => 'Le mode de financement doit etre Leasing ou Direct.',
@@ -228,9 +235,9 @@ class VehicleController extends Controller
         ]);
 
         $vehicle = Vehicle::findOrFail($id);
-        $oldValues = $vehicle->only(['financing_mode','bank_name','contract_number','withdrawal_start_date','withdrawal_end_date','contract_start_date','provision_date']);
+        $oldValues = $vehicle->only(['financing_mode','bank_name','contract_number','withdrawal_start_date','withdrawal_end_date','contract_start_date','provision_date','code_immo']);
 
-        $data = $request->only(['financing_mode','bank_name','contract_number','withdrawal_start_date','withdrawal_end_date','contract_start_date','provision_date']);
+        $data = $request->only(['financing_mode','bank_name','contract_number','withdrawal_start_date','withdrawal_end_date','contract_start_date','provision_date','code_immo']);
         if ($request->financing_mode === 'Direct') {
             $data['bank_name'] = null;
             $data['contract_number'] = null;
@@ -255,10 +262,23 @@ class VehicleController extends Controller
 
     public function export(Request $request)
     {
-        $filters = $request->only(['form_status', 'brand', 'vehicle_type', 'category', 'vehicle_status', 'date_from', 'date_to']);
+        $filters = $request->only(['form_status', 'brand', 'vehicle_type', 'category', 'vehicle_status', 'date_from', 'date_to', 'structures']);
         $filename = 'RIMA_EXPORT_' . now()->format('Ymd_His') . '.xlsx';
 
         return Excel::download(new VehiclesExport($filters), $filename);
+    }
+
+    public function importMotos(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $import = new \App\Imports\MotosImport();
+        Excel::import($import, $request->file('file'));
+
+        return redirect()->route('vehicles.index')
+            ->with('success', "{$import->imported} moto(s) importee(s), {$import->skipped} doublon(s) ignore(s).");
     }
 
     /**
@@ -283,9 +303,10 @@ class VehicleController extends Controller
         if ($request->filled('category')) $query->where('category', $request->category);
         if ($request->filled('date_from')) $query->whereDate('collected_at', '>=', $request->date_from);
         if ($request->filled('date_to')) $query->whereDate('collected_at', '<=', $request->date_to);
+        if ($request->filled('structures')) $query->whereIn('structure_ci', $request->structures);
 
         $vehicles = $query->orderByDesc('collected_at')->get();
-        $filters = $request->only(['form_status', 'vehicle_type', 'brand', 'category', 'date_from', 'date_to']);
+        $filters = $request->only(['form_status', 'vehicle_type', 'brand', 'category', 'date_from', 'date_to', 'structures']);
 
         return VehiclePdfExport::generateList($vehicles, $filters);
     }

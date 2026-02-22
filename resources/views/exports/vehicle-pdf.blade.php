@@ -445,7 +445,7 @@
     {{-- Footer --}}
     <div class="footer">
         <div class="footer-bar">
-            <div class="footer-left">RIMA &mdash; SODECI</div>
+            <div class="footer-left">RIMA — SODECI</div>
             <div class="footer-center">Document confidentiel</div>
             <div class="footer-right">{{ $generatedAt }}</div>
         </div>

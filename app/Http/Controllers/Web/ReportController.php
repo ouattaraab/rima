@@ -12,21 +12,14 @@ class ReportController extends Controller
 {
     public function regional(Request $request)
     {
-        $structures = Structure::where('is_active', true)->orderBy('name')->get();
-        $regions = Structure::where('is_active', true)
-            ->whereNotNull('region')
-            ->distinct()
-            ->orderBy('region')
-            ->pluck('region');
-        $selectedRegion = $request->input('region');
+        $structures = Structure::where('is_active', true)->orderBy('code')->get();
+        $selectedStructures = $request->input('structures', []);
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
 
         $query = Vehicle::query();
-        $structureCodes = null;
-        if ($selectedRegion) {
-            $structureCodes = Structure::where('region', $selectedRegion)->pluck('code');
-            $query->whereIn('structure_ci', $structureCodes);
+        if (!empty($selectedStructures)) {
+            $query->whereIn('structure_ci', $selectedStructures);
         }
         if ($dateFrom) {
             $query->whereDate('collected_at', '>=', $dateFrom);
@@ -43,7 +36,7 @@ class ReportController extends Controller
         $completionRate = $total > 0 ? round(($validated / $total) * 100, 1) : 0;
         $rejectionRate = $total > 0 ? round(($rejected / $total) * 100, 1) : 0;
 
-        // Per-region breakdown
+        // Per-structure breakdown
         $byRegion = Vehicle::selectRaw("vehicles.structure_ci, structures.name as structure_name, count(*) as total")
             ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'validated' THEN 1 ELSE 0 END) as validated")
             ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'rejected' THEN 1 ELSE 0 END) as rejected")
@@ -52,8 +45,8 @@ class ReportController extends Controller
             ->whereNotNull('vehicles.structure_ci')
             ->where('vehicles.structure_ci', '!=', '');
 
-        if ($selectedRegion) {
-            $byRegion->whereIn('vehicles.structure_ci', $structureCodes);
+        if (!empty($selectedStructures)) {
+            $byRegion->whereIn('vehicles.structure_ci', $selectedStructures);
         }
         if ($dateFrom) $byRegion->whereDate('vehicles.collected_at', '>=', $dateFrom);
         if ($dateTo) $byRegion->whereDate('vehicles.collected_at', '<=', $dateTo);
@@ -63,7 +56,7 @@ class ReportController extends Controller
             ->get();
 
         return view('reports.regional', compact(
-            'structures', 'regions', 'selectedRegion', 'dateFrom', 'dateTo',
+            'structures', 'selectedStructures', 'dateFrom', 'dateTo',
             'total', 'validated', 'rejected', 'synchronized',
             'completionRate', 'rejectionRate', 'byRegion'
         ));
@@ -118,11 +111,11 @@ class ReportController extends Controller
     {
         return Excel::download(
             new \App\Exports\RegionalReportExport(
-                $request->input('region'),
+                $request->input('structures', []),
                 $request->input('date_from'),
                 $request->input('date_to')
             ),
-            'RIMA_REGIONAL_' . now()->format('Ymd_His') . '.xlsx'
+            'RIMA_STRUCTURE_' . now()->format('Ymd_His') . '.xlsx'
         );
     }
 

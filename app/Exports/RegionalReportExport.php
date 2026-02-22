@@ -28,14 +28,14 @@ use PhpOffice\PhpSpreadsheet\Chart\Title;
 
 class RegionalReportExport implements FromCollection, WithHeadings, WithStyles, WithEvents, WithColumnWidths, WithTitle, WithCharts, WithPreCalculateFormulas
 {
-    protected ?string $region;
+    protected array $structures;
     protected ?string $dateFrom;
     protected ?string $dateTo;
     protected ?Collection $data = null;
 
-    public function __construct(?string $region = null, ?string $dateFrom = null, ?string $dateTo = null)
+    public function __construct(array $structures = [], ?string $dateFrom = null, ?string $dateTo = null)
     {
-        $this->region = $region;
+        $this->structures = $structures;
         $this->dateFrom = $dateFrom;
         $this->dateTo = $dateTo;
     }
@@ -59,9 +59,8 @@ class RegionalReportExport implements FromCollection, WithHeadings, WithStyles, 
             ->whereNotNull('vehicles.structure_ci')
             ->where('vehicles.structure_ci', '!=', '');
 
-        if ($this->region) {
-            $structureCodes = Structure::where('region', $this->region)->pluck('code');
-            $query->whereIn('vehicles.structure_ci', $structureCodes);
+        if (!empty($this->structures)) {
+            $query->whereIn('vehicles.structure_ci', $this->structures);
         }
         if ($this->dateFrom) {
             $query->whereDate('vehicles.collected_at', '>=', $this->dateFrom);

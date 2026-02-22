@@ -1,33 +1,60 @@
 @extends('layouts.app')
 
-@section('title', 'Rapport régional')
-@section('header', 'Rapport régional')
+@section('title', 'Avancement par structure')
+@section('header', 'Avancement par structure')
 
 @section('content')
 <div class="space-y-6">
 
     {{-- Header --}}
     <div class="flex items-center justify-between">
-        <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Avancement par région</p>
-        <a href="{{ route('reports.regional.export', ['region' => $selectedRegion, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">
+        <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Avancement par structure</p>
+        <a href="{{ route('reports.regional.export', ['structures' => $selectedStructures ?? [], 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
             Exporter Excel
         </a>
     </div>
 
     {{-- Filters --}}
-    <form method="GET" action="{{ route('reports.regional') }}" class="border-b border-slate-200 pb-4">
+    <form method="GET" action="{{ route('reports.regional') }}" class="relative z-30 border-b border-slate-200 pb-4">
         <div class="flex flex-wrap items-center gap-3">
-            <select name="region" class="filter-input flex-1 min-w-0">
-                <option value="">Région : Toutes</option>
-                @foreach($regions as $r)
-                    <option value="{{ $r }}" {{ $selectedRegion == $r ? 'selected' : '' }}>{{ $r }}</option>
-                @endforeach
-            </select>
+            <div x-data="{
+                open: false,
+                selected: {{ json_encode($selectedStructures ?? []) }},
+                search: '',
+                toggle(code) {
+                    if (this.selected.includes(code)) {
+                        this.selected = this.selected.filter(c => c !== code);
+                    } else {
+                        this.selected.push(code);
+                    }
+                }
+            }" class="relative flex-1 min-w-0">
+                <input type="text" x-model="search" @focus="open = true" @click="open = true"
+                       :placeholder="selected.length ? selected.length + ' structure(s) sélectionnée(s)' : 'Structure : Toutes'"
+                       class="filter-input w-full" autocomplete="off">
+                <div x-show="open" @click.away="open = false; search = ''" x-transition class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-64 overflow-hidden" x-cloak>
+                    <div class="overflow-y-auto max-h-52 p-1">
+                        @foreach($structures as $structure)
+                        <label x-show="!search || '{{ strtolower($structure->code . ' ' . $structure->name) }}'.includes(search.toLowerCase())"
+                               class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 cursor-pointer text-[13px] text-slate-700">
+                            <input type="checkbox" name="structures[]" value="{{ $structure->code }}"
+                                   :checked="selected.includes('{{ $structure->code }}')"
+                                   @change="toggle('{{ $structure->code }}')"
+                                   class="w-3.5 h-3.5 border-slate-300 text-[#2DB56B] focus:ring-0">
+                            <span>{{ $structure->code }} - {{ $structure->name }}</span>
+                        </label>
+                        @endforeach
+                    </div>
+                    <div x-show="selected.length > 0" class="p-2 border-t border-slate-100">
+                        <button type="button" @click="selected = []; document.querySelectorAll('[name=\'structures[]\']').forEach(cb => cb.checked = false)" class="text-[11px] text-slate-500 hover:text-slate-900 underline">Tout décocher</button>
+                    </div>
+                </div>
+            </div>
             <input type="date" name="date_from" value="{{ $dateFrom }}" class="filter-input">
             <input type="date" name="date_to" value="{{ $dateTo }}" class="filter-input">
             <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-4 transition-colors">Filtrer</button>
-            @if($selectedRegion || $dateFrom || $dateTo)
+            @if(!empty($selectedStructures) || $dateFrom || $dateTo)
                 <a href="{{ route('reports.regional') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Réinitialiser</a>
             @endif
         </div>

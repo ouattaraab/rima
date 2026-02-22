@@ -8,18 +8,45 @@
     <div class="mb-6">
         <form method="GET" action="{{ route('dashboard') }}" class="border-b border-slate-200 pb-4">
             <div class="flex flex-wrap items-center gap-3">
-                <select name="region" class="filter-input flex-1 min-w-0">
-                    <option value="">Région : Toutes</option>
-                    @foreach($regions as $r)
-                        <option value="{{ $r }}" @selected(request('region') === $r)>{{ $r }}</option>
-                    @endforeach
-                </select>
+                    <div x-data="{
+                        open: false,
+                        selected: {{ json_encode(request('structures', [])) }},
+                        search: '',
+                        toggle(code) {
+                            if (this.selected.includes(code)) {
+                                this.selected = this.selected.filter(c => c !== code);
+                            } else {
+                                this.selected.push(code);
+                            }
+                        }
+                    }" class="relative flex-1 min-w-0">
+                        <input type="text" x-model="search" @focus="open = true" @click="open = true"
+                               :placeholder="selected.length ? selected.length + ' structure(s) sélectionnée(s)' : 'Structure : Toutes'"
+                               class="filter-input w-full" autocomplete="off">
+                        <div x-show="open" @click.away="open = false; search = ''" x-transition class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-64 overflow-hidden" x-cloak>
+                            <div class="overflow-y-auto max-h-52 p-1">
+                                @foreach($structures as $structure)
+                                <label x-show="!search || '{{ strtolower($structure->code . ' ' . $structure->name) }}'.includes(search.toLowerCase())"
+                                       class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 cursor-pointer text-[13px] text-slate-700">
+                                    <input type="checkbox" name="structures[]" value="{{ $structure->code }}"
+                                           :checked="selected.includes('{{ $structure->code }}')"
+                                           @change="toggle('{{ $structure->code }}')"
+                                           class="w-3.5 h-3.5 border-slate-300 text-[#2DB56B] focus:ring-0">
+                                    <span>{{ $structure->code }} - {{ $structure->name }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                            <div x-show="selected.length > 0" class="p-2 border-t border-slate-100">
+                                <button type="button" @click="selected = []; document.querySelectorAll('[name=\'structures[]\']').forEach(cb => cb.checked = false)" class="text-[11px] text-slate-500 hover:text-slate-900 underline">Tout décocher</button>
+                            </div>
+                        </div>
+                    </div>
                 <input type="date" name="date_from" value="{{ request('date_from') }}"
                        class="filter-input">
                 <input type="date" name="date_to" value="{{ request('date_to') }}"
                        class="filter-input">
                 <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">Filtrer</button>
-                @if(request()->hasAny(['region', 'date_from', 'date_to']))
+                @if(request()->hasAny(['structures', 'date_from', 'date_to']))
                     <a href="{{ route('dashboard') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Réinitialiser</a>
                 @endif
             </div>
@@ -59,7 +86,7 @@
             </div>
         </div>
         <div class="p-6 lg:border-l lg:border-dashed lg:border-slate-200">
-            <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Répartition par catégorie</h3>
+            <h3 class="text-[13px] font-semibold text-slate-900 uppercase tracking-wide mb-4">Répartition AUTOS par catégorie</h3>
             <div class="flex items-center justify-center" style="height: 260px;">
                 <canvas id="categoryChart"></canvas>
             </div>

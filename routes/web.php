@@ -27,6 +27,7 @@ Route::middleware(['auth', 'audit'])->group(function () {
     Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
     Route::get('/vehicles/export', [VehicleController::class, 'export'])->name('vehicles.export');
     Route::get('/vehicles/export-pdf', [VehicleController::class, 'exportPdf'])->name('vehicles.exportPdf');
+    Route::post('/vehicles/motos/import', [VehicleController::class, 'importMotos'])->name('vehicles.motos.import');
     Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('vehicles.show');
     Route::get('/vehicles/{vehicle}/pdf', [VehicleController::class, 'downloadPdf'])->name('vehicles.downloadPdf');
 
@@ -70,11 +71,11 @@ Route::middleware(['auth', 'audit'])->group(function () {
         Route::get('/insurances/export', [ReferentialController::class, 'exportInsurances'])->name('insurances.export');
         Route::post('/insurances/import', [ReferentialController::class, 'importInsurances'])->name('insurances.import');
 
-        Route::get('/directions', [ReferentialController::class, 'directions'])->name('directions');
-        Route::post('/directions', [ReferentialController::class, 'storeDirection'])->name('directions.store');
-        Route::put('/directions/{direction}', [ReferentialController::class, 'updateDirection'])->name('directions.update');
-        Route::get('/directions/export', [ReferentialController::class, 'exportDirections'])->name('directions.export');
-        Route::post('/directions/import', [ReferentialController::class, 'importDirections'])->name('directions.import');
+        // Route::get('/directions', [ReferentialController::class, 'directions'])->name('directions');
+        // Route::post('/directions', [ReferentialController::class, 'storeDirection'])->name('directions.store');
+        // Route::put('/directions/{direction}', [ReferentialController::class, 'updateDirection'])->name('directions.update');
+        // Route::get('/directions/export', [ReferentialController::class, 'exportDirections'])->name('directions.export');
+        // Route::post('/directions/import', [ReferentialController::class, 'importDirections'])->name('directions.import');
 
         Route::get('/vehicle-types', [ReferentialController::class, 'vehicleTypes'])->name('vehicle-types');
         Route::post('/vehicle-types', [ReferentialController::class, 'storeVehicleType'])->name('vehicle-types.store');

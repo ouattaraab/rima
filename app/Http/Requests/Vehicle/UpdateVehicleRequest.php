@@ -49,6 +49,7 @@ class UpdateVehicleRequest extends FormRequest
                 Rule::prohibitedIf(fn() => $vehicleType === 'Moto'),
             ],
             'engine_displacement' => 'nullable|integer|min:50|max:99999',
+            'fiscal_power' => 'sometimes|nullable|integer|min:1|max:999',
             'seats_count' => 'sometimes|integer|min:1|max:99',
             'load_capacity' => [
                 'nullable', 'integer', 'min:1', 'max:99999',

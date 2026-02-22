@@ -43,6 +43,7 @@ class StoreVehicleRequest extends FormRequest
                 Rule::prohibitedIf(fn() => $this->input('vehicle_type') === 'Moto'),
             ],
             'engine_displacement' => 'nullable|integer|min:50|max:99999',
+            'fiscal_power' => 'nullable|integer|min:1|max:999',
             'seats_count' => 'required|integer|min:1|max:99',
             'load_capacity' => [
                 'nullable', 'integer', 'min:1', 'max:99999',

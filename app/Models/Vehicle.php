@@ -20,7 +20,7 @@ class Vehicle extends Model
         'registration_number', 'temporary_registration',
         'chassis_number', 'chassis_readable',
         // Technique
-        'fuel_type', 'transmission', 'engine_displacement',
+        'fuel_type', 'transmission', 'engine_displacement', 'fiscal_power',
         'seats_count', 'load_capacity', 'mileage',
         // Statut
         'status', 'structure_ci', 'has_roll_bars', 'special_equipment',
@@ -41,6 +41,7 @@ class Vehicle extends Model
         'financing_mode', 'bank_name', 'contract_number',
         'withdrawal_start_date', 'withdrawal_end_date',
         'contract_start_date', 'provision_date',
+        'code_immo',
         'revision',
     ];
 
@@ -66,6 +67,7 @@ class Vehicle extends Model
             'seats_count' => 'integer',
             'mileage' => 'integer',
             'engine_displacement' => 'integer',
+            'fiscal_power' => 'integer',
             'load_capacity' => 'integer',
             'revision' => 'integer',
         ];

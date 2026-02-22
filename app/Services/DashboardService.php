@@ -24,7 +24,8 @@ class DashboardService
         $byType = (clone $query)->select('vehicle_type', DB::raw('count(*) as total'))
             ->groupBy('vehicle_type')->pluck('total', 'vehicle_type');
 
-        $byCategory = (clone $query)->select('category', DB::raw('count(*) as total'))
+        $byCategory = (clone $query)->where('vehicle_type', 'Auto')
+            ->select('category', DB::raw('count(*) as total'))
             ->groupBy('category')->pluck('total', 'category');
 
         $byStatus = (clone $query)->select('status', DB::raw('count(*) as total'))

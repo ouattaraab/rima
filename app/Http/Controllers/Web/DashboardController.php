@@ -21,7 +21,7 @@ class DashboardController extends Controller
         // Retrieve filter parameters
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
-        $region = $request->input('region');
+        $structureCodes = $request->input('structures', []);
 
         $query = Vehicle::query();
 
@@ -37,9 +37,9 @@ class DashboardController extends Controller
         if ($dateTo) {
             $query->whereDate('collected_at', '<=', $dateTo);
         }
-        // Apply region filter
-        if ($region) {
-            $query->whereHas('collector', fn($q) => $q->where('region', $region));
+        // Apply structure filter
+        if (!empty($structureCodes)) {
+            $query->whereIn('structure_ci', $structureCodes);
         }
 
         $total = (clone $query)->count();
@@ -49,7 +49,7 @@ class DashboardController extends Controller
         $draft = (clone $query)->where('form_status', 'draft')->count();
 
         $byType = (clone $query)->selectRaw('vehicle_type, count(*) as count')->groupBy('vehicle_type')->pluck('count', 'vehicle_type');
-        $byCategory = (clone $query)->selectRaw('category, count(*) as count')->groupBy('category')->pluck('count', 'category');
+        $byCategory = (clone $query)->where('vehicle_type', 'Auto')->selectRaw('category, count(*) as count')->groupBy('category')->pluck('count', 'category');
         $byStatus = (clone $query)->selectRaw('form_status, count(*) as count')->groupBy('form_status')->pluck('count', 'form_status');
 
         $recentVehicles = (clone $query)->with('collector')->latest('collected_at')->take(10)->get();
@@ -67,18 +67,14 @@ class DashboardController extends Controller
         }
         $mapData = $this->dashboardService->getMapData($dateFrom, $dateTo, null, $mapAgentIds);
 
-        // Regions for the filter dropdown
-        $regions = Structure::where('is_active', true)
-            ->whereNotNull('region')
-            ->distinct()
-            ->orderBy('region')
-            ->pluck('region');
+        // Structures for the filter dropdown
+        $structures = Structure::where('is_active', true)->orderBy('code')->get();
 
         return view('dashboard', compact(
             'total', 'validated', 'rejected', 'synchronized', 'draft',
             'byType', 'byCategory', 'byStatus',
             'recentVehicles', 'topAgents',
-            'mapData', 'regions'
+            'mapData', 'structures'
         ));
     }
 }

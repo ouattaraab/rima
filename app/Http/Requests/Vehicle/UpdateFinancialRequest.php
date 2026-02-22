@@ -25,6 +25,7 @@ class UpdateFinancialRequest extends FormRequest
                 Rule::requiredIf(fn () => $this->vehicleContractType() === 'Sous contrat'),
             ],
             'provision_date' => 'required|date',
+            'code_immo' => 'nullable|string|size:7|regex:/^[0-9]{7}$/',
         ];
     }
 

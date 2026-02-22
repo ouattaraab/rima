@@ -28,8 +28,8 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
     private const SECTION_STATUT          = ['S', 'T', 'U', 'V'];                                    // Cols S-V
     private const SECTION_REGLEMENTAIRE   = ['W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC'];                 // Cols W-AC
     private const SECTION_UTILISATEUR     = ['AD', 'AE', 'AF'];                                      // Cols AD-AF
-    private const SECTION_FINANCIER       = ['AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM'];             // Cols AG-AM
-    private const SECTION_METADONNEES     = ['AN', 'AO', 'AP', 'AQ', 'AR', 'AS'];                    // Cols AN-AS
+    private const SECTION_FINANCIER       = ['AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN'];       // Cols AG-AN
+    private const SECTION_METADONNEES     = ['AO', 'AP', 'AQ', 'AR', 'AS', 'AT'];                    // Cols AO-AT
 
     public function __construct(array $filters = [])
     {
@@ -61,6 +61,9 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
         if (!empty($this->filters['date_to'])) {
             $query->whereDate('collected_at', '<=', $this->filters['date_to']);
         }
+        if (!empty($this->filters['structures'])) {
+            $query->whereIn('structure_ci', $this->filters['structures']);
+        }
 
         return $query->orderByDesc('collected_at');
     }
@@ -83,10 +86,10 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             'Debut assurance', 'Fin assurance',
             // ── Utilisateur (AD-AF) ──
             'Direction', 'Matricule utilisateur', 'N° Permis',
-            // ── Financier (AG-AM) ──
+            // ── Financier (AG-AN) ──
             'Mode financement', 'Banque', 'N° contrat', 'Debut prelevement',
-            'Fin prelevement', 'Debut contrat', 'Date mise a disposition',
-            // ── Metadonnees (AN-AS) ──
+            'Fin prelevement', 'Debut contrat', 'Date mise a disposition', 'Code IMMO',
+            // ── Metadonnees (AO-AT) ──
             'Statut fiche', 'Collecte par', 'Date collecte', 'GPS Latitude', 'GPS Longitude', 'Precision GPS (m)',
         ];
     }
@@ -119,6 +122,7 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             $v->financing_mode, $v->bank_name, $v->contract_number,
             $v->withdrawal_start_date?->format('d/m/Y'), $v->withdrawal_end_date?->format('d/m/Y'),
             $v->contract_start_date?->format('d/m/Y'), $v->provision_date?->format('d/m/Y'),
+            $v->code_immo,
             $formStatusFr, $v->collector?->full_name, $v->collected_at?->format('d/m/Y H:i'),
             $v->gps_latitude, $v->gps_longitude, $v->gps_accuracy,
         ];
@@ -134,14 +138,14 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             'S' => 15, 'T' => 14, 'U' => 10, 'V' => 20,
             'W' => 18, 'X' => 10, 'Y' => 20, 'Z' => 14, 'AA' => 15, 'AB' => 14, 'AC' => 14,
             'AD' => 16, 'AE' => 18, 'AF' => 16,
-            'AG' => 16, 'AH' => 14, 'AI' => 14, 'AJ' => 16, 'AK' => 16, 'AL' => 14, 'AM' => 18,
-            'AN' => 13, 'AO' => 18, 'AP' => 16, 'AQ' => 13, 'AR' => 13, 'AS' => 15,
+            'AG' => 16, 'AH' => 14, 'AI' => 14, 'AJ' => 16, 'AK' => 16, 'AL' => 14, 'AM' => 18, 'AN' => 14,
+            'AO' => 13, 'AP' => 18, 'AQ' => 16, 'AR' => 13, 'AS' => 13, 'AT' => 15,
         ];
     }
 
     public function styles(Worksheet $sheet): array
     {
-        $lastCol = 'AS';
+        $lastCol = 'AT';
         $lastRow = $sheet->getHighestRow();
 
         // ── Global font ──
@@ -189,7 +193,7 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet   = $event->sheet->getDelegate();
                 $lastRow = $sheet->getHighestRow();
-                $lastCol = 'AS';
+                $lastCol = 'AT';
 
                 // ──────────────────────────────────────
                 // Section color groups for header bg
@@ -262,9 +266,9 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
                         ->setBold(true)
                         ->getColor()->setRGB('0F172A');
 
-                    // ── Statut fiche column (AN) - color coding ──
+                    // ── Statut fiche column (AO) - color coding ──
                     for ($row = 2; $row <= $lastRow; $row++) {
-                        $status = $sheet->getCell("AN{$row}")->getValue();
+                        $status = $sheet->getCell("AO{$row}")->getValue();
                         $statusColors = match ($status) {
                             'Valide'      => ['166534', 'DCFCE7'],
                             'Synchronise' => ['92400E', 'FEF3C7'],
@@ -272,15 +276,15 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
                             'Brouillon'   => ['475569', 'F1F5F9'],
                             default       => ['475569', 'F1F5F9'],
                         };
-                        $sheet->getStyle("AN{$row}")
+                        $sheet->getStyle("AO{$row}")
                             ->getFont()->getColor()->setRGB($statusColors[0]);
-                        $sheet->getStyle("AN{$row}")
+                        $sheet->getStyle("AO{$row}")
                             ->getFill()
                             ->setFillType(Fill::FILL_SOLID)
                             ->getStartColor()->setRGB($statusColors[1]);
-                        $sheet->getStyle("AN{$row}")
+                        $sheet->getStyle("AO{$row}")
                             ->getFont()->setBold(true);
-                        $sheet->getStyle("AN{$row}")
+                        $sheet->getStyle("AO{$row}")
                             ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                     }
 
@@ -293,8 +297,8 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
                         ->getAlignment()
                         ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
-                    // ── GPS precision (AS) ──
-                    $sheet->getStyle("AS2:AS{$lastRow}")
+                    // ── GPS precision (AT) ──
+                    $sheet->getStyle("AT2:AT{$lastRow}")
                         ->getAlignment()
                         ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                 }
@@ -302,7 +306,7 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
                 // ──────────────────────────────────────
                 // Section separator lines (thicker borders)
                 // ──────────────────────────────────────
-                $sectionStarts = ['I', 'M', 'S', 'W', 'AD', 'AG', 'AN'];
+                $sectionStarts = ['I', 'M', 'S', 'W', 'AD', 'AG', 'AO'];
                 foreach ($sectionStarts as $col) {
                     $sheet->getStyle("{$col}1:{$col}{$lastRow}")
                         ->getBorders()

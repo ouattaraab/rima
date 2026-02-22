@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Cat&eacute;gories')
-@section('header', 'Cat&eacute;gories')
+@section('title', 'Catégories')
+@section('header', 'Catégories')
 
 @section('content')
 <div x-data="{
@@ -29,11 +29,11 @@
 
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
-        <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Cat&eacute;gories</p>
+        <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Catégories</p>
         <div class="flex items-center gap-2">
             <button @click="addErrors = {}; showAddModal = true" class="inline-flex items-center gap-2 rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Ajouter une cat&eacute;gorie
+                Ajouter une catégorie
             </button>
         </div>
     </div>
@@ -44,9 +44,9 @@
             <thead>
                 <tr class="border-b border-slate-200">
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Nom</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Type v&eacute;hicule</th>
+                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Type véhicule</th>
                     <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Statut</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Date cr&eacute;ation</th>
+                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Date création</th>
                     <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Actions</th>
                 </tr>
             </thead>
@@ -72,8 +72,8 @@
                 @empty
                 <tr>
                     <td colspan="5" class="px-5 py-16 text-center">
-                        <p class="text-[13px] text-slate-400">Aucune cat&eacute;gorie trouv&eacute;e</p>
-                        <p class="text-[11px] text-slate-300 mt-1">Commencez par ajouter une cat&eacute;gorie</p>
+                        <p class="text-[13px] text-slate-400">Aucune catégorie trouvée</p>
+                        <p class="text-[11px] text-slate-300 mt-1">Commencez par ajouter une catégorie</p>
                     </td>
                 </tr>
                 @endforelse
@@ -92,14 +92,14 @@
         <div x-show="showAddModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="showAddModal = false" x-cloak>
             <div x-show="showAddModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-200">
-                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Ajouter une cat&eacute;gorie</p>
+                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Ajouter une catégorie</p>
                 </div>
                 <form action="{{ route('referentials.vehicle-categories.store') }}" method="POST" novalidate @submit="validateAdd($event)">
                     @csrf
                     <div class="p-6 space-y-4">
                         <div>
                             <label for="add-name" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Nom</label>
-                            <input type="text" name="name" id="add-name" x-ref="add_name" value="{{ old('name') }}" placeholder="Nom de la cat&eacute;gorie"
+                            <input type="text" name="name" id="add-name" x-ref="add_name" value="{{ old('name') }}" placeholder="Nom de la catégorie"
                                 class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
                                 :class="addErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
                                 @input="delete addErrors.name">
@@ -109,7 +109,7 @@
                             @enderror
                         </div>
                         <div>
-                            <label for="add-vehicle-type" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type de v&eacute;hicule</label>
+                            <label for="add-vehicle-type" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type de véhicule</label>
                             <select name="vehicle_type" id="add-vehicle-type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 focus:border-[#2DB56B] transition">
                                 <option value="">-- Aucun --</option>
                                 @foreach($vehicleTypes as $vt)
@@ -132,7 +132,7 @@
         <div x-show="showEditModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="showEditModal = false" x-cloak>
             <div x-show="showEditModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-200">
-                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Modifier la cat&eacute;gorie</p>
+                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Modifier la catégorie</p>
                 </div>
                 <form :action="'{{ route('referentials.vehicle-categories.update', ':id') }}'.replace(':id', editItem.id)" method="POST" novalidate @submit="validateEdit($event)">
                     @csrf
@@ -150,7 +150,7 @@
                             @enderror
                         </div>
                         <div>
-                            <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type de v&eacute;hicule</label>
+                            <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type de véhicule</label>
                             <select name="vehicle_type" x-model="editItem.vehicle_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 focus:border-[#2DB56B] transition">
                                 <option value="">-- Aucun --</option>
                                 @foreach($vehicleTypes as $vt)
@@ -161,7 +161,7 @@
                         <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
                             <div>
                                 <p class="text-[13px] font-medium text-slate-900">Statut</p>
-                                <p class="text-[12px] text-slate-400">Activer ou d&eacute;sactiver cet &eacute;l&eacute;ment</p>
+                                <p class="text-[12px] text-slate-400">Activer ou désactiver cet élément</p>
                             </div>
                             <div class="flex items-center">
                                 <input type="hidden" name="is_active" value="0">
@@ -175,7 +175,7 @@
                     </div>
                     <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
                         <button type="button" @click="showEditModal = false" class="rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">Annuler</button>
-                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Mettre &agrave; jour</button>
+                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Mettre à jour</button>
                     </div>
                 </form>
             </div>

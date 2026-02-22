@@ -253,7 +253,9 @@
             <form action="{{ route('vehicles.motos.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="p-6 space-y-4">
-                    <p class="text-[13px] text-slate-500">Selectionnez un fichier Excel (.xlsx, .xls) ou CSV contenant les colonnes : <strong>immatriculation</strong>, <strong>marque</strong>, <strong>modele</strong>, <strong>n_chassis</strong>, <strong>cylindree</strong>, <strong>couleur</strong>, <strong>carburant</strong>.</p>
+                    <p class="text-[13px] text-slate-500">Selectionnez un fichier Excel (.xlsx, .xls) ou CSV contenant les colonnes :</p>
+                    <p class="text-[12px] text-slate-400 mt-1"><strong>Obligatoires :</strong> immatriculation, marque, modele, n_chassis, cylindree, couleur, carburant, statut, structure_ci, type_contrat</p>
+                    <p class="text-[12px] text-slate-400 mt-1"><strong>Optionnelles :</strong> immatriculation_provisoire, categorie, transmission, places, charge_utile, kilometrage, date_mise_en_circulation, date_controle_technique, equipements_speciaux, assure (oui/non), compagnie_assurance, numero_police, debut_assurance, fin_assurance, matricule_agent, direction</p>
                     <div>
                         <label for="moto-import-file" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Fichier</label>
                         <input type="file" name="file" id="moto-import-file" accept=".xlsx,.xls,.csv" required

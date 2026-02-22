@@ -7,6 +7,7 @@
 <div class="mx-auto max-w-4xl"
      x-data="{
          mode: '{{ old('financing_mode', $vehicle->financing_mode ?? 'Direct') }}',
+         contractType: '{{ $vehicle->contract_type }}',
          errors: {},
          validate(e) {
              this.errors = {};
@@ -100,24 +101,26 @@
             </div>
         </div>
 
-        {{-- Section: Dates du contrat --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
-            <div>
-                <p class="text-[13px] font-semibold text-slate-900">Dates du contrat</p>
-                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Date de début du contrat et date de mise à disposition du véhicule.</p>
-            </div>
-            <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {{-- Section: Dates du contrat (visible uniquement pour les véhicules "Sous contrat") --}}
+        <div x-show="contractType === 'Sous contrat'" x-collapse x-cloak>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
                 <div>
-                    <label for="contract_start_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date début contrat</label>
-                    <input type="date" name="contract_start_date" id="contract_start_date" value="{{ old('contract_start_date', $vehicle->contract_start_date?->format('Y-m-d')) }}"
-                           class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
-                    @error('contract_start_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
+                    <p class="text-[13px] font-semibold text-slate-900">Dates du contrat</p>
+                    <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Date de début du contrat et date de mise à disposition du véhicule.</p>
                 </div>
-                <div>
-                    <label for="provision_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date mise à disposition</label>
-                    <input type="date" name="provision_date" id="provision_date" value="{{ old('provision_date', $vehicle->provision_date?->format('Y-m-d')) }}"
-                           class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
-                    @error('provision_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
+                <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="contract_start_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date début contrat</label>
+                        <input type="date" name="contract_start_date" id="contract_start_date" value="{{ old('contract_start_date', $vehicle->contract_start_date?->format('Y-m-d')) }}"
+                               class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
+                        @error('contract_start_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label for="provision_date" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Date mise à disposition</label>
+                        <input type="date" name="provision_date" id="provision_date" value="{{ old('provision_date', $vehicle->provision_date?->format('Y-m-d')) }}"
+                               class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 transition">
+                        @error('provision_date')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
+                    </div>
                 </div>
             </div>
         </div>

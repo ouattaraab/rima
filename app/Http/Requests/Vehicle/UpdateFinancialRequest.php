@@ -14,6 +14,8 @@ class UpdateFinancialRequest extends FormRequest
 
     public function rules(): array
     {
+        $isSousContrat = $this->vehicleContractType() === 'Sous contrat';
+
         return [
             'financing_mode' => 'required|in:Leasing,Direct',
             'bank_name' => 'nullable|string|max:50|required_if:financing_mode,Leasing',
@@ -22,9 +24,12 @@ class UpdateFinancialRequest extends FormRequest
             'withdrawal_end_date' => 'nullable|date|after_or_equal:withdrawal_start_date|required_if:financing_mode,Leasing',
             'contract_start_date' => [
                 'nullable', 'date',
-                Rule::requiredIf(fn () => $this->vehicleContractType() === 'Sous contrat'),
+                Rule::requiredIf($isSousContrat),
             ],
-            'provision_date' => 'required|date',
+            'provision_date' => [
+                'nullable', 'date',
+                Rule::requiredIf($isSousContrat),
+            ],
             'code_immo' => 'nullable|string|size:7|regex:/^[0-9]{7}$/',
         ];
     }
@@ -40,7 +45,7 @@ class UpdateFinancialRequest extends FormRequest
             'withdrawal_end_date.required_if' => 'La date de fin de prelevement est obligatoire pour un financement en Leasing.',
             'withdrawal_end_date.after_or_equal' => 'La date de fin de prelevement doit etre posterieure ou egale a la date de debut.',
             'contract_start_date.required' => 'La date de debut du contrat est obligatoire pour les vehicules sous contrat.',
-            'provision_date.required' => 'La date de mise a disposition est obligatoire.',
+            'provision_date.required' => 'La date de mise a disposition est obligatoire pour les vehicules sous contrat.',
         ];
     }
 

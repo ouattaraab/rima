@@ -115,8 +115,12 @@ class VehicleController extends Controller
             if ($vehicle->status === 'En service' && !$vehicle->is_insured) $insuranceOk = false;
             $checks[] = ['label' => 'Assurance (obligatoire si en service)', 'ok' => $insuranceOk];
 
-            // Financial data completeness
-            $financialFields = ['financing_mode', 'contract_start_date', 'provision_date', 'code_immo'];
+            // Financial data completeness (dates du contrat uniquement pour "Sous contrat")
+            $financialFields = ['financing_mode', 'code_immo'];
+            if ($vehicle->contract_type === 'Sous contrat') {
+                $financialFields[] = 'contract_start_date';
+                $financialFields[] = 'provision_date';
+            }
             $financialFilled = 0;
             foreach ($financialFields as $ff) {
                 if (!empty($vehicle->$ff)) $financialFilled++;
@@ -210,16 +214,21 @@ class VehicleController extends Controller
 
     public function updateFinancial(Request $request, string $id)
     {
-        $request->validate([
+        $vehicle = Vehicle::findOrFail($id);
+        $isSousContrat = $vehicle->contract_type === 'Sous contrat';
+
+        $rules = [
             'financing_mode' => 'required|in:Leasing,Direct',
             'bank_name' => 'nullable|string|max:50|required_if:financing_mode,Leasing',
             'contract_number' => 'nullable|string|max:50|required_if:financing_mode,Leasing',
             'withdrawal_start_date' => 'nullable|date|required_if:financing_mode,Leasing',
             'withdrawal_end_date' => 'nullable|date|after_or_equal:withdrawal_start_date|required_if:financing_mode,Leasing',
-            'contract_start_date' => 'nullable|date',
-            'provision_date' => 'required|date',
+            'contract_start_date' => $isSousContrat ? 'nullable|date' : 'nullable|date',
+            'provision_date' => $isSousContrat ? 'required|date' : 'nullable|date',
             'code_immo' => 'nullable|string|size:7|regex:/^[0-9]{7}$/',
-        ], [
+        ];
+
+        $request->validate($rules, [
             'financing_mode.required' => 'Le mode de financement est obligatoire.',
             'financing_mode.in' => 'Le mode de financement doit etre Leasing ou Direct.',
             'bank_name.required_if' => 'Le nom de la banque est obligatoire pour le leasing.',
@@ -234,7 +243,6 @@ class VehicleController extends Controller
             'contract_start_date.date' => 'La date de debut de contrat doit etre une date valide.',
         ]);
 
-        $vehicle = Vehicle::findOrFail($id);
         $oldValues = $vehicle->only(['financing_mode','bank_name','contract_number','withdrawal_start_date','withdrawal_end_date','contract_start_date','provision_date','code_immo']);
 
         $data = $request->only(['financing_mode','bank_name','contract_number','withdrawal_start_date','withdrawal_end_date','contract_start_date','provision_date','code_immo']);
@@ -243,6 +251,11 @@ class VehicleController extends Controller
             $data['contract_number'] = null;
             $data['withdrawal_start_date'] = null;
             $data['withdrawal_end_date'] = null;
+        }
+        // Si le véhicule est "Flotte", les dates du contrat ne sont pas applicables
+        if (!$isSousContrat) {
+            $data['contract_start_date'] = null;
+            $data['provision_date'] = null;
         }
 
         $vehicle->update($data);

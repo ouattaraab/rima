@@ -10,6 +10,12 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Widen directions columns to support long sigle values (e.g. "DR YOPOUGON" > 10 chars)
+        Schema::table('directions', function (Blueprint $table) {
+            $table->string('code', 50)->change();
+            $table->string('name', 255)->change();
+        });
+
         Schema::table('structures', function (Blueprint $table) {
             $table->uuid('direction_id')->nullable()->after('direction');
             $table->foreign('direction_id')->references('id')->on('directions')->nullOnDelete();

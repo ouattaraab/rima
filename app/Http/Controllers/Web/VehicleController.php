@@ -139,7 +139,14 @@ class VehicleController extends Controller
             ];
         }
 
-        return view('vehicles.show', compact('vehicle', 'qualityData'));
+        // Resolve structure_ci code to display label "CI - SIGLE"
+        $structureLabel = null;
+        if ($vehicle->structure_ci) {
+            $struct = \App\Models\Structure::where('code', $vehicle->structure_ci)->first();
+            $structureLabel = $struct ? ($struct->code . ' - ' . ($struct->sigle ?? $struct->name)) : $vehicle->structure_ci;
+        }
+
+        return view('vehicles.show', compact('vehicle', 'qualityData', 'structureLabel'));
     }
 
     public function validateVehicle(Request $request, string $id)

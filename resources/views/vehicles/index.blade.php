@@ -108,13 +108,13 @@
                         <div x-show="open" @click.away="open = false; search = ''" x-transition class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-64 overflow-hidden" x-cloak>
                             <div class="overflow-y-auto max-h-52 p-1">
                                 @foreach($structures as $structure)
-                                <label x-show="!search || '{{ strtolower($structure->code . ' ' . $structure->name) }}'.includes(search.toLowerCase())"
+                                <label x-show="!search || '{{ strtolower($structure->code . ' ' . ($structure->sigle ?? '') . ' ' . $structure->name) }}'.includes(search.toLowerCase())"
                                        class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 cursor-pointer text-[13px] text-slate-700">
                                     <input type="checkbox" name="structures[]" value="{{ $structure->code }}"
                                            :checked="selected.includes('{{ $structure->code }}')"
                                            @change="toggle('{{ $structure->code }}')"
                                            class="w-3.5 h-3.5 border-slate-300 text-[#2DB56B] focus:ring-0">
-                                    <span>{{ $structure->code }} - {{ $structure->name }}</span>
+                                    <span>{{ $structure->code }} - {{ $structure->sigle ?? $structure->name }}</span>
                                 </label>
                                 @endforeach
                             </div>

@@ -20,6 +20,7 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles, WithEvents, WithColumnWidths
 {
     protected array $filters;
+    protected array $structureLookup;
 
     /** Section header column indices (1-based) for color grouping */
     private const SECTION_IDENTIFICATION = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];               // Cols A-H
@@ -34,6 +35,11 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
     public function __construct(array $filters = [])
     {
         $this->filters = $filters;
+        // Pre-load structure lookup: code => "CI - SIGLE"
+        $this->structureLookup = \App\Models\Structure::where('is_active', true)
+            ->pluck('sigle', 'code')
+            ->map(fn ($sigle, $code) => $code . ' - ' . ($sigle ?? $code))
+            ->toArray();
     }
 
     public function query(): Builder
@@ -111,14 +117,14 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             $v->chassis_readable !== null ? ($v->chassis_readable ? 'Oui' : 'Non') : '',
             $v->fuel_type, $v->transmission, $v->engine_displacement, $v->seats_count,
             $v->load_capacity, $v->mileage,
-            $v->status, $v->structure_ci,
+            $v->status, $this->structureLookup[$v->structure_ci] ?? $v->structure_ci,
             $v->has_roll_bars !== null ? ($v->has_roll_bars ? 'Oui' : 'Non') : '',
             $v->special_equipment,
             $v->technical_inspection_date?->format('d/m/Y'),
             $v->is_insured !== null ? ($v->is_insured ? 'Oui' : 'Non') : '',
             $v->insurance_company, $v->policy_number, $v->coverage_type,
             $v->insurance_start_date?->format('d/m/Y'), $v->insurance_end_date?->format('d/m/Y'),
-            $v->user_direction, $v->user_matricule, $v->user_driver_license,
+            $this->structureLookup[$v->user_direction] ?? $v->user_direction, $v->user_matricule, $v->user_driver_license,
             $v->financing_mode, $v->bank_name, $v->contract_number,
             $v->withdrawal_start_date?->format('d/m/Y'), $v->withdrawal_end_date?->format('d/m/Y'),
             $v->contract_start_date?->format('d/m/Y'), $v->provision_date?->format('d/m/Y'),

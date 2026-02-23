@@ -326,7 +326,7 @@
                 </div>
                 <div>
                     <p class="text-[11px] uppercase tracking-wide text-slate-400">Structure / CI</p>
-                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->structure_ci ?? '-' }}</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $structureLabel ?? $vehicle->structure_ci ?? '-' }}</p>
                 </div>
                 <div>
                     <p class="text-[11px] uppercase tracking-wide text-slate-400">Arceaux de sécurité</p>

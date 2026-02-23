@@ -9,7 +9,7 @@ class Structure extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['code', 'name', 'region', 'is_active'];
+    protected $fillable = ['code', 'name', 'sigle', 'region', 'direction', 'site', 'type', 'is_active'];
 
     protected function casts(): array
     {

@@ -20,10 +20,15 @@ class ComplianceSheet implements FromCollection, WithHeadings, WithTitle, WithSt
     protected int $rowCount = 0;
     protected array $criticalRows = [];
     protected array $warningRows = [];
+    protected array $structureLookup;
 
     public function __construct(string $type)
     {
         $this->type = $type;
+        $this->structureLookup = \App\Models\Structure::where('is_active', true)
+            ->pluck('sigle', 'code')
+            ->map(fn ($sigle, $code) => $code . ' - ' . ($sigle ?? $code))
+            ->toArray();
     }
 
     public function title(): string
@@ -114,7 +119,7 @@ class ComplianceSheet implements FromCollection, WithHeadings, WithTitle, WithSt
             return [
                 $v->registration_number ?: $v->temporary_registration ?: '-',
                 $v->brand, $v->model, $v->vehicle_type, $v->status,
-                $v->structure_ci, $date, $alert,
+                $this->structureLookup[$v->structure_ci] ?? $v->structure_ci, $date, $alert,
             ];
         });
 

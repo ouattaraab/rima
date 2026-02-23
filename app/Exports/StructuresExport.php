@@ -56,7 +56,7 @@ class StructuresExport implements FromCollection, WithHeadings, WithStyles, With
 
     public function headings(): array
     {
-        return ['#', 'Code', 'Exploitation', 'Sigle Dir.', 'Direction', 'Site', 'Type', 'Actif', 'Date création'];
+        return ['#', 'CI', 'Exploitation', 'Sigle Dir.', 'Direction', 'Site', 'Type', 'Actif', 'Date création'];
     }
 
     public function title(): string

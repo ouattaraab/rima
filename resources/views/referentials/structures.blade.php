@@ -64,7 +64,7 @@
         <table class="w-full">
             <thead>
                 <tr class="border-b border-slate-200">
-                    <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Code</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">CI</th>
                     <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Exploitation</th>
                     <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Sigle Dir.</th>
                     <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Direction</th>
@@ -136,7 +136,7 @@
                     <div class="p-6 space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label for="add-code" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Code (CI)</label>
+                                <label for="add-code" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">CI</label>
                                 <input type="text" name="code" id="add-code" x-ref="add_code" value="{{ old('code') }}" placeholder="Ex: 0200"
                                     class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
                                     :class="addErrors.code ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
@@ -206,7 +206,7 @@
                     <div class="p-6 space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Code (CI)</label>
+                                <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">CI</label>
                                 <input type="text" name="code" x-model="editItem.code"
                                     class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
                                     :class="editErrors.code ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"

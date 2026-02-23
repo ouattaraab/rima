@@ -22,6 +22,7 @@ class DashboardController extends Controller
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
         $structureCodes = $request->input('structures', []);
+        if (!is_array($structureCodes)) $structureCodes = [$structureCodes];
 
         $query = Vehicle::query();
 

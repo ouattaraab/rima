@@ -14,6 +14,7 @@ class ReportController extends Controller
     {
         $structures = Structure::where('is_active', true)->orderBy('code')->get();
         $selectedStructures = $request->input('structures', []);
+        if (!is_array($selectedStructures)) $selectedStructures = [$selectedStructures];
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
 

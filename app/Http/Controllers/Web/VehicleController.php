@@ -43,7 +43,7 @@ class VehicleController extends Controller
         if ($request->filled('date_to')) $query->whereDate('collected_at', '<=', $request->date_to);
         if ($request->filled('agent')) $query->where('collected_by', $request->agent);
         if ($request->filled('structures')) {
-            $structureCodes = $request->structures;
+            $structureCodes = is_array($request->structures) ? $request->structures : [$request->structures];
             $query->whereIn('structure_ci', $structureCodes);
         }
 
@@ -323,7 +323,10 @@ class VehicleController extends Controller
         if ($request->filled('category')) $query->where('category', $request->category);
         if ($request->filled('date_from')) $query->whereDate('collected_at', '>=', $request->date_from);
         if ($request->filled('date_to')) $query->whereDate('collected_at', '<=', $request->date_to);
-        if ($request->filled('structures')) $query->whereIn('structure_ci', $request->structures);
+        if ($request->filled('structures')) {
+            $codes = is_array($request->structures) ? $request->structures : [$request->structures];
+            $query->whereIn('structure_ci', $codes);
+        }
 
         $vehicles = $query->orderByDesc('collected_at')->get();
         $filters = $request->only(['form_status', 'vehicle_type', 'brand', 'category', 'date_from', 'date_to', 'structures']);

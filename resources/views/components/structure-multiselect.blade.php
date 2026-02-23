@@ -48,16 +48,16 @@
 
     {{-- Dropdown --}}
     <div x-show="open" @click.away="close()" x-transition.opacity.duration.150ms
-         class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-xl" x-cloak
-         style="max-height: 280px; display: flex; flex-direction: column;">
+         class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden"
+         x-cloak>
 
-        {{-- List --}}
-        <div class="flex-1 min-h-0 overflow-y-auto" x-ref="listbox"
-             @wheel="$event.stopPropagation()"
-             style="overscroll-behavior: contain;">
+        {{-- Scrollable list — fixed height, native scroll --}}
+        <div x-ref="listbox"
+             style="max-height: 240px; overflow-y: scroll; overscroll-behavior: contain;"
+             x-on:wheel.stop>
             <template x-for="item in filtered" :key="item.c">
                 <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 cursor-pointer text-[13px] text-slate-700"
-                       :class="{ 'bg-emerald-50/50': has(item.c) }">
+                       :class="{ 'bg-emerald-50/60': has(item.c) }">
                     <input type="checkbox" :checked="has(item.c)" @change="toggle(item.c)"
                            class="w-3.5 h-3.5 rounded border-slate-300 text-[#2DB56B] focus:ring-0 focus:ring-offset-0 cursor-pointer shrink-0">
                     <span x-text="item.l" class="truncate"></span>
@@ -69,7 +69,7 @@
         </div>
 
         {{-- Footer --}}
-        <div class="shrink-0 flex items-center justify-between px-3 py-1.5 border-t border-slate-100 bg-slate-50 text-[11px] rounded-b-lg">
+        <div class="flex items-center justify-between px-3 py-1.5 border-t border-slate-100 bg-slate-50 text-[11px]">
             <span class="text-slate-400">
                 <span x-text="filtered.length"></span> / <span x-text="items.length"></span>
                 <span x-show="selected.length" class="text-emerald-600 font-semibold ml-1">&bull; <span x-text="selected.length"></span> sel.</span>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Vehicle;
 use App\Models\Structure;
+use App\Models\Direction;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -13,14 +14,28 @@ class ReportController extends Controller
     public function regional(Request $request)
     {
         $structures = Structure::where('is_active', true)->orderBy('code')->get();
+        $directions = Direction::where('is_active', true)->orderBy('name')->get();
         $selectedStructures = $request->input('structures', []);
         if (!is_array($selectedStructures)) $selectedStructures = [$selectedStructures];
+        $selectedDirections = $request->input('directions', []);
+        if (!is_array($selectedDirections)) $selectedDirections = [$selectedDirections];
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
 
+        // If directions are selected, also filter by their structures
+        $effectiveStructures = $selectedStructures;
+        if (!empty($selectedDirections)) {
+            $dirStructureCodes = Structure::whereIn('direction_id', $selectedDirections)->pluck('code')->toArray();
+            if (!empty($effectiveStructures)) {
+                $effectiveStructures = array_intersect($effectiveStructures, $dirStructureCodes);
+            } else {
+                $effectiveStructures = $dirStructureCodes;
+            }
+        }
+
         $query = Vehicle::query();
-        if (!empty($selectedStructures)) {
-            $query->whereIn('structure_ci', $selectedStructures);
+        if (!empty($effectiveStructures)) {
+            $query->whereIn('structure_ci', $effectiveStructures);
         }
         if ($dateFrom) {
             $query->whereDate('collected_at', '>=', $dateFrom);
@@ -37,8 +52,32 @@ class ReportController extends Controller
         $completionRate = $total > 0 ? round(($validated / $total) * 100, 1) : 0;
         $rejectionRate = $total > 0 ? round(($rejected / $total) * 100, 1) : 0;
 
-        // Per-structure breakdown
-        $byRegion = Vehicle::selectRaw("vehicles.structure_ci, structures.name as structure_name, count(*) as total")
+        // Per-direction breakdown (for chart)
+        $byDirectionQuery = Vehicle::selectRaw("
+                COALESCE(directions.code, 'N/A') as direction_code,
+                COALESCE(directions.name, 'Sans direction') as direction_name,
+                count(*) as total")
+            ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'validated' THEN 1 ELSE 0 END) as validated")
+            ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'rejected' THEN 1 ELSE 0 END) as rejected")
+            ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'synchronized' THEN 1 ELSE 0 END) as synchronized")
+            ->leftJoin('structures', 'vehicles.structure_ci', '=', 'structures.code')
+            ->leftJoin('directions', 'structures.direction_id', '=', 'directions.id')
+            ->whereNotNull('vehicles.structure_ci')
+            ->where('vehicles.structure_ci', '!=', '');
+
+        if (!empty($effectiveStructures)) {
+            $byDirectionQuery->whereIn('vehicles.structure_ci', $effectiveStructures);
+        }
+        if ($dateFrom) $byDirectionQuery->whereDate('vehicles.collected_at', '>=', $dateFrom);
+        if ($dateTo) $byDirectionQuery->whereDate('vehicles.collected_at', '<=', $dateTo);
+
+        $byDirection = $byDirectionQuery
+            ->groupByRaw("COALESCE(directions.code, 'N/A'), COALESCE(directions.name, 'Sans direction')")
+            ->orderByDesc('total')
+            ->get();
+
+        // Per-structure breakdown (for detail table)
+        $byRegionQuery = Vehicle::selectRaw("vehicles.structure_ci, structures.name as structure_name, structures.sigle as structure_sigle, count(*) as total")
             ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'validated' THEN 1 ELSE 0 END) as validated")
             ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'rejected' THEN 1 ELSE 0 END) as rejected")
             ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'synchronized' THEN 1 ELSE 0 END) as synchronized")
@@ -46,20 +85,20 @@ class ReportController extends Controller
             ->whereNotNull('vehicles.structure_ci')
             ->where('vehicles.structure_ci', '!=', '');
 
-        if (!empty($selectedStructures)) {
-            $byRegion->whereIn('vehicles.structure_ci', $selectedStructures);
+        if (!empty($effectiveStructures)) {
+            $byRegionQuery->whereIn('vehicles.structure_ci', $effectiveStructures);
         }
-        if ($dateFrom) $byRegion->whereDate('vehicles.collected_at', '>=', $dateFrom);
-        if ($dateTo) $byRegion->whereDate('vehicles.collected_at', '<=', $dateTo);
+        if ($dateFrom) $byRegionQuery->whereDate('vehicles.collected_at', '>=', $dateFrom);
+        if ($dateTo) $byRegionQuery->whereDate('vehicles.collected_at', '<=', $dateTo);
 
-        $byRegion = $byRegion->groupBy('vehicles.structure_ci', 'structures.name')
+        $byRegion = $byRegionQuery->groupBy('vehicles.structure_ci', 'structures.name', 'structures.sigle')
             ->orderByDesc('total')
             ->get();
 
         return view('reports.regional', compact(
-            'structures', 'selectedStructures', 'dateFrom', 'dateTo',
+            'structures', 'directions', 'selectedStructures', 'selectedDirections', 'dateFrom', 'dateTo',
             'total', 'validated', 'rejected', 'synchronized',
-            'completionRate', 'rejectionRate', 'byRegion'
+            'completionRate', 'rejectionRate', 'byDirection', 'byRegion'
         ));
     }
 

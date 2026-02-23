@@ -51,11 +51,15 @@ class RegionalReportExport implements FromCollection, WithHeadings, WithStyles, 
             return $this->data;
         }
 
-        $query = Vehicle::selectRaw("vehicles.structure_ci, COALESCE(structures.name, vehicles.structure_ci) as structure_name, count(*) as total")
+        $query = Vehicle::selectRaw("
+                COALESCE(directions.code, 'N/A') as direction_code,
+                COALESCE(directions.name, 'Sans direction') as direction_name,
+                count(*) as total")
             ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'validated' THEN 1 ELSE 0 END) as validated")
             ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'synchronized' THEN 1 ELSE 0 END) as synchronized")
             ->selectRaw("SUM(CASE WHEN vehicles.form_status = 'rejected' THEN 1 ELSE 0 END) as rejected")
             ->leftJoin('structures', 'vehicles.structure_ci', '=', 'structures.code')
+            ->leftJoin('directions', 'structures.direction_id', '=', 'directions.id')
             ->whereNotNull('vehicles.structure_ci')
             ->where('vehicles.structure_ci', '!=', '');
 
@@ -69,7 +73,7 @@ class RegionalReportExport implements FromCollection, WithHeadings, WithStyles, 
             $query->whereDate('vehicles.collected_at', '<=', $this->dateTo);
         }
 
-        $this->data = $query->groupBy('vehicles.structure_ci', 'structures.name')
+        $this->data = $query->groupByRaw("COALESCE(directions.code, 'N/A'), COALESCE(directions.name, 'Sans direction')")
             ->orderByDesc('total')
             ->get();
 
@@ -86,7 +90,7 @@ class RegionalReportExport implements FromCollection, WithHeadings, WithStyles, 
             $rate = $total > 0 ? round(($validated / $total) * 100, 1) : 0;
 
             return [
-                $row->structure_name ?? $row->structure_ci,
+                $row->direction_code . ' - ' . $row->direction_name,
                 $total,
                 $validated,
                 $synchronized,
@@ -98,7 +102,7 @@ class RegionalReportExport implements FromCollection, WithHeadings, WithStyles, 
 
     public function headings(): array
     {
-        return ['Structure / CI', 'Total', 'Valides', 'En attente', 'Rejetes', 'Taux completude'];
+        return ['Direction', 'Total', 'Valides', 'En attente', 'Rejetes', 'Taux completude'];
     }
 
     public function columnWidths(): array
@@ -216,7 +220,7 @@ class RegionalReportExport implements FromCollection, WithHeadings, WithStyles, 
 
         $plotArea = new PlotArea(null, [$series]);
         $legend = new Legend(Legend::POSITION_BOTTOM, null, false);
-        $chartTitle = new Title('Vehicules par structure');
+        $chartTitle = new Title('Vehicules par direction');
 
         $chart = new Chart(
             'regional_chart',

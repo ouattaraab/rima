@@ -10,7 +10,7 @@
     showImportModal: false,
     addErrors: {},
     editErrors: {},
-    editItem: { id: '', code: '', name: '', region: '', is_active: true },
+    editItem: { id: '', code: '', name: '', sigle: '', direction_id: '', site: '', type: '', region: '', is_active: true },
     validateAdd(e) {
         this.addErrors = {};
         if (!this.$refs.add_code.value.trim()) this.addErrors.code = 'Le code est obligatoire.';
@@ -25,7 +25,17 @@
     },
     openEdit(item) {
         this.editErrors = {};
-        this.editItem = { id: item.id, code: item.code, name: item.name, region: item.region, is_active: item.is_active };
+        this.editItem = {
+            id: item.id,
+            code: item.code,
+            name: item.name,
+            sigle: item.sigle,
+            direction_id: item.direction_id,
+            site: item.site,
+            type: item.type,
+            region: item.region,
+            is_active: item.is_active
+        };
         this.showEditModal = true;
     }
 }">
@@ -44,7 +54,7 @@
             </button>
             <button @click="addErrors = {}; showAddModal = true" class="inline-flex items-center gap-2 rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Ajouter une structure
+                Ajouter
             </button>
         </div>
     </div>
@@ -54,35 +64,51 @@
         <table class="w-full">
             <thead>
                 <tr class="border-b border-slate-200">
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Code</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Nom</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Region</th>
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Statut</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Actions</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Code</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Exploitation</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Sigle Dir.</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Direction</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Site</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Type</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Statut</th>
+                    <th class="text-right px-4 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse($items as $item)
                 <tr class="hover:bg-slate-50/50 transition-colors">
-                    <td class="px-5 py-3.5 text-[13px] font-mono text-slate-500">{{ $item->code }}</td>
-                    <td class="px-5 py-3.5 text-[13px] font-medium text-slate-900 border-l border-slate-100">{{ $item->name }}</td>
-                    <td class="px-5 py-3.5 text-[13px] text-slate-500 border-l border-slate-100">{{ $item->region ?? '---' }}</td>
-                    <td class="px-5 py-3.5 text-[13px] border-l border-slate-100">
+                    <td class="px-4 py-3 text-[13px] font-mono text-slate-500">{{ $item->code }}</td>
+                    <td class="px-4 py-3 text-[13px] font-medium text-slate-900 border-l border-slate-100">{{ $item->name }}</td>
+                    <td class="px-4 py-3 text-[13px] text-slate-500 border-l border-slate-100">{{ $item->sigle ?? '---' }}</td>
+                    <td class="px-4 py-3 text-[13px] text-slate-500 border-l border-slate-100">{{ $item->directionRelation?->name ?? '---' }}</td>
+                    <td class="px-4 py-3 text-[13px] text-slate-500 border-l border-slate-100">{{ $item->site ?? '---' }}</td>
+                    <td class="px-4 py-3 text-[13px] text-slate-500 border-l border-slate-100">{{ $item->type ?? '---' }}</td>
+                    <td class="px-4 py-3 text-[13px] border-l border-slate-100">
                         @if($item->is_active)
                             <span class="text-emerald-600 font-medium">Actif</span>
                         @else
                             <span class="text-slate-400">Inactif</span>
                         @endif
                     </td>
-                    <td class="px-5 py-3.5 text-right border-l border-slate-100">
-                        <button @click="openEdit({ id: '{{ $item->id }}', code: '{{ addslashes($item->code) }}', name: '{{ addslashes($item->name) }}', region: '{{ addslashes($item->region ?? '') }}', is_active: {{ $item->is_active ? 'true' : 'false' }} })" class="text-[13px] font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                    <td class="px-4 py-3 text-right border-l border-slate-100">
+                        <button @click="openEdit({
+                            id: '{{ $item->id }}',
+                            code: '{{ addslashes($item->code) }}',
+                            name: '{{ addslashes($item->name) }}',
+                            sigle: '{{ addslashes($item->sigle ?? '') }}',
+                            direction_id: '{{ $item->direction_id ?? '' }}',
+                            site: '{{ addslashes($item->site ?? '') }}',
+                            type: '{{ addslashes($item->type ?? '') }}',
+                            region: '{{ addslashes($item->region ?? '') }}',
+                            is_active: {{ $item->is_active ? 'true' : 'false' }}
+                        })" class="text-[13px] font-medium text-slate-600 hover:text-slate-900 transition-colors">
                             Modifier
                         </button>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-5 py-16 text-center">
+                    <td colspan="8" class="px-5 py-16 text-center">
                         <p class="text-[13px] text-slate-400">Aucune structure trouvee</p>
                         <p class="text-[11px] text-slate-300 mt-1">Commencez par ajouter une structure</p>
                     </td>
@@ -101,41 +127,61 @@
     {{-- Add Modal --}}
     <template x-teleport="body">
         <div x-show="showAddModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="showAddModal = false" x-cloak>
-            <div x-show="showAddModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden">
+            <div x-show="showAddModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-lg mx-4 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-200">
                     <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Ajouter une structure</p>
                 </div>
                 <form action="{{ route('referentials.structures.store') }}" method="POST" novalidate @submit="validateAdd($event)">
                     @csrf
                     <div class="p-6 space-y-4">
-                        <div>
-                            <label for="add-code" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Code</label>
-                            <input type="text" name="code" id="add-code" x-ref="add_code" value="{{ old('code') }}" placeholder="Code de la structure"
-                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
-                                :class="addErrors.code ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
-                                @input="delete addErrors.code">
-                            <p x-show="addErrors.code" x-text="addErrors.code" class="mt-1 text-[12px] text-red-500"></p>
-                            @error('code')
-                                <p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>
-                            @enderror
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="add-code" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Code (CI)</label>
+                                <input type="text" name="code" id="add-code" x-ref="add_code" value="{{ old('code') }}" placeholder="Ex: 0200"
+                                    class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
+                                    :class="addErrors.code ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
+                                    @input="delete addErrors.code">
+                                <p x-show="addErrors.code" x-text="addErrors.code" class="mt-1 text-[12px] text-red-500"></p>
+                            </div>
+                            <div>
+                                <label for="add-name" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Exploitation</label>
+                                <input type="text" name="name" id="add-name" x-ref="add_name" value="{{ old('name') }}" placeholder="Nom de l'exploitation"
+                                    class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
+                                    :class="addErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
+                                    @input="delete addErrors.name">
+                                <p x-show="addErrors.name" x-text="addErrors.name" class="mt-1 text-[12px] text-red-500"></p>
+                            </div>
                         </div>
-                        <div>
-                            <label for="add-name" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Nom</label>
-                            <input type="text" name="name" id="add-name" x-ref="add_name" value="{{ old('name') }}" placeholder="Nom de la structure"
-                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
-                                :class="addErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
-                                @input="delete addErrors.name">
-                            <p x-show="addErrors.name" x-text="addErrors.name" class="mt-1 text-[12px] text-red-500"></p>
-                            @error('name')
-                                <p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>
-                            @enderror
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="add-sigle" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Sigle Direction</label>
+                                <input type="text" name="sigle" id="add-sigle" value="{{ old('sigle') }}" placeholder="Ex: D.G, DRANE"
+                                    class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                            </div>
+                            <div>
+                                <label for="add-direction" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Direction</label>
+                                <select name="direction_id" id="add-direction" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                                    <option value="">-- Selectionner --</option>
+                                    @foreach($directions as $dir)
+                                        <option value="{{ $dir->id }}">{{ $dir->code }} - {{ $dir->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label for="add-region" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Region</label>
-                            <input type="text" name="region" id="add-region" value="{{ old('region') }}" placeholder="Region" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
-                            @error('region')
-                                <p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>
-                            @enderror
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="add-site" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Site</label>
+                                <input type="text" name="site" id="add-site" value="{{ old('site') }}" placeholder="Code site"
+                                    class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                            </div>
+                            <div>
+                                <label for="add-type" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type</label>
+                                <select name="type" id="add-type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                                    <option value="">-- Selectionner --</option>
+                                    <option value="FONCTIONNELLE" {{ old('type') === 'FONCTIONNELLE' ? 'selected' : '' }}>Fonctionnelle</option>
+                                    <option value="EXPLOITATION" {{ old('type') === 'EXPLOITATION' ? 'selected' : '' }}>Exploitation</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
@@ -150,7 +196,7 @@
     {{-- Edit Modal --}}
     <template x-teleport="body">
         <div x-show="showEditModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="showEditModal = false" x-cloak>
-            <div x-show="showEditModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden">
+            <div x-show="showEditModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-lg mx-4 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-200">
                     <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Modifier la structure</p>
                 </div>
@@ -158,34 +204,54 @@
                     @csrf
                     @method('PUT')
                     <div class="p-6 space-y-4">
-                        <div>
-                            <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Code</label>
-                            <input type="text" name="code" x-model="editItem.code"
-                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
-                                :class="editErrors.code ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
-                                @input="delete editErrors.code">
-                            <p x-show="editErrors.code" x-text="editErrors.code" class="mt-1 text-[12px] text-red-500"></p>
-                            @error('code')
-                                <p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>
-                            @enderror
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Code (CI)</label>
+                                <input type="text" name="code" x-model="editItem.code"
+                                    class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
+                                    :class="editErrors.code ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
+                                    @input="delete editErrors.code">
+                                <p x-show="editErrors.code" x-text="editErrors.code" class="mt-1 text-[12px] text-red-500"></p>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Exploitation</label>
+                                <input type="text" name="name" x-model="editItem.name"
+                                    class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
+                                    :class="editErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
+                                    @input="delete editErrors.name">
+                                <p x-show="editErrors.name" x-text="editErrors.name" class="mt-1 text-[12px] text-red-500"></p>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Nom</label>
-                            <input type="text" name="name" x-model="editItem.name"
-                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 transition"
-                                :class="editErrors.name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
-                                @input="delete editErrors.name">
-                            <p x-show="editErrors.name" x-text="editErrors.name" class="mt-1 text-[12px] text-red-500"></p>
-                            @error('name')
-                                <p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>
-                            @enderror
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Sigle Direction</label>
+                                <input type="text" name="sigle" x-model="editItem.sigle"
+                                    class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Direction</label>
+                                <select name="direction_id" x-model="editItem.direction_id" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                                    <option value="">-- Selectionner --</option>
+                                    @foreach($directions as $dir)
+                                        <option value="{{ $dir->id }}">{{ $dir->code }} - {{ $dir->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Region</label>
-                            <input type="text" name="region" x-model="editItem.region" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
-                            @error('region')
-                                <p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>
-                            @enderror
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Site</label>
+                                <input type="text" name="site" x-model="editItem.site"
+                                    class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 placeholder-slate-300 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type</label>
+                                <select name="type" x-model="editItem.type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                                    <option value="">-- Selectionner --</option>
+                                    <option value="FONCTIONNELLE">Fonctionnelle</option>
+                                    <option value="EXPLOITATION">Exploitation</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
                             <div>
@@ -221,7 +287,8 @@
                 <form action="{{ route('referentials.structures.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="p-6 space-y-4">
-                        <p class="text-[13px] text-slate-500">Selectionnez un fichier Excel (.xlsx, .xls) ou CSV contenant les colonnes <strong>Code</strong>, <strong>Nom</strong> et optionnellement <strong>Region</strong>.</p>
+                        <p class="text-[13px] text-slate-500">Selectionnez un fichier Excel (.xlsx, .xls) contenant les colonnes <strong>CI</strong>, <strong>Exploitation</strong>, <strong>Sigle Direction</strong>, <strong>Libelle Direction</strong>, <strong>Site</strong>, <strong>Type Direction</strong>.</p>
+                        <p class="text-[12px] text-slate-400">Les directions seront automatiquement creees a partir des colonnes Sigle/Libelle Direction.</p>
                         <div>
                             <label for="import-file" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Fichier</label>
                             <input type="file" name="file" id="import-file" accept=".xlsx,.xls,.csv" required

@@ -71,14 +71,27 @@ class ReferentialController extends Controller
     }
 
     // ===================== STRUCTURES =====================
-    public function structures() { return view('referentials.structures', ['items' => Structure::orderBy('name')->paginate(20)]); }
+    public function structures() {
+        return view('referentials.structures', [
+            'items' => Structure::with('directionRelation')->orderBy('code')->paginate(20),
+            'directions' => Direction::where('is_active', true)->orderBy('name')->get(),
+        ]);
+    }
     public function storeStructure(Request $request) {
-        $request->validate(['code' => 'required|string|max:10|unique:structures,code', 'name' => 'required|string|max:100', 'region' => 'nullable|string|max:50']);
-        Structure::create($request->only(['code', 'name', 'region']));
+        $request->validate([
+            'code' => 'required|string|max:10|unique:structures,code',
+            'name' => 'required|string|max:100',
+            'sigle' => 'nullable|string|max:20',
+            'direction_id' => 'nullable|uuid|exists:directions,id',
+            'site' => 'nullable|string|max:10',
+            'type' => 'nullable|string|max:20',
+            'region' => 'nullable|string|max:100',
+        ]);
+        Structure::create($request->only(['code', 'name', 'sigle', 'direction_id', 'site', 'type', 'region']));
         return back()->with('success', 'Structure ajoutee.');
     }
     public function updateStructure(Request $request, string $id) {
-        Structure::findOrFail($id)->update($request->only(['code', 'name', 'region', 'is_active']));
+        Structure::findOrFail($id)->update($request->only(['code', 'name', 'sigle', 'direction_id', 'site', 'type', 'region', 'is_active']));
         return back()->with('success', 'Structure mise a jour.');
     }
     public function exportStructures() {
@@ -88,7 +101,11 @@ class ReferentialController extends Controller
         $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);
         $import = new StructuresImport();
         Excel::import($import, $request->file('file'));
-        return back()->with('success', "{$import->imported} structure(s) importee(s), {$import->updated} mise(s) a jour, {$import->skipped} ignoree(s).");
+        $msg = "{$import->imported} structure(s) importee(s), {$import->updated} mise(s) a jour, {$import->skipped} ignoree(s).";
+        if ($import->directionsCreated > 0) {
+            $msg .= " {$import->directionsCreated} direction(s) creee(s).";
+        }
+        return back()->with('success', $msg);
     }
 
     // ===================== INSURANCES =====================

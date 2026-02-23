@@ -3,7 +3,7 @@
 @php
     $structuresJson = $structures->map(fn($s) => [
         'c' => $s->code,
-        'l' => $s->code . ' - ' . ($s->sigle ?? $s->name),
+        'l' => $s->code . '-' . $s->name . ($s->sigle ? ' (' . $s->sigle . ')' : ''),
         's' => strtolower($s->code . ' ' . ($s->sigle ?? '') . ' ' . $s->name),
     ])->values()->toJson();
 @endphp

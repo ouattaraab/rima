@@ -39,12 +39,15 @@ class StructuresExport implements FromCollection, WithHeadings, WithStyles, With
 
     public function collection(): Collection
     {
-        return Structure::orderBy('region')->orderBy('name')->get()->map(function ($item, $index) {
+        return Structure::with('directionRelation')->orderBy('region')->orderBy('name')->get()->map(function ($item, $index) {
             return [
                 $index + 1,
                 $item->code,
                 $item->name,
-                $item->region ?? '—',
+                $item->sigle ?? '—',
+                $item->directionRelation?->name ?? '—',
+                $item->site ?? '—',
+                $item->type ?? '—',
                 $item->is_active ? 'Oui' : 'Non',
                 $item->created_at?->format('d/m/Y H:i'),
             ];
@@ -53,7 +56,7 @@ class StructuresExport implements FromCollection, WithHeadings, WithStyles, With
 
     public function headings(): array
     {
-        return ['#', 'Code', 'Nom', 'Région', 'Actif', 'Date création'];
+        return ['#', 'Code', 'Exploitation', 'Sigle Dir.', 'Direction', 'Site', 'Type', 'Actif', 'Date création'];
     }
 
     public function title(): string
@@ -64,12 +67,15 @@ class StructuresExport implements FromCollection, WithHeadings, WithStyles, With
     public function columnWidths(): array
     {
         return [
-            'A' => 8,
-            'B' => 14,
-            'C' => 35,
-            'D' => 25,
-            'E' => 12,
-            'F' => 22,
+            'A' => 6,
+            'B' => 10,
+            'C' => 30,
+            'D' => 12,
+            'E' => 30,
+            'F' => 10,
+            'G' => 16,
+            'H' => 8,
+            'I' => 18,
         ];
     }
 
@@ -102,7 +108,7 @@ class StructuresExport implements FromCollection, WithHeadings, WithStyles, With
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
                 $rowCount = $sheet->getHighestRow();
-                $lastCol = 'F';
+                $lastCol = 'I';
                 $headingRow = self::DATA_START_ROW;
                 $firstData = self::DATA_ROW_START;
 
@@ -154,25 +160,25 @@ class StructuresExport implements FromCollection, WithHeadings, WithStyles, With
 
                 // ── Data rows ──
                 for ($row = $firstData; $row <= $rowCount; $row++) {
-                    $region = $sheet->getCell("D{$row}")->getValue();
+                    $direction = $sheet->getCell("E{$row}")->getValue();
 
-                    // Assign color per region
-                    if ($region && $region !== '—' && !isset($regionColors[$region])) {
-                        $regionColors[$region] = self::REGION_COLORS[$colorIndex % count(self::REGION_COLORS)];
+                    // Assign color per direction
+                    if ($direction && $direction !== '—' && !isset($regionColors[$direction])) {
+                        $regionColors[$direction] = self::REGION_COLORS[$colorIndex % count(self::REGION_COLORS)];
                         $colorIndex++;
                     }
 
-                    // Region-based background
-                    if ($region && $region !== '—' && isset($regionColors[$region])) {
-                        $sheet->getStyle("D{$row}")->applyFromArray([
-                            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $regionColors[$region]]],
+                    // Direction-based background
+                    if ($direction && $direction !== '—' && isset($regionColors[$direction])) {
+                        $sheet->getStyle("E{$row}")->applyFromArray([
+                            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $regionColors[$direction]]],
                             'font' => ['bold' => true],
                         ]);
                         if ($row % 2 === 0) {
-                            $sheet->getStyle("A{$row}:C{$row}")->applyFromArray([
+                            $sheet->getStyle("A{$row}:D{$row}")->applyFromArray([
                                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::ZEBRA_COLOR]],
                             ]);
-                            $sheet->getStyle("E{$row}:{$lastCol}{$row}")->applyFromArray([
+                            $sheet->getStyle("F{$row}:{$lastCol}{$row}")->applyFromArray([
                                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::ZEBRA_COLOR]],
                             ]);
                         }
@@ -193,11 +199,11 @@ class StructuresExport implements FromCollection, WithHeadings, WithStyles, With
                         ],
                     ]);
 
-                    // Actif column (E)
-                    $actifValue = $sheet->getCell("E{$row}")->getValue();
+                    // Actif column (H)
+                    $actifValue = $sheet->getCell("H{$row}")->getValue();
                     $bgColor = $actifValue === 'Oui' ? self::ACTIVE_COLOR : self::INACTIVE_COLOR;
                     $textColor = $actifValue === 'Oui' ? '16A34A' : 'DC2626';
-                    $sheet->getStyle("E{$row}")->applyFromArray([
+                    $sheet->getStyle("H{$row}")->applyFromArray([
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $bgColor]],
                         'font' => ['bold' => true, 'color' => ['rgb' => $textColor]],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -205,7 +211,9 @@ class StructuresExport implements FromCollection, WithHeadings, WithStyles, With
 
                     $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                     $sheet->getStyle("B{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle("D{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                     $sheet->getStyle("F{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle("I{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
 
                 // ── Total row ──

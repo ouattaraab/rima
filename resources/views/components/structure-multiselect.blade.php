@@ -26,7 +26,9 @@
     has(code) { return this.selected.includes(code); },
     clear() { this.selected = []; },
     close() { this.open = false; this.search = ''; }
-}" class="relative flex-1 min-w-0" @keydown.escape.window="close()">
+}" class="relative flex-1 min-w-0"
+   @click.away="close()"
+   @keydown.escape.window="close()">
 
     {{-- Hidden inputs --}}
     <template x-for="c in selected" :key="c">
@@ -47,11 +49,11 @@
     </div>
 
     {{-- Dropdown --}}
-    <div x-show="open" @click.away="close()" x-transition.opacity.duration.150ms
+    <div x-show="open" x-transition.opacity.duration.150ms
          class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden"
          x-cloak>
 
-        {{-- Scrollable list — fixed height, native scroll --}}
+        {{-- Scrollable list --}}
         <div x-ref="listbox"
              style="max-height: 240px; overflow-y: scroll; overscroll-behavior: contain;"
              x-on:wheel.stop>

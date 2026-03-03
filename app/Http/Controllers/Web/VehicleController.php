@@ -38,8 +38,12 @@ class VehicleController extends Controller
             });
         }
 
-        if ($request->filled('form_status')) {
-            $query->where('form_status', $request->form_status);
+        // form_status: support multiple values, default to synchronized+validated
+        $formStatuses = $request->input('form_status', ['synchronized', 'validated']);
+        if (!is_array($formStatuses)) $formStatuses = [$formStatuses];
+        $formStatuses = array_filter($formStatuses);
+        if (!empty($formStatuses) && !in_array('all', $formStatuses)) {
+            $query->whereIn('form_status', $formStatuses);
         }
         if ($request->filled('vehicle_status')) $query->where('status', $request->vehicle_status);
         if ($request->filled('category')) $query->where('category', $request->category);
@@ -60,11 +64,15 @@ class VehicleController extends Controller
         else $query->orderByDesc('collected_at');
 
         $vehicles = $query->paginate(20)->withQueryString();
-        $brands = Vehicle::distinct()->whereNotNull('brand')->pluck('brand')->sort()->values();
+        $brands = Brand::where('is_active', true)->orderBy('name')->get();
+        $vehicleModels = VehicleModel::where('is_active', true)->with('brand')->orderBy('name')->get();
+        $categories = \App\Models\VehicleCategory::where('is_active', true)->orderBy('name')->get();
+        $vehicleTypes = \App\Models\VehicleType::where('is_active', true)->orderBy('name')->get();
+        $vehicleStatuses = \App\Models\VehicleStatus::where('is_active', true)->orderBy('name')->get();
         $agents = User::where('role', 'agent_cidec')->where('is_active', true)->orderBy('last_name')->get();
         $structures = \App\Models\Structure::where('is_active', true)->orderBy('code')->get();
 
-        return view('vehicles.index', compact('vehicles', 'brands', 'agents', 'structures'));
+        return view('vehicles.index', compact('vehicles', 'brands', 'vehicleModels', 'categories', 'vehicleTypes', 'vehicleStatuses', 'agents', 'structures'));
     }
 
     public function show(string $id)

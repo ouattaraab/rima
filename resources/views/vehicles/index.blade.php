@@ -30,6 +30,18 @@
     </div>
 
     {{-- Search + Statut fiche --}}
+    @php
+        $defaultStatuses = ['synchronized', 'validated'];
+        $selectedStatuses = request('form_status', $defaultStatuses);
+        if (!is_array($selectedStatuses)) $selectedStatuses = [$selectedStatuses];
+        $selectedStatuses = array_filter($selectedStatuses);
+        $allStatuses = [
+            'synchronized' => 'Synchronise',
+            'validated' => 'Valide',
+            'rejected' => 'Rejete',
+            'draft' => 'Brouillon',
+        ];
+    @endphp
     <form method="GET" action="{{ route('vehicles.index') }}">
         @foreach(request()->except(['search', 'page', 'form_status', 'structures']) as $key => $value)
             @if($value !== null && $value !== '' && !is_array($value))<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif
@@ -47,13 +59,18 @@
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
                        class="filter-input block w-full" style="padding-left: 2.75rem;">
             </div>
-            <select name="form_status" onchange="this.form.submit()" class="filter-input w-auto min-w-[260px]">
-                <option value="">Tout</option>
-                <option value="synchronized" @selected(request('form_status') === 'synchronized')>Synchronisé</option>
-                <option value="validated" @selected(request('form_status') === 'validated')>Validé</option>
-                <option value="rejected" @selected(request('form_status') === 'rejected')>Rejeté</option>
-                <option value="draft" @selected(request('form_status') === 'draft')>Brouillon</option>
-            </select>
+            <div class="flex items-center gap-1.5">
+                <label class="cursor-pointer">
+                    <input type="checkbox" name="form_status[]" value="all" class="sr-only peer" onchange="this.form.submit()" @checked(empty($selectedStatuses) || in_array('all', $selectedStatuses))>
+                    <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">Tout</span>
+                </label>
+                @foreach($allStatuses as $value => $label)
+                <label class="cursor-pointer">
+                    <input type="checkbox" name="form_status[]" value="{{ $value }}" class="sr-only peer" onchange="this.form.submit()" @checked(in_array($value, $selectedStatuses))>
+                    <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">{{ $label }}</span>
+                </label>
+                @endforeach
+            </div>
         </div>
     </form>
 
@@ -61,33 +78,35 @@
     <div>
         <form method="GET" action="{{ route('vehicles.index') }}" class="border-b border-slate-200 pb-4">
                 @if(request('search'))<input type="hidden" name="search" value="{{ request('search') }}">@endif
-                @if(request('form_status'))<input type="hidden" name="form_status" value="{{ request('form_status') }}">@endif
+                @if(request('form_status'))
+                    @foreach((array) request('form_status') as $fs)
+                        <input type="hidden" name="form_status[]" value="{{ $fs }}">
+                    @endforeach
+                @endif
 
                 <div class="flex flex-wrap items-center gap-3">
                     <select name="vehicle_status" class="filter-input flex-1 min-w-0">
                         <option value="">Statut : Tous</option>
-                        <option value="En service" @selected(request('vehicle_status') === 'En service')>En service</option>
-                        <option value="En reparation" @selected(request('vehicle_status') === 'En reparation')>En réparation</option>
-                        <option value="Reforme" @selected(request('vehicle_status') === 'Reforme')>Réformé</option>
-                        <option value="Cede" @selected(request('vehicle_status') === 'Cede')>Cédé</option>
+                        @foreach($vehicleStatuses as $vs)
+                            <option value="{{ $vs->name }}" @selected(request('vehicle_status') === $vs->name)>{{ $vs->name }}</option>
+                        @endforeach
                     </select>
                     <select name="vehicle_type" class="filter-input flex-1 min-w-0">
                         <option value="">Type : Tous</option>
-                        <option value="Auto" @selected(request('vehicle_type') === 'Auto')>Auto</option>
-                        <option value="Moto" @selected(request('vehicle_type') === 'Moto')>Moto</option>
+                        @foreach($vehicleTypes as $vt)
+                            <option value="{{ $vt->name }}" @selected(request('vehicle_type') === $vt->name)>{{ $vt->name }}</option>
+                        @endforeach
                     </select>
                     <select name="category" class="filter-input flex-1 min-w-0">
-                        <option value="">Catégorie : Toutes</option>
-                        <option value="Berline" @selected(request('category') === 'Berline')>Berline</option>
-                        <option value="Pick-up" @selected(request('category') === 'Pick-up')>Pick-up</option>
-                        <option value="Utilitaire" @selected(request('category') === 'Utilitaire')>Utilitaire</option>
-                        <option value="Camion" @selected(request('category') === 'Camion')>Camion</option>
-                        <option value="Moto" @selected(request('category') === 'Moto')>Moto</option>
+                        <option value="">Categorie : Toutes</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->name }}" @selected(request('category') === $cat->name)>{{ $cat->name }}</option>
+                        @endforeach
                     </select>
                     <select name="brand" class="filter-input flex-1 min-w-0">
                         <option value="">Marque : Toutes</option>
                         @foreach($brands as $brand)
-                            <option value="{{ $brand }}" @selected(request('brand') === $brand)>{{ $brand }}</option>
+                            <option value="{{ $brand->name }}" @selected(request('brand') === $brand->name)>{{ $brand->name }}</option>
                         @endforeach
                     </select>
                 </div>

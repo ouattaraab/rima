@@ -69,6 +69,11 @@ class ReferentialController extends Controller
         Excel::import(new VehicleModelsImport(), $request->file('file'));
         return back()->with('success', 'Import des modeles effectue avec succes.');
     }
+    public function importBrandsModels(Request $request) {
+        $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);
+        Excel::import(new \App\Imports\BrandsModelsImport(), $request->file('file'));
+        return back()->with('success', 'Import combine (marques + modeles + categories) effectue avec succes.');
+    }
 
     // ===================== STRUCTURES =====================
     public function structures() {
@@ -170,6 +175,14 @@ class ReferentialController extends Controller
     public function updateVehicleCategory(Request $request, string $id) {
         VehicleCategory::findOrFail($id)->update($request->only(['name', 'vehicle_type', 'is_active']));
         return back()->with('success', 'Categorie mise a jour.');
+    }
+    public function exportVehicleCategories() {
+        return Excel::download(new \App\Exports\VehicleCategoriesExport(), 'RIMA_CATEGORIES_' . now()->format('Ymd_His') . '.xlsx');
+    }
+    public function importVehicleCategories(Request $request) {
+        $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);
+        Excel::import(new \App\Imports\VehicleCategoriesImport(), $request->file('file'));
+        return back()->with('success', 'Import des categories effectue avec succes.');
     }
 
     // ===================== FUEL TYPES =====================

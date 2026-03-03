@@ -4,11 +4,20 @@
 @section('header', 'Modifier le véhicule')
 
 @section('content')
+<script>
+    window.__vehicleModels = @json($vehicleModels->map(fn($m) => ['name' => $m->name, 'brand' => $m->brand?->name ?? '', 'category' => $m->category])->values());
+</script>
 <div class="mx-auto max-w-4xl" x-data="{
     vehicleType: '{{ old('vehicle_type', $vehicle->vehicle_type) }}',
     category: '{{ old('category', $vehicle->category) }}',
     status: '{{ old('status', $vehicle->status) }}',
     isInsured: {{ old('is_insured', $vehicle->is_insured) ? 'true' : 'false' }},
+    selectedBrand: '{{ old('brand', $vehicle->brand) }}',
+    allModels: window.__vehicleModels,
+    get filteredModels() {
+        if (!this.selectedBrand) return this.allModels;
+        return this.allModels.filter(m => m.brand === this.selectedBrand);
+    },
     errors: {},
     validate(e) {
         this.errors = {};
@@ -171,16 +180,26 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Marque <span class="text-red-500">*</span></label>
-                        <input type="text" name="brand" x-ref="brand" maxlength="50" value="{{ old('brand', $vehicle->brand) }}"
-                               class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
-                               :class="errors.brand ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
+                        <select name="brand" x-ref="brand" x-model="selectedBrand"
+                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
+                                :class="errors.brand ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
+                            <option value="">-- Sélectionner --</option>
+                            @foreach($brands as $brand)
+                                <option value="{{ $brand->name }}" {{ old('brand', $vehicle->brand) == $brand->name ? 'selected' : '' }}>{{ $brand->name }}</option>
+                            @endforeach
+                        </select>
                         <p x-show="errors.brand" x-text="errors.brand" class="text-[12px] text-red-500 mt-1"></p>
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Modèle <span class="text-red-500">*</span></label>
-                        <input type="text" name="model" x-ref="model" maxlength="100" value="{{ old('model', $vehicle->model) }}"
-                               class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
-                               :class="errors.model ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
+                        <select name="model" x-ref="model"
+                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
+                                :class="errors.model ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
+                            <option value="">-- Sélectionner --</option>
+                            <template x-for="m in filteredModels" :key="m.name">
+                                <option :value="m.name" x-text="m.name" :selected="m.name === '{{ old('model', $vehicle->model) }}'"></option>
+                            </template>
+                        </select>
                         <p x-show="errors.model" x-text="errors.model" class="text-[12px] text-red-500 mt-1"></p>
                     </div>
                     <div>
@@ -273,9 +292,13 @@
                         </select>
                         <p x-show="errors.transmission" x-text="errors.transmission" class="text-[12px] text-red-500 mt-1"></p>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Cylindrée</label>
+                    <div x-show="vehicleType === 'Moto'">
+                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Cylindrée (cm3)</label>
                         <input type="number" name="engine_displacement" min="50" max="99999" value="{{ old('engine_displacement', $vehicle->engine_displacement) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                    </div>
+                    <div x-show="vehicleType === 'Auto'">
+                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Puissance fiscale (CV)</label>
+                        <input type="number" name="fiscal_power" min="1" max="999" value="{{ old('fiscal_power', $vehicle->fiscal_power) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Nb places</label>
@@ -308,9 +331,14 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Structure / CI</label>
-                        <input type="text" name="structure_ci" x-ref="structure_ci" maxlength="10" value="{{ old('structure_ci', $vehicle->structure_ci) }}"
-                               class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
-                               :class="errors.structure_ci ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
+                        <select name="structure_ci" x-ref="structure_ci"
+                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
+                                :class="errors.structure_ci ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
+                            <option value="">-- Sélectionner --</option>
+                            @foreach($structures as $structure)
+                                <option value="{{ $structure->code }}" {{ old('structure_ci', $vehicle->structure_ci) == $structure->code ? 'selected' : '' }}>{{ $structure->display_label }}</option>
+                            @endforeach
+                        </select>
                         <p x-show="errors.structure_ci" x-text="errors.structure_ci" class="text-[12px] text-red-500 mt-1"></p>
                     </div>
                     <div>
@@ -323,6 +351,16 @@
                             <option value="0" {{ old('has_roll_bars', $vehicle->has_roll_bars) === false ? 'selected' : '' }}>Non</option>
                         </select>
                         <p x-show="errors.has_roll_bars" x-text="errors.has_roll_bars" class="text-[12px] text-red-500 mt-1"></p>
+                    </div>
+                    <div x-show="category === 'Pick-up'" x-cloak>
+                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type de cabine *</label>
+                        <select name="cabin_type"
+                                class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                            <option value="">-</option>
+                            @foreach(['Simple cabine','Double cabine'] as $ct)
+                                <option value="{{ $ct }}" {{ old('cabin_type', $vehicle->cabin_type) == $ct ? 'selected' : '' }}>{{ $ct }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Équipements spéciaux</label>
@@ -362,9 +400,14 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Compagnie</label>
-                        <input type="text" name="insurance_company" x-ref="insurance_company" maxlength="50" value="{{ old('insurance_company', $vehicle->insurance_company) }}"
-                               class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
-                               :class="errors.insurance_company ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
+                        <select name="insurance_company" x-ref="insurance_company"
+                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
+                                :class="errors.insurance_company ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
+                            <option value="">-- Sélectionner --</option>
+                            @foreach($insuranceCompanies as $ic)
+                                <option value="{{ $ic->name }}" {{ old('insurance_company', $vehicle->insurance_company) == $ic->name ? 'selected' : '' }}>{{ $ic->name }}</option>
+                            @endforeach
+                        </select>
                         <p x-show="errors.insurance_company" x-text="errors.insurance_company" class="text-[12px] text-red-500 mt-1"></p>
                     </div>
                     <div>
@@ -401,29 +444,99 @@
             </div>
         </div>
 
-        {{-- Utilisateur --}}
-        <div class="border-b border-slate-200 pb-6 mb-6">
+        {{-- Conducteurs (multi-driver Alpine.js) --}}
+        <div class="border-b border-slate-200 pb-6 mb-6"
+             x-data="{
+                drivers: @js($vehicle->drivers->count() > 0
+                    ? $vehicle->drivers->map(fn($d) => [
+                        'direction' => $d->direction,
+                        'matricule' => $d->matricule,
+                        'driver_license' => $d->driver_license,
+                        'is_primary' => $d->is_primary,
+                    ])->values()->toArray()
+                    : ($vehicle->user_matricule ? [[
+                        'direction' => $vehicle->user_direction ?? '',
+                        'matricule' => $vehicle->user_matricule ?? '',
+                        'driver_license' => $vehicle->user_driver_license ?? '',
+                        'is_primary' => true,
+                    ]] : [])
+                ),
+                addDriver() {
+                    this.drivers.push({ direction: '', matricule: '', driver_license: '', is_primary: this.drivers.length === 0 });
+                },
+                removeDriver(index) {
+                    const wasPrimary = this.drivers[index].is_primary;
+                    this.drivers.splice(index, 1);
+                    if (wasPrimary && this.drivers.length > 0) {
+                        this.drivers[0].is_primary = true;
+                    }
+                },
+                setPrimary(index) {
+                    this.drivers.forEach((d, i) => d.is_primary = (i === index));
+                }
+             }">
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div>
-                    <p class="text-[13px] font-semibold text-slate-900">Utilisateur</p>
-                    <p class="text-[12px] text-slate-400 mt-1">Identification du conducteur</p>
+                    <p class="text-[13px] font-semibold text-slate-900">Conducteurs</p>
+                    <p class="text-[12px] text-slate-400 mt-1">Conducteurs affectes au vehicule</p>
                 </div>
-                <div class="lg:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
-                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Direction</label>
-                        <input type="text" name="user_direction" maxlength="100" value="{{ old('user_direction', $vehicle->user_direction) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                <div class="lg:col-span-2 space-y-3">
+                    <template x-for="(driver, index) in drivers" :key="index">
+                        <div class="p-4 rounded-lg border transition-colors"
+                             :class="driver.is_primary ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-bold text-white"
+                                          :class="driver.is_primary ? 'bg-emerald-500' : 'bg-slate-400'" x-text="index + 1"></span>
+                                    <span x-show="driver.is_primary" class="text-[11px] font-semibold text-emerald-700 uppercase">Principal</span>
+                                    <button x-show="!driver.is_primary" type="button" @click="setPrimary(index)"
+                                            class="text-[11px] text-slate-500 hover:text-emerald-600 underline">Definir comme principal</button>
+                                </div>
+                                <button type="button" @click="removeDriver(index)" x-show="drivers.length > 1"
+                                        class="text-[11px] text-red-500 hover:text-red-700 font-medium">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    Supprimer
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                <div>
+                                    <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">CI / Structure</label>
+                                    <select :name="'drivers[' + index + '][direction]'" x-model="driver.direction"
+                                            class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                                        <option value="">-- Selectionner --</option>
+                                        @foreach($structures as $structure)
+                                            <option value="{{ $structure->code }}">{{ $structure->display_label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Matricule</label>
+                                    <input type="text" :name="'drivers[' + index + '][matricule]'" x-model="driver.matricule"
+                                           maxlength="7" pattern="[A-Za-z0-9]{7}" placeholder="ABC1234"
+                                           class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0 uppercase">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">N permis</label>
+                                    <input type="text" :name="'drivers[' + index + '][driver_license]'" x-model="driver.driver_license"
+                                           maxlength="50"
+                                           class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
+                                </div>
+                            </div>
+                            <input type="hidden" :name="'drivers[' + index + '][is_primary]'" :value="driver.is_primary ? '1' : '0'">
+                        </div>
+                    </template>
+
+                    {{-- Empty state --}}
+                    <div x-show="drivers.length === 0" class="text-center py-6 text-slate-400 text-[13px]">
+                        Aucun conducteur. Cliquez sur le bouton ci-dessous pour en ajouter.
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Matricule</label>
-                        <input type="text" name="user_matricule" x-ref="user_matricule" maxlength="7" pattern="[A-Za-z0-9]{7}" value="{{ old('user_matricule', $vehicle->user_matricule) }}"
-                               class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
-                               :class="errors.user_matricule ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
-                        <p x-show="errors.user_matricule" x-text="errors.user_matricule" class="text-[12px] text-red-500 mt-1"></p>
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">N permis de conduire</label>
-                        <input type="text" name="user_driver_license" maxlength="50" value="{{ old('user_driver_license', $vehicle->user_driver_license) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
-                    </div>
+
+                    {{-- Add driver button --}}
+                    <button type="button" @click="addDriver()"
+                            class="w-full py-2.5 border-2 border-dashed border-slate-300 rounded-lg text-[13px] font-medium text-slate-500 hover:border-[#2DB56B] hover:text-[#2DB56B] transition">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        Ajouter un conducteur
+                    </button>
                 </div>
             </div>
         </div>

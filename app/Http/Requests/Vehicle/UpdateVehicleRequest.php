@@ -66,6 +66,10 @@ class UpdateVehicleRequest extends FormRequest
                 'nullable', 'boolean',
                 Rule::requiredIf(fn() => $category === 'Pick-up' && $this->has('category')),
             ],
+            'cabin_type' => [
+                'nullable', 'in:Simple cabine,Double cabine',
+                Rule::requiredIf(fn() => $category === 'Pick-up' && $this->has('category')),
+            ],
             'special_equipment' => [
                 'nullable', 'string', 'max:100',
                 Rule::prohibitedIf(fn() => $category !== 'Camion'),
@@ -104,7 +108,14 @@ class UpdateVehicleRequest extends FormRequest
             'gps_longitude' => 'nullable|numeric|between:-180,180',
             'gps_accuracy' => 'nullable|numeric|min:0|max:1000',
 
-            // Section 5.7 - V1.4 : Identification utilisateur
+            // Multi-conducteurs (V1.5)
+            'drivers' => 'sometimes|array|min:1',
+            'drivers.*.direction' => 'required|string|max:100',
+            'drivers.*.matricule' => 'required|string|size:7|regex:/^[A-Z0-9]{7}$/i',
+            'drivers.*.driver_license' => 'required|string|max:50',
+            'drivers.*.is_primary' => 'sometimes|boolean',
+
+            // @deprecated — Ancien format single-driver (retrocompat)
             'user_direction' => 'sometimes|string|max:100',
             'user_matricule' => 'sometimes|string|size:7|regex:/^[A-Z0-9]{7}$/i',
             'user_driver_license' => 'sometimes|string|max:50',
@@ -123,6 +134,8 @@ class UpdateVehicleRequest extends FormRequest
             'transmission.required' => 'La transmission est obligatoire pour les vehicules de type Auto.',
             'structure_ci.required' => 'Le centre d\'imputation est obligatoire pour les vehicules en service ou en reparation.',
             'has_roll_bars.required' => 'L\'indication des arceaux est obligatoire pour les Pick-up.',
+            'cabin_type.required' => 'Le type de cabine est obligatoire pour les Pick-up.',
+            'cabin_type.in' => 'Le type de cabine doit etre Simple cabine ou Double cabine.',
             'load_capacity.required' => 'La charge utile est obligatoire pour les Camions et Pick-up.',
             'load_capacity.min' => 'La charge utile doit etre superieure a 0.',
             'mileage.min' => 'Le kilometrage doit etre strictement positif.',

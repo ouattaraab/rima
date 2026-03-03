@@ -60,6 +60,10 @@ class StoreVehicleRequest extends FormRequest
                 'nullable', 'boolean',
                 Rule::requiredIf(fn() => $this->input('category') === 'Pick-up'),
             ],
+            'cabin_type' => [
+                'nullable', 'in:Simple cabine,Double cabine',
+                Rule::requiredIf(fn() => $this->input('category') === 'Pick-up'),
+            ],
             'special_equipment' => [
                 'nullable', 'string', 'max:100',
                 Rule::prohibitedIf(fn() => $this->input('category') !== 'Camion'),
@@ -86,10 +90,17 @@ class StoreVehicleRequest extends FormRequest
             'gps_longitude' => 'nullable|numeric|between:-180,180',
             'gps_accuracy' => 'nullable|numeric|min:0|max:1000',
 
-            // Section 5.7 - V1.4 : Identification utilisateur
-            'user_direction' => 'required|string|max:100',
-            'user_matricule' => 'required|string|size:7|regex:/^[A-Z0-9]{7}$/i',
-            'user_driver_license' => 'required|string|max:50',
+            // Multi-conducteurs (V1.5)
+            'drivers' => 'required_without:user_matricule|array|min:1',
+            'drivers.*.direction' => 'required_with:drivers|string|max:100',
+            'drivers.*.matricule' => 'required_with:drivers|string|size:7|regex:/^[A-Z0-9]{7}$/i',
+            'drivers.*.driver_license' => 'required_with:drivers|string|max:50',
+            'drivers.*.is_primary' => 'sometimes|boolean',
+
+            // @deprecated — Ancien format single-driver (retrocompat)
+            'user_direction' => 'required_without:drivers|string|max:100',
+            'user_matricule' => 'required_without:drivers|string|size:7|regex:/^[A-Z0-9]{7}$/i',
+            'user_driver_license' => 'required_without:drivers|string|max:50',
         ];
     }
 
@@ -104,6 +115,8 @@ class StoreVehicleRequest extends FormRequest
             'transmission.required' => 'La transmission est obligatoire pour les vehicules de type Auto.',
             'structure_ci.required' => 'Le centre d\'imputation est obligatoire pour les vehicules en service ou en reparation.',
             'has_roll_bars.required' => 'L\'indication des arceaux est obligatoire pour les Pick-up.',
+            'cabin_type.required' => 'Le type de cabine est obligatoire pour les Pick-up.',
+            'cabin_type.in' => 'Le type de cabine doit etre Simple cabine ou Double cabine.',
             'load_capacity.required' => 'La charge utile est obligatoire pour les Camions et Pick-up.',
             'mileage.min' => 'Le kilometrage doit etre strictement positif.',
             'color.in' => 'La couleur doit etre : Blanc, Noir, Gris, Bleu, Rouge, Vert, Jaune, Beige, Marron ou Autre.',

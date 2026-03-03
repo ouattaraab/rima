@@ -27,6 +27,7 @@ Route::middleware(['auth', 'audit'])->group(function () {
     Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
     Route::get('/vehicles/export', [VehicleController::class, 'export'])->name('vehicles.export');
     Route::get('/vehicles/export-pdf', [VehicleController::class, 'exportPdf'])->name('vehicles.exportPdf');
+    Route::get('/vehicles/motos/template', [VehicleController::class, 'motosTemplate'])->name('vehicles.motos.template');
     Route::post('/vehicles/motos/import', [VehicleController::class, 'importMotos'])->name('vehicles.motos.import');
     Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('vehicles.show');
     Route::get('/vehicles/{vehicle}/pdf', [VehicleController::class, 'downloadPdf'])->name('vehicles.downloadPdf');
@@ -58,6 +59,7 @@ Route::middleware(['auth', 'audit'])->group(function () {
         Route::put('/models/{model}', [ReferentialController::class, 'updateModel'])->name('models.update');
         Route::get('/models/export', [ReferentialController::class, 'exportModels'])->name('models.export');
         Route::post('/models/import', [ReferentialController::class, 'importModels'])->name('models.import');
+        Route::post('/models/import-combined', [ReferentialController::class, 'importBrandsModels'])->name('models.import-combined');
 
         Route::get('/structures', [ReferentialController::class, 'structures'])->name('structures');
         Route::post('/structures', [ReferentialController::class, 'storeStructure'])->name('structures.store');
@@ -84,6 +86,8 @@ Route::middleware(['auth', 'audit'])->group(function () {
         Route::get('/vehicle-categories', [ReferentialController::class, 'vehicleCategories'])->name('vehicle-categories');
         Route::post('/vehicle-categories', [ReferentialController::class, 'storeVehicleCategory'])->name('vehicle-categories.store');
         Route::put('/vehicle-categories/{id}', [ReferentialController::class, 'updateVehicleCategory'])->name('vehicle-categories.update');
+        Route::get('/vehicle-categories/export', [ReferentialController::class, 'exportVehicleCategories'])->name('vehicle-categories.export');
+        Route::post('/vehicle-categories/import', [ReferentialController::class, 'importVehicleCategories'])->name('vehicle-categories.import');
 
         Route::get('/fuel-types', [ReferentialController::class, 'fuelTypes'])->name('fuel-types');
         Route::post('/fuel-types', [ReferentialController::class, 'storeFuelType'])->name('fuel-types.store');
@@ -126,6 +130,8 @@ Route::middleware(['auth', 'audit'])->group(function () {
         Route::get('/regional/export', [ReportController::class, 'regionalExport'])->name('regional.export');
         Route::get('/compliance', [ReportController::class, 'compliance'])->name('compliance');
         Route::get('/compliance/export', [ReportController::class, 'complianceExport'])->name('compliance.export');
+        Route::get('/agents', [ReportController::class, 'agents'])->name('agents');
+        Route::get('/agents/{user}', [ReportController::class, 'agentShow'])->name('agents.show');
     });
 
     // --- Notifications (tous les authentifies) ---

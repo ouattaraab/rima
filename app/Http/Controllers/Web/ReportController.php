@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Vehicle;
 use App\Models\Structure;
 use App\Models\Direction;
+use App\Models\User;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -165,5 +167,111 @@ class ReportController extends Controller
             new \App\Exports\ComplianceExport(),
             'RIMA_CONFORMITE_' . now()->format('Ymd_His') . '.xlsx'
         );
+    }
+
+    public function agents(Request $request)
+    {
+        // Build query with optional search
+        $query = \App\Models\User::where('role', 'agent_cidec');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%");
+            });
+        }
+
+        $agentUsers = $query->orderBy('last_name')->orderBy('first_name')->get();
+
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
+        $agents = $agentUsers->map(function ($agent) use ($dateFrom, $dateTo) {
+            $vehicles = Vehicle::where('collected_by', $agent->id);
+            if ($dateFrom) $vehicles->whereDate('collected_at', '>=', $dateFrom);
+            if ($dateTo) $vehicles->whereDate('collected_at', '<=', $dateTo);
+
+            $total = (clone $vehicles)->count();
+            $validated = (clone $vehicles)->where('form_status', 'validated')->count();
+            $rejected = (clone $vehicles)->where('form_status', 'rejected')->count();
+            $synchronized = (clone $vehicles)->where('form_status', 'synchronized')->count();
+            $lastCollection = (clone $vehicles)->max('collected_at');
+
+            return (object) [
+                'id' => $agent->id,
+                'full_name' => $agent->full_name,
+                'username' => $agent->username,
+                'region' => $agent->region,
+                'total' => $total,
+                'validated' => $validated,
+                'rejected' => $rejected,
+                'synchronized' => $synchronized,
+                'rejection_rate' => $total > 0 ? round(($rejected / $total) * 100, 1) : 0,
+                'last_collection' => $lastCollection ? \Carbon\Carbon::parse($lastCollection)->format('d/m/Y H:i') : null,
+            ];
+        });
+
+        // Sort
+        $sort = $request->input('sort', 'total');
+        $direction = $request->input('direction', 'desc');
+        $agents = $direction === 'asc'
+            ? $agents->sortBy($sort)->values()
+            : $agents->sortByDesc($sort)->values();
+
+        return view('reports.agents', compact('agents', 'dateFrom', 'dateTo'));
+    }
+
+    public function agentShow(Request $request, string $user)
+    {
+        $agent = User::where('role', 'agent_cidec')->findOrFail($user);
+        $dashboardService = app(DashboardService::class);
+
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
+        // KPIs
+        $kpiQuery = Vehicle::where('collected_by', $agent->id);
+        if ($dateFrom) $kpiQuery->whereDate('collected_at', '>=', $dateFrom);
+        if ($dateTo) $kpiQuery->whereDate('collected_at', '<=', $dateTo);
+
+        $total = (clone $kpiQuery)->count();
+        $validated = (clone $kpiQuery)->where('form_status', 'validated')->count();
+        $rejected = (clone $kpiQuery)->where('form_status', 'rejected')->count();
+        $synchronized = (clone $kpiQuery)->where('form_status', 'synchronized')->count();
+        $rejectionRate = $total > 0 ? round(($rejected / $total) * 100, 1) : 0;
+
+        // Map data (reuse DashboardService)
+        $mapData = $dashboardService->getMapData($dateFrom, $dateTo, null, [$agent->id]);
+
+        // Vehicles table — paginated, searchable, sortable
+        $vQuery = Vehicle::where('collected_by', $agent->id);
+        if ($dateFrom) $vQuery->whereDate('collected_at', '>=', $dateFrom);
+        if ($dateTo) $vQuery->whereDate('collected_at', '<=', $dateTo);
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $vQuery->where(function ($q) use ($s) {
+                $q->where('registration_number', 'like', "%{$s}%")
+                  ->orWhere('chassis_number', 'like', "%{$s}%")
+                  ->orWhere('brand', 'like', "%{$s}%");
+            });
+        }
+        if ($request->filled('form_status')) {
+            $vQuery->where('form_status', $request->form_status);
+        }
+
+        $sort = $request->input('sort', 'collected_at');
+        $dir = $request->input('direction', 'desc');
+        $allowedSorts = ['registration_number', 'brand', 'vehicle_type', 'form_status', 'status', 'collected_at'];
+        if (!in_array($sort, $allowedSorts)) $sort = 'collected_at';
+
+        $vehicles = $vQuery->orderBy($sort, $dir)->paginate(20)->withQueryString();
+
+        return view('reports.agent-show', compact(
+            'agent', 'total', 'validated', 'rejected', 'synchronized', 'rejectionRate',
+            'mapData', 'vehicles', 'dateFrom', 'dateTo'
+        ));
     }
 }

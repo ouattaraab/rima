@@ -20,6 +20,7 @@ use App\Models\VehicleStatus;
 use App\Models\VehicleType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ReferentialController extends Controller
 {
@@ -48,7 +49,7 @@ class ReferentialController extends Controller
     }
 
     // === MODELS ===
-    public function models(Request $request): JsonResponse
+    public function models(Request $request): JsonResponse|Response
     {
         $query = VehicleModel::with('brand')->where('is_active', true);
 
@@ -56,17 +57,28 @@ class ReferentialController extends Controller
             $query->where('brand_id', $request->brand_id);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $query->orderBy('name')->get()->map(fn($m) => [
-                'id' => $m->id,
-                'brand_id' => $m->brand_id,
-                'brand_name' => $m->brand->name,
-                'name' => $m->name,
-                'category' => $m->category,
-                'is_active' => $m->is_active,
-            ]),
+        $data = $query->orderBy('name')->get()->map(fn($m) => [
+            'id' => $m->id,
+            'brand_id' => $m->brand_id,
+            'brand_name' => $m->brand->name,
+            'name' => $m->name,
+            'category' => $m->category,
+            'is_active' => $m->is_active,
         ]);
+
+        $json = json_encode(['success' => true, 'data' => $data]);
+
+        // Compress large payloads (listing without brand_id filter)
+        if (! $request->has('brand_id') && strlen($json) > 10000) {
+            $compressed = gzencode($json, 9);
+
+            return response($compressed)
+                ->header('Content-Type', 'application/json; charset=utf-8')
+                ->header('Content-Encoding', 'gzip')
+                ->header('Content-Length', strlen($compressed));
+        }
+
+        return response()->json(['success' => true, 'data' => $data]);
     }
 
     public function storeModel(StoreVehicleModelRequest $request): JsonResponse
@@ -85,12 +97,22 @@ class ReferentialController extends Controller
     }
 
     // === STRUCTURES ===
-    public function structures(): JsonResponse
+    public function structures(): Response
     {
-        return response()->json([
+        $json = json_encode([
             'success' => true,
-            'data' => Structure::where('is_active', true)->orderBy('name')->get(),
+            'data' => Structure::where('is_active', true)
+                ->orderBy('name')
+                ->select(['id', 'code', 'name', 'sigle', 'region', 'direction_id', 'direction', 'site', 'type', 'is_active'])
+                ->get(),
         ]);
+
+        $compressed = gzencode($json, 9);
+
+        return response($compressed)
+            ->header('Content-Type', 'application/json; charset=utf-8')
+            ->header('Content-Encoding', 'gzip')
+            ->header('Content-Length', strlen($compressed));
     }
 
     public function storeStructure(Request $request): JsonResponse

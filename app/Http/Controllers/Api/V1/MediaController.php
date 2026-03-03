@@ -23,10 +23,10 @@ class MediaController extends Controller
             ], 403);
         }
 
-        if (!$vehicle->isDraft()) {
+        if (!$vehicle->isEditable()) {
             return response()->json([
                 'success' => false,
-                'error' => ['code' => 'MODIFICATION_NOT_ALLOWED', 'message' => 'Photos uniquement pour les fiches en brouillon.'],
+                'error' => ['code' => 'MODIFICATION_NOT_ALLOWED', 'message' => 'Photos uniquement pour les fiches en brouillon ou rejetees.'],
             ], 422);
         }
 

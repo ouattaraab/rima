@@ -298,19 +298,37 @@
         <div class="px-6 py-5">
             <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Technique</h3>
             <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
-                @foreach([
-                    ['Carburant', $vehicle->fuel_type],
-                    ['Transmission', $vehicle->transmission],
-                    ['Cylindrée', $vehicle->engine_displacement ? $vehicle->engine_displacement . ' cm3' : null],
-                    ['Nombre de places', $vehicle->seats_count],
-                    ['Charge utile', $vehicle->load_capacity ? $vehicle->load_capacity . ' kg' : null],
-                    ['Kilométrage', $vehicle->mileage !== null ? number_format($vehicle->mileage, 0, ',', ' ') . ' km' : null],
-                ] as [$label, $value])
                 <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">{{ $label }}</p>
-                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $value ?? '-' }}</p>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Carburant</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->fuel_type ?? '-' }}</p>
                 </div>
-                @endforeach
+                <div>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Transmission</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->transmission ?? '-' }}</p>
+                </div>
+                @if($vehicle->vehicle_type === 'Moto')
+                <div>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Cylindrée</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->engine_displacement ? $vehicle->engine_displacement . ' cm3' : '-' }}</p>
+                </div>
+                @else
+                <div>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Puissance fiscale</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->fiscal_power ? $vehicle->fiscal_power . ' CV' : '-' }}</p>
+                </div>
+                @endif
+                <div>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Nombre de places</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->seats_count ?? '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Charge utile</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->load_capacity ? $vehicle->load_capacity . ' kg' : '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Kilométrage</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->mileage !== null ? number_format($vehicle->mileage, 0, ',', ' ') . ' km' : '-' }}</p>
+                </div>
             </div>
         </div>
 
@@ -332,6 +350,12 @@
                     <p class="text-[11px] uppercase tracking-wide text-slate-400">Arceaux de sécurité</p>
                     <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->has_roll_bars !== null ? ($vehicle->has_roll_bars ? 'Oui' : 'Non') : '-' }}</p>
                 </div>
+                @if($vehicle->category === 'Pick-up')
+                <div>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Type de cabine</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->cabin_type ?? '-' }}</p>
+                </div>
+                @endif
                 <div>
                     <p class="text-[11px] uppercase tracking-wide text-slate-400">Équipement spécial</p>
                     <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->special_equipment ?? '-' }}</p>
@@ -367,23 +391,106 @@
 
         <div class="border-t border-slate-100 mx-6"></div>
 
-        {{-- 6. Utilisateur --}}
+        {{-- 6. Conducteurs --}}
         <div class="px-6 py-5">
-            <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Utilisateur</h3>
-            <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
-                <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Direction</p>
-                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->user_direction ?? '-' }}</p>
-                </div>
-                <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Matricule</p>
-                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->user_matricule ?? '-' }}</p>
-                </div>
-                <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Permis de conduire</p>
-                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->user_driver_license ?? '-' }}</p>
-                </div>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">
+                    Conducteurs
+                    @if($driversWithLabels->count() > 0)
+                        <span class="ml-2 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-[#2DB56B] rounded-full">{{ $driversWithLabels->count() }}</span>
+                    @endif
+                </h3>
             </div>
+
+            @if($driversWithLabels->count() > 0)
+                @php
+                    // Find driver license photos with multiple matching strategies
+                    $driverLicensePhotos = [];
+                    $driverLicenseByComment = [];
+                    $driverLicenseOrdered = [];
+                    if ($vehicle->photos) {
+                        foreach ($vehicle->photos as $idx => $photo) {
+                            if (str_starts_with($photo->photo_type ?? '', 'driver_license')) {
+                                $entry = ['url' => $photo->url, 'index' => $idx];
+                                $driverLicensePhotos[$photo->photo_type] = $entry;
+                                if (!empty($photo->comment)) {
+                                    $driverLicenseByComment[trim($photo->comment)] = $entry;
+                                }
+                                $driverLicenseOrdered[] = $entry;
+                            }
+                        }
+                    }
+                @endphp
+                <div class="space-y-3">
+                    @foreach($driversWithLabels as $driver)
+                        @php
+                            $driverPhotoKey = 'driver_license_' . ($driver->id ?? '');
+                            $driverPhoto = $driverLicensePhotos[$driverPhotoKey]
+                                ?? ($driverLicenseByComment[trim($driver->matricule ?? '')] ?? null)
+                                ?? ($driver->is_primary ? ($driverLicensePhotos['driver_license'] ?? $driverLicensePhotos['DRIVER_LICENSE'] ?? null) : null)
+                                ?? ($driverLicenseOrdered[$loop->index] ?? null);
+                        @endphp
+                        <div class="flex items-start gap-4 p-3 rounded-lg {{ $driver->is_primary ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50 border border-slate-200' }}">
+                            {{-- Index --}}
+                            <div class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full {{ $driver->is_primary ? 'bg-emerald-500 text-white' : 'bg-slate-300 text-white' }} text-[11px] font-bold">
+                                {{ $loop->iteration }}
+                            </div>
+                            {{-- Info --}}
+                            <div class="flex-1">
+                                <div class="grid grid-cols-2 gap-x-8 gap-y-2 lg:grid-cols-4">
+                                    <div>
+                                        <p class="text-[11px] uppercase tracking-wide text-slate-400">CI / Structure</p>
+                                        <p class="mt-0.5 text-[13px] text-slate-900">{{ $driver->direction_label ?? '-' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] uppercase tracking-wide text-slate-400">Matricule</p>
+                                        <p class="mt-0.5 text-[13px] font-medium text-slate-900">{{ $driver->matricule ?? '-' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] uppercase tracking-wide text-slate-400">Permis de conduire</p>
+                                        <p class="mt-0.5 text-[13px] text-slate-900">{{ $driver->driver_license ?? '-' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] uppercase tracking-wide text-slate-400">Rôle</p>
+                                        <p class="mt-0.5 text-[13px]">
+                                            @if($driver->is_primary)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-700">Principal</span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-200 text-slate-600">Secondaire</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                                @if($driverPhoto)
+                                    <div class="mt-2">
+                                        <button type="button"
+                                                @click="openGallery({{ $driverPhoto['index'] }})"
+                                                class="text-[11px] font-medium text-emerald-600 underline hover:text-emerald-800 transition-colors">
+                                            Voir permis de conduire
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                {{-- Fallback: legacy single-driver fields --}}
+                <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
+                    <div>
+                        <p class="text-[11px] uppercase tracking-wide text-slate-400">CI / Structure</p>
+                        <p class="mt-0.5 text-[13px] text-slate-900">{{ $userDirectionLabel ?? $vehicle->user_direction ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] uppercase tracking-wide text-slate-400">Matricule</p>
+                        <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->user_matricule ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] uppercase tracking-wide text-slate-400">Permis de conduire</p>
+                        <p class="mt-0.5 text-[13px] text-slate-900">{{ $vehicle->user_driver_license ?? '-' }}</p>
+                    </div>
+                </div>
+            @endif
         </div>
 
         <div class="border-t border-slate-100 mx-6"></div>
@@ -466,39 +573,46 @@
 
     </div>
 
-    {{-- Photos --}}
+    {{-- Photos (excluding driver license photos) --}}
+    @php
+        $vehiclePhotos = $vehicle->photos ? $vehicle->photos->filter(fn($p) => !str_starts_with($p->photo_type ?? '', 'driver_license') && !str_starts_with($p->photo_type ?? '', 'DRIVER_LICENSE')) : collect();
+    @endphp
     @if($vehicle->photos && $vehicle->photos->count())
         <div class="bg-white mt-8"
              x-init="galleryPhotos = {{ Js::from($vehicle->photos->map(fn($p) => ['url' => $p->url, 'type' => $photoTypeLabels[$p->photo_type] ?? $p->photo_type ?? 'Photo véhicule'])->values()) }}">
-            <div class="px-6 py-5">
-                <div class="flex items-center gap-2 mb-4">
-                    <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Photos</h3>
-                    <span class="text-[11px] text-slate-400">{{ $vehicle->photos->count() }}</span>
-                </div>
-                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                    @foreach($vehicle->photos as $index => $photo)
-                        <div class="relative overflow-hidden bg-slate-50 cursor-pointer group"
-                             @click="openGallery({{ $index }})">
-                            <div class="aspect-square relative">
-                                <img src="{{ $photo->url }}"
-                                     alt="{{ $photoTypeLabels[$photo->photo_type] ?? $photo->photo_type ?? 'Photo véhicule' }}"
-                                     class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
-                                     loading="lazy">
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-[#2AAE64]/20 transition-colors duration-200 flex items-center justify-center">
-                                    <svg class="w-7 h-7 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"/>
-                                    </svg>
-                                </div>
-                            </div>
-                            @if($photo->photo_type)
-                                <div class="px-3 py-2">
-                                    <p class="text-[11px] uppercase tracking-wide text-slate-400">{{ $photoTypeLabels[$photo->photo_type] ?? $photo->photo_type }}</p>
+            @if($vehiclePhotos->count())
+                <div class="px-6 py-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <h3 class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Photos</h3>
+                        <span class="text-[11px] text-slate-400">{{ $vehiclePhotos->count() }}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                        @foreach($vehicle->photos as $index => $photo)
+                            @if(!str_starts_with($photo->photo_type ?? '', 'driver_license') && !str_starts_with($photo->photo_type ?? '', 'DRIVER_LICENSE'))
+                                <div class="relative overflow-hidden bg-slate-50 cursor-pointer group"
+                                     @click="openGallery({{ $index }})">
+                                    <div class="aspect-square relative">
+                                        <img src="{{ $photo->url }}"
+                                             alt="{{ $photoTypeLabels[$photo->photo_type] ?? $photo->photo_type ?? 'Photo véhicule' }}"
+                                             class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                                             loading="lazy">
+                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-[#2AAE64]/20 transition-colors duration-200 flex items-center justify-center">
+                                            <svg class="w-7 h-7 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    @if($photo->photo_type)
+                                        <div class="px-3 py-2">
+                                            <p class="text-[11px] uppercase tracking-wide text-slate-400">{{ $photoTypeLabels[$photo->photo_type] ?? $photo->photo_type }}</p>
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     @endif
 

@@ -29,22 +29,31 @@
         </div>
     </div>
 
-    {{-- Search --}}
+    {{-- Search + Statut fiche --}}
     <form method="GET" action="{{ route('vehicles.index') }}">
-        @foreach(request()->except(['search', 'page', 'structures']) as $key => $value)
-            @if($value && !is_array($value))<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif
+        @foreach(request()->except(['search', 'page', 'form_status', 'structures']) as $key => $value)
+            @if($value !== null && $value !== '' && !is_array($value))<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif
         @endforeach
         @if(request('structures'))
             @foreach(request('structures') as $code)
                 <input type="hidden" name="structures[]" value="{{ $code }}">
             @endforeach
         @endif
-        <div class="relative">
-            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+        <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
+                       class="filter-input block w-full" style="padding-left: 2.75rem;">
             </div>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
-                   class="filter-input block w-full pl-10 pr-4">
+            <select name="form_status" onchange="this.form.submit()" class="filter-input w-auto min-w-[260px]">
+                <option value="">Tout</option>
+                <option value="synchronized" @selected(request('form_status') === 'synchronized')>Synchronisé</option>
+                <option value="validated" @selected(request('form_status') === 'validated')>Validé</option>
+                <option value="rejected" @selected(request('form_status') === 'rejected')>Rejeté</option>
+                <option value="draft" @selected(request('form_status') === 'draft')>Brouillon</option>
+            </select>
         </div>
     </form>
 
@@ -52,15 +61,9 @@
     <div>
         <form method="GET" action="{{ route('vehicles.index') }}" class="border-b border-slate-200 pb-4">
                 @if(request('search'))<input type="hidden" name="search" value="{{ request('search') }}">@endif
+                @if(request('form_status'))<input type="hidden" name="form_status" value="{{ request('form_status') }}">@endif
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <select name="form_status" class="filter-input flex-1 min-w-0">
-                        <option value="">Fiche : Tous</option>
-                        <option value="draft" @selected(request('form_status') === 'draft')>Brouillon</option>
-                        <option value="synchronized" @selected(request('form_status') === 'synchronized')>Synchronisé</option>
-                        <option value="validated" @selected(request('form_status') === 'validated')>Validé</option>
-                        <option value="rejected" @selected(request('form_status') === 'rejected')>Rejeté</option>
-                    </select>
                     <select name="vehicle_status" class="filter-input flex-1 min-w-0">
                         <option value="">Statut : Tous</option>
                         <option value="En service" @selected(request('vehicle_status') === 'En service')>En service</option>
@@ -226,9 +229,11 @@
             <form action="{{ route('vehicles.motos.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="p-6 space-y-4">
-                    <p class="text-[13px] text-slate-500">Selectionnez un fichier Excel (.xlsx, .xls) ou CSV contenant les colonnes :</p>
-                    <p class="text-[12px] text-slate-400 mt-1"><strong>Obligatoires :</strong> immatriculation, marque, modele, n_chassis, cylindree, couleur, carburant, statut, structure_ci, type_contrat</p>
-                    <p class="text-[12px] text-slate-400 mt-1"><strong>Optionnelles :</strong> immatriculation_provisoire, categorie, transmission, places, charge_utile, kilometrage, date_mise_en_circulation, date_controle_technique, equipements_speciaux, assure (oui/non), compagnie_assurance, numero_police, debut_assurance, fin_assurance, matricule_agent, direction</p>
+                    <p class="text-[13px] text-slate-500">Selectionnez un fichier Excel (.xlsx, .xls) ou CSV contenant les colonnes attendues.</p>
+                    <a href="{{ route('vehicles.motos.template') }}" class="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#2DB56B] hover:text-[#2AAE64] transition">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                        Telecharger le template Excel
+                    </a>
                     <div>
                         <label for="moto-import-file" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Fichier</label>
                         <input type="file" name="file" id="moto-import-file" accept=".xlsx,.xls,.csv" required

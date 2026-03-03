@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Vehicle extends Model
 {
@@ -23,7 +24,7 @@ class Vehicle extends Model
         'fuel_type', 'transmission', 'engine_displacement', 'fiscal_power',
         'seats_count', 'load_capacity', 'mileage',
         // Statut
-        'status', 'structure_ci', 'has_roll_bars', 'special_equipment',
+        'status', 'structure_ci', 'has_roll_bars', 'cabin_type', 'special_equipment',
         // Visite technique
         'technical_inspection_date',
         // Assurance
@@ -33,7 +34,7 @@ class Vehicle extends Model
         'gps_latitude', 'gps_longitude', 'gps_accuracy',
         // Metadata
         'collected_at', 'collected_by', 'form_status',
-        // Identification utilisateur (Section 5.7 - V1.4)
+        // @deprecated — Ancien format single-driver (V1.4). Utiliser la table vehicle_drivers.
         'user_direction', 'user_matricule', 'user_driver_license',
         // Validation
         'validated_by', 'validated_at', 'rejection_reason', 'rejection_comment',
@@ -94,6 +95,16 @@ class Vehicle extends Model
         return $this->hasMany(VehicleHistory::class)->orderByDesc('created_at');
     }
 
+    public function drivers(): HasMany
+    {
+        return $this->hasMany(VehicleDriver::class)->orderBy('position');
+    }
+
+    public function primaryDriver(): HasOne
+    {
+        return $this->hasOne(VehicleDriver::class)->where('is_primary', true);
+    }
+
     // Scopes
     public function scopeDraft($query)
     {
@@ -121,6 +132,14 @@ class Vehicle extends Model
         return $this->form_status === 'draft';
     }
 
+    /**
+     * Returns true if the vehicle can be edited (draft or rejected).
+     */
+    public function isEditable(): bool
+    {
+        return in_array($this->form_status, ['draft', 'rejected']);
+    }
+
     public function isSynchronized(): bool
     {
         return $this->form_status === 'synchronized';
@@ -133,8 +152,6 @@ class Vehicle extends Model
             'commissioning_date', 'contract_type', 'color',
             'chassis_readable', 'fuel_type', 'seats_count', 'mileage',
             'status', 'technical_inspection_date',
-            // Section 5.7 - V1.4 : Identification utilisateur
-            'user_direction', 'user_matricule', 'user_driver_license',
         ];
 
         $missing = [];
@@ -142,6 +159,11 @@ class Vehicle extends Model
             if (is_null($this->$field) || $this->$field === '') {
                 $missing[] = $field;
             }
+        }
+
+        // Au moins un conducteur
+        if ($this->drivers()->count() === 0) {
+            $missing[] = 'drivers';
         }
 
         // Kilometrage > 0
@@ -157,6 +179,11 @@ class Vehicle extends Model
         // Arceaux obligatoires si Pick-up
         if ($this->category === 'Pick-up' && is_null($this->has_roll_bars)) {
             $missing[] = 'has_roll_bars';
+        }
+
+        // Type de cabine obligatoire si Pick-up
+        if ($this->category === 'Pick-up' && empty($this->cabin_type)) {
+            $missing[] = 'cabin_type';
         }
 
         // Charge utile obligatoire si Camion ou Pick-up
@@ -195,11 +222,19 @@ class Vehicle extends Model
             }
         }
 
-        // Photos obligatoires (3 photos minimum)
+        // Photos obligatoires
         $photoTypes = $photoTypes ?? $this->photos()->pluck('photo_type')->toArray();
-        if (!in_array('front', $photoTypes)) $missing[] = 'photo_front';
-        if (!in_array('rear', $photoTypes)) $missing[] = 'photo_rear';
-        if (!in_array('side', $photoTypes)) $missing[] = 'photo_side';
+        if ($this->vehicle_type === 'Moto') {
+            // Moto : 1 seule photo suffit (n'importe quel type)
+            if (count($photoTypes) === 0) {
+                $missing[] = 'photo';
+            }
+        } else {
+            // Auto : 3 photos obligatoires (front, rear, side)
+            if (!in_array('front', $photoTypes)) $missing[] = 'photo_front';
+            if (!in_array('rear', $photoTypes)) $missing[] = 'photo_rear';
+            if (!in_array('side', $photoTypes)) $missing[] = 'photo_side';
+        }
 
         return $missing;
     }
@@ -246,6 +281,11 @@ class Vehicle extends Model
             $errors['special_equipment'] = 'Les equipements speciaux ne concernent que les Camions.';
         }
 
+        // Type de cabine uniquement Pick-up
+        if (!empty($this->cabin_type) && $this->category !== 'Pick-up') {
+            $errors['cabin_type'] = 'Le type de cabine ne concerne que les Pick-up.';
+        }
+
         // CDC AS-05/AS-06: Date debut assurance < date fin assurance
         if ($this->insurance_start_date && $this->insurance_end_date
             && $this->insurance_start_date->greaterThanOrEqualTo($this->insurance_end_date)) {
@@ -269,9 +309,11 @@ class Vehicle extends Model
             $errors['insurance_start_date'] = 'La date de debut d\'assurance ne peut pas etre anterieure a la mise en circulation.';
         }
 
-        // CDC 5.7: Matricule exactement 7 caracteres alphanumeriques
-        if (!empty($this->user_matricule) && !preg_match('/^[A-Z0-9]{7}$/i', $this->user_matricule)) {
-            $errors['user_matricule'] = 'Le matricule doit comporter exactement 7 caracteres alphanumeriques.';
+        // CDC 5.7: Matricule exactement 7 caracteres alphanumeriques (multi-conducteurs)
+        foreach ($this->drivers as $i => $driver) {
+            if (!empty($driver->matricule) && !preg_match('/^[A-Z0-9]{7}$/i', $driver->matricule)) {
+                $errors["driver_{$i}_matricule"] = "Conducteur " . ($i + 1) . ": le matricule doit comporter exactement 7 caracteres alphanumeriques.";
+            }
         }
 
         return $errors;
@@ -302,13 +344,13 @@ class Vehicle extends Model
     public function getCompletionPercentageAttribute(): int
     {
         // Calcul dynamique du total requis selon le type/categorie/statut
-        $total = 17; // champs toujours requis + immatriculation + 3 photos
-        $total += 3; // photo_front, photo_rear, photo_side
+        $total = 15; // champs toujours requis (was 17, removed 3 user_* fields, added 1 "has drivers")
+        $total += ($this->vehicle_type === 'Moto') ? 1 : 3; // Moto=1 photo, Auto=3 photos
         $total += 1; // au moins une immatriculation
 
         if ($this->vehicle_type === 'Auto') $total++; // transmission
         if (in_array($this->category, ['Camion', 'Pick-up'])) $total++; // load_capacity
-        if ($this->category === 'Pick-up') $total++; // has_roll_bars
+        if ($this->category === 'Pick-up') $total += 2; // has_roll_bars + cabin_type
         if (in_array($this->status, ['En service', 'En reparation'])) $total++; // structure_ci
         if ($this->status === 'En service') $total++; // is_insured
         if ($this->is_insured) $total += 4; // insurance_company, policy, start, end

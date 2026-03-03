@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\OcrController;
 use App\Http\Controllers\Api\V1\ReferentialController;
 use App\Http\Controllers\Api\V1\SodeciVehicleController;
 use App\Http\Controllers\Api\V1\VehicleController;
@@ -42,6 +43,12 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::middleware('role:agent_cidec,admin_sodeci')->group(function () {
         Route::post('/media/upload', [MediaController::class, 'upload']);
         Route::delete('/media/{photo}', [MediaController::class, 'destroy']);
+    });
+
+    // --- OCR (agents + admin) ---
+    Route::middleware('role:agent_cidec,admin_sodeci')->group(function () {
+        Route::post('/ocr/registration', [OcrController::class, 'recognizeRegistration']);
+        Route::post('/ocr/chassis', [OcrController::class, 'recognizeChassis']);
     });
 
     // Media show: tous les authentifies

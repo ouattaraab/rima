@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehicle\StoreVehicleRequest;
 use App\Http\Requests\Vehicle\UpdateVehicleRequest;
 use App\Models\Vehicle;
+use App\Models\VehicleDriver;
 use App\Services\VehicleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -57,12 +58,19 @@ class VehicleController extends Controller
 
     public function store(StoreVehicleRequest $request): JsonResponse
     {
+        $validated = $request->validated();
+        $driversData = $validated['drivers'] ?? null;
+        unset($validated['drivers']);
+
         $vehicle = Vehicle::create([
-            ...$request->validated(),
+            ...$validated,
             'collected_by' => $request->user()->id,
             'collected_at' => now(),
             'form_status' => 'draft',
         ]);
+
+        // Process drivers
+        $this->syncDrivers($vehicle, $driversData, $validated);
 
         $this->vehicleService->recordHistory($vehicle, 'created', $request->user()->id);
 
@@ -89,7 +97,7 @@ class VehicleController extends Controller
 
     public function show(Request $request, string $vehicle): JsonResponse
     {
-        $v = Vehicle::with(['photos', 'collector', 'validator'])->findOrFail($vehicle);
+        $v = Vehicle::with(['photos', 'drivers', 'collector', 'validator'])->findOrFail($vehicle);
 
         if ($request->user()->isAgentCidec() && $v->collected_by !== $request->user()->id) {
             return response()->json([
@@ -115,15 +123,30 @@ class VehicleController extends Controller
             ], 403);
         }
 
-        if (!$v->isDraft()) {
+        if (!$v->isEditable()) {
             return response()->json([
                 'success' => false,
-                'error' => ['code' => 'MODIFICATION_NOT_ALLOWED', 'message' => 'Seules les fiches en brouillon peuvent etre modifiees.'],
+                'error' => ['code' => 'MODIFICATION_NOT_ALLOWED', 'message' => 'Seules les fiches en brouillon ou rejetees peuvent etre modifiees.'],
             ], 403);
         }
 
-        $oldValues = $v->only(array_keys($request->validated()));
-        $v->update($request->validated());
+        $validated = $request->validated();
+        $driversData = $validated['drivers'] ?? null;
+        unset($validated['drivers']);
+
+        // Reset rejected vehicles back to draft when updated
+        if ($v->form_status === 'rejected') {
+            $validated['form_status'] = 'draft';
+        }
+
+        $oldValues = $v->only(array_keys($validated));
+        $v->update($validated);
+
+        // Sync drivers if provided
+        if ($driversData !== null) {
+            $this->syncDrivers($v, $driversData, $validated);
+        }
+
         $v->increment('revision');
 
         $this->vehicleService->recordHistory($v, 'updated', $request->user()->id, $oldValues, $request->validated());
@@ -175,10 +198,10 @@ class VehicleController extends Controller
             ], 403);
         }
 
-        if (!$v->isDraft()) {
+        if (!$v->isEditable()) {
             return response()->json([
                 'success' => false,
-                'error' => ['code' => 'MODIFICATION_NOT_ALLOWED', 'message' => 'Seules les fiches en brouillon peuvent etre synchronisees.'],
+                'error' => ['code' => 'MODIFICATION_NOT_ALLOWED', 'message' => 'Seules les fiches en brouillon ou rejetees peuvent etre synchronisees.'],
             ], 403);
         }
 
@@ -225,5 +248,36 @@ class VehicleController extends Controller
             ],
             'message' => "Synchronisation terminee: {$succeeded}/" . count($request->vehicle_ids) . " fiches synchronisees",
         ]);
+    }
+
+    /**
+     * Sync drivers for a vehicle (delete all + re-insert).
+     * Handles both new format (drivers array) and old format (user_* fields).
+     */
+    private function syncDrivers(Vehicle $vehicle, ?array $driversData, array $validated): void
+    {
+        if ($driversData !== null) {
+            // New format: drivers array
+            $vehicle->drivers()->delete();
+            foreach ($driversData as $index => $d) {
+                $vehicle->drivers()->create([
+                    'direction' => $d['direction'],
+                    'matricule' => $d['matricule'],
+                    'driver_license' => $d['driver_license'],
+                    'is_primary' => $d['is_primary'] ?? ($index === 0),
+                    'position' => $index,
+                ]);
+            }
+        } elseif (!empty($validated['user_matricule'])) {
+            // Old format: single-driver fields (backward compat)
+            $vehicle->drivers()->delete();
+            $vehicle->drivers()->create([
+                'direction' => $validated['user_direction'] ?? '',
+                'matricule' => $validated['user_matricule'],
+                'driver_license' => $validated['user_driver_license'] ?? '',
+                'is_primary' => true,
+                'position' => 0,
+            ]);
+        }
     }
 }

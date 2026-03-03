@@ -2,8 +2,12 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Brand;
+use App\Models\InsuranceCompany;
+use App\Models\Structure;
 use App\Models\Vehicle;
 use App\Models\VehicleHistory;
+use App\Models\VehicleModel;
 use App\Models\User;
 use App\Exports\VehiclesExport;
 use App\Exports\VehiclePdfExport;
@@ -34,7 +38,9 @@ class VehicleController extends Controller
             });
         }
 
-        if ($request->filled('form_status')) $query->where('form_status', $request->form_status);
+        if ($request->filled('form_status')) {
+            $query->where('form_status', $request->form_status);
+        }
         if ($request->filled('vehicle_status')) $query->where('status', $request->vehicle_status);
         if ($request->filled('category')) $query->where('category', $request->category);
         if ($request->filled('brand')) $query->where('brand', $request->brand);
@@ -63,7 +69,7 @@ class VehicleController extends Controller
 
     public function show(string $id)
     {
-        $vehicle = Vehicle::with(['photos', 'collector', 'validator', 'histories.user'])->findOrFail($id);
+        $vehicle = Vehicle::with(['photos', 'collector', 'validator', 'histories.user', 'drivers'])->findOrFail($id);
 
         // Quality Score computation (US-022)
         $qualityData = null;
@@ -139,14 +145,32 @@ class VehicleController extends Controller
             ];
         }
 
-        // Resolve structure_ci code to display label "CI - SIGLE"
+        // Resolve structure_ci code to display label
         $structureLabel = null;
         if ($vehicle->structure_ci) {
-            $struct = \App\Models\Structure::where('code', $vehicle->structure_ci)->first();
-            $structureLabel = $struct ? ($struct->code . ' - ' . ($struct->sigle ?? $struct->name)) : $vehicle->structure_ci;
+            $struct = Structure::where('code', $vehicle->structure_ci)->first();
+            $structureLabel = $struct ? $struct->display_label : $vehicle->structure_ci;
         }
 
-        return view('vehicles.show', compact('vehicle', 'qualityData', 'structureLabel'));
+        // Resolve direction codes for drivers to display labels
+        $structureLookup = Structure::where('is_active', true)
+            ->get()
+            ->keyBy('code')
+            ->map(fn ($s) => $s->display_label)
+            ->toArray();
+
+        $driversWithLabels = $vehicle->drivers->map(function ($driver) use ($structureLookup) {
+            $driver->direction_label = $structureLookup[$driver->direction] ?? $driver->direction;
+            return $driver;
+        });
+
+        // Legacy fallback for user_direction (backward compat)
+        $userDirectionLabel = null;
+        if ($vehicle->user_direction) {
+            $userDirectionLabel = $structureLookup[$vehicle->user_direction] ?? $vehicle->user_direction;
+        }
+
+        return view('vehicles.show', compact('vehicle', 'qualityData', 'structureLabel', 'userDirectionLabel', 'driversWithLabels'));
     }
 
     public function validateVehicle(Request $request, string $id)
@@ -288,6 +312,11 @@ class VehicleController extends Controller
         return Excel::download(new VehiclesExport($filters), $filename);
     }
 
+    public function motosTemplate()
+    {
+        return Excel::download(new \App\Exports\MotosTemplateExport(), 'RIMA_TEMPLATE_MOTOS.xlsx');
+    }
+
     public function importMotos(Request $request)
     {
         $request->validate([
@@ -336,8 +365,15 @@ class VehicleController extends Controller
 
     public function edit(string $id)
     {
-        $vehicle = Vehicle::findOrFail($id);
-        return view('vehicles.edit', compact('vehicle'));
+        $vehicle = Vehicle::with('drivers')->findOrFail($id);
+        $brands = Brand::where('is_active', true)->orderBy('name')->get();
+        $vehicleModels = VehicleModel::with('brand')->where('is_active', true)->orderBy('name')->get();
+        $structures = Structure::where('is_active', true)->orderBy('code')->get();
+        $insuranceCompanies = InsuranceCompany::where('is_active', true)->orderBy('name')->get();
+
+        return view('vehicles.edit', compact(
+            'vehicle', 'brands', 'vehicleModels', 'structures', 'insuranceCompanies'
+        ));
     }
 
     public function update(Request $request, string $id)
@@ -373,9 +409,12 @@ class VehicleController extends Controller
             'coverage_type' => 'nullable|string',
             'insurance_start_date' => 'nullable|date',
             'insurance_end_date' => 'nullable|date|after:insurance_start_date',
-            'user_direction' => 'nullable|string|max:100',
-            'user_matricule' => 'nullable|string|size:7|regex:/^[A-Z0-9]+$/i',
-            'user_driver_license' => 'nullable|string|max:50',
+            // Multi-driver validation
+            'drivers' => 'nullable|array|min:1',
+            'drivers.*.direction' => 'required|string|max:100',
+            'drivers.*.matricule' => 'required|string|size:7|regex:/^[A-Z0-9]+$/i',
+            'drivers.*.driver_license' => 'required|string|max:50',
+            'drivers.*.is_primary' => 'sometimes|boolean',
         ], [
             'modification_reason.required' => 'Le motif de modification est obligatoire.',
             'modification_reason.min' => 'Le motif doit contenir au moins 5 caracteres.',
@@ -385,8 +424,10 @@ class VehicleController extends Controller
             'mileage.min' => 'Le kilometrage doit etre strictement positif.',
             'load_capacity.min' => 'La charge utile doit etre superieure a 0.',
             'insurance_end_date.after' => 'La date de fin d\'assurance doit etre posterieure a la date de debut.',
-            'user_matricule.size' => 'Le matricule doit comporter exactement 7 caracteres.',
-            'user_matricule.regex' => 'Le matricule doit etre compose uniquement de caracteres alphanumeriques.',
+            'drivers.*.matricule.size' => 'Le matricule du conducteur doit comporter exactement 7 caracteres.',
+            'drivers.*.matricule.regex' => 'Le matricule du conducteur doit etre compose uniquement de caracteres alphanumeriques.',
+            'drivers.*.direction.required' => 'La direction est obligatoire pour chaque conducteur.',
+            'drivers.*.driver_license.required' => 'Le permis est obligatoire pour chaque conducteur.',
             'engine_displacement.min' => 'La cylindree doit etre au moins 50 cm3.',
             'registration_number.regex' => 'L\'immatriculation ne doit contenir que des lettres, chiffres, espaces et tirets.',
             'chassis_number.regex' => 'Le numero de chassis ne doit contenir que des lettres et chiffres.',
@@ -433,7 +474,6 @@ class VehicleController extends Controller
             'has_roll_bars', 'special_equipment', 'technical_inspection_date',
             'is_insured', 'insurance_company', 'policy_number', 'coverage_type',
             'insurance_start_date', 'insurance_end_date',
-            'user_direction', 'user_matricule', 'user_driver_license',
         ];
 
         $oldValues = $vehicle->only($editableFields);
@@ -441,6 +481,34 @@ class VehicleController extends Controller
 
         $vehicle->update($newData);
         $vehicle->increment('revision');
+
+        // Sync drivers (delete + re-insert)
+        if ($request->has('drivers')) {
+            $vehicle->drivers()->delete();
+            $driversInput = $request->input('drivers', []);
+            $hasPrimary = collect($driversInput)->contains(fn ($d) => !empty($d['is_primary']));
+
+            foreach ($driversInput as $i => $driverData) {
+                \App\Models\VehicleDriver::create([
+                    'vehicle_id' => $vehicle->id,
+                    'direction' => $driverData['direction'],
+                    'matricule' => strtoupper($driverData['matricule']),
+                    'driver_license' => $driverData['driver_license'],
+                    'is_primary' => !empty($driverData['is_primary']) || (!$hasPrimary && $i === 0),
+                    'position' => $i,
+                ]);
+            }
+
+            // Also update legacy fields from primary driver for backward compat
+            $primary = $vehicle->drivers()->where('is_primary', true)->first();
+            if ($primary) {
+                $vehicle->update([
+                    'user_direction' => $primary->direction,
+                    'user_matricule' => $primary->matricule,
+                    'user_driver_license' => $primary->driver_license,
+                ]);
+            }
+        }
 
         VehicleHistory::create([
             'vehicle_id' => $vehicle->id,

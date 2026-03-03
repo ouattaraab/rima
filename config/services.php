@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'ocr' => [
+        'provider' => env('OCR_PROVIDER', 'google_vision'),
+        'google_api_key' => env('GOOGLE_CLOUD_VISION_API_KEY'),
+    ],
+
 ];

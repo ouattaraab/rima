@@ -85,7 +85,7 @@ class SodeciVehicleController extends Controller
 
     public function show(string $vehicle): JsonResponse
     {
-        $v = Vehicle::with(['photos', 'collector', 'validator', 'histories.user'])->findOrFail($vehicle);
+        $v = Vehicle::with(['photos', 'collector', 'validator', 'histories.user', 'drivers'])->findOrFail($vehicle);
 
         return response()->json([
             'success' => true,
@@ -242,7 +242,7 @@ class SodeciVehicleController extends Controller
 
     public function export(Request $request)
     {
-        $query = Vehicle::with('collector');
+        $query = Vehicle::with(['collector', 'drivers']);
 
         if ($request->has('status')) $query->where('form_status', $request->status);
         if ($request->has('brand')) $query->where('brand', $request->brand);
@@ -251,36 +251,51 @@ class SodeciVehicleController extends Controller
 
         $vehicles = $query->get();
 
-        $data = $vehicles->map(fn($v) => [
-            'Type' => $v->vehicle_type,
-            'Categorie' => $v->category,
-            'Marque' => $v->brand,
-            'Modele' => $v->model,
-            'Immatriculation' => $v->registration_number,
-            'Chassis' => $v->chassis_number,
-            'Statut vehicule' => $v->status,
-            'Statut fiche' => $v->form_status,
-            'Carburant' => $v->fuel_type,
-            'Kilometrage' => $v->mileage,
-            'Assure' => $v->is_insured ? 'Oui' : 'Non',
-            'Assureur' => $v->insurance_company,
-            // Section 5.7 - V1.4
-            'Direction utilisateur' => $v->user_direction,
-            'Matricule utilisateur' => $v->user_matricule,
-            'Permis de conduire' => $v->user_driver_license,
-            // Section 5.9 - V1.4
-            'Mode financement' => $v->financing_mode,
-            'Banque' => $v->bank_name,
-            'N° contrat' => $v->contract_number,
-            'Debut prelevement' => $v->withdrawal_start_date?->format('d/m/Y'),
-            'Fin prelevement' => $v->withdrawal_end_date?->format('d/m/Y'),
-            'Debut contrat' => $v->contract_start_date?->format('d/m/Y'),
-            'Mise a disposition' => $v->provision_date?->format('d/m/Y'),
-            'Collecte par' => $v->collector?->full_name,
-            'Date collecte' => $v->collected_at?->format('d/m/Y H:i'),
-            'Latitude' => $v->gps_latitude,
-            'Longitude' => $v->gps_longitude,
-        ])->toArray();
+        // Pre-load structure lookup for direction display
+        $structureLookup = \App\Models\Structure::where('is_active', true)
+            ->pluck('sigle', 'code')
+            ->map(fn ($sigle, $code) => $code . ' - ' . ($sigle ?? $code))
+            ->toArray();
+
+        $data = $vehicles->map(function ($v) use ($structureLookup) {
+            $primary = $v->drivers->firstWhere('is_primary', true) ?? $v->drivers->first();
+            $directionDisplay = $primary
+                ? ($structureLookup[$primary->direction] ?? $primary->direction)
+                : ($structureLookup[$v->user_direction] ?? $v->user_direction);
+
+            return [
+                'Type' => $v->vehicle_type,
+                'Categorie' => $v->category,
+                'Marque' => $v->brand,
+                'Modele' => $v->model,
+                'Immatriculation' => $v->registration_number,
+                'Chassis' => $v->chassis_number,
+                'Statut vehicule' => $v->status,
+                'Statut fiche' => $v->form_status,
+                'Carburant' => $v->fuel_type,
+                'Kilometrage' => $v->mileage,
+                'Assure' => $v->is_insured ? 'Oui' : 'Non',
+                'Assureur' => $v->insurance_company,
+                // Section conducteurs (multi-driver)
+                'Direction (principal)' => $directionDisplay,
+                'Matricule (principal)' => $primary?->matricule ?? $v->user_matricule,
+                'Permis (principal)' => $primary?->driver_license ?? $v->user_driver_license,
+                'Nb conducteurs' => $v->drivers->count(),
+                'Autres conducteurs' => $v->drivers->where('is_primary', '!=', true)->pluck('matricule')->implode(', '),
+                // Section 5.9 - V1.4
+                'Mode financement' => $v->financing_mode,
+                'Banque' => $v->bank_name,
+                'N° contrat' => $v->contract_number,
+                'Debut prelevement' => $v->withdrawal_start_date?->format('d/m/Y'),
+                'Fin prelevement' => $v->withdrawal_end_date?->format('d/m/Y'),
+                'Debut contrat' => $v->contract_start_date?->format('d/m/Y'),
+                'Mise a disposition' => $v->provision_date?->format('d/m/Y'),
+                'Collecte par' => $v->collector?->full_name,
+                'Date collecte' => $v->collected_at?->format('d/m/Y H:i'),
+                'Latitude' => $v->gps_latitude,
+                'Longitude' => $v->gps_longitude,
+            ];
+        })->toArray();
 
         $filename = 'RIMA_EXPORT_' . now()->format('Ymd_His') . '.csv';
         $headers = [

@@ -236,14 +236,51 @@
     {{-- Import Modal --}}
     <template x-teleport="body">
         <div x-show="showImportModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="showImportModal = false" x-cloak>
-            <div x-show="showImportModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden">
+            <div x-show="showImportModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden" x-data="{ importTab: 'combined' }">
                 <div class="px-6 py-4 border-b border-slate-200">
-                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Importer des modèles</p>
+                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Importer des modeles</p>
+                    <div class="flex gap-1 mt-3">
+                        <button type="button" @click="importTab = 'combined'" :class="importTab === 'combined' ? 'bg-[#2DB56B] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="text-[12px] font-medium px-3 py-1.5 rounded-full transition-colors">
+                            Import combine (Marques + Modeles)
+                        </button>
+                        <button type="button" @click="importTab = 'standard'" :class="importTab === 'standard' ? 'bg-[#2DB56B] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="text-[12px] font-medium px-3 py-1.5 rounded-full transition-colors">
+                            Import standard
+                        </button>
+                    </div>
                 </div>
-                <form action="{{ route('referentials.models.import') }}" method="POST" enctype="multipart/form-data">
+
+                {{-- Combined import (brands + models + categories) --}}
+                <form x-show="importTab === 'combined'" action="{{ route('referentials.models.import-combined') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="p-6 space-y-4">
-                        <p class="text-[13px] text-slate-500">Sélectionnez un fichier Excel (.xlsx, .xls) ou CSV contenant les colonnes <strong>Marque</strong>, <strong>Nom</strong> et optionnellement <strong>Catégorie</strong>.</p>
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                            <p class="text-[12px] font-semibold text-emerald-800 mb-1">Format attendu</p>
+                            <p class="text-[12px] text-emerald-700">Fichier Excel avec 3 colonnes : <strong>Marque</strong>, <strong>Modele</strong>, <strong>Categorie</strong>.</p>
+                            <p class="text-[12px] text-emerald-600 mt-1">Les marques et categories seront creees automatiquement si elles n'existent pas.</p>
+                        </div>
+                        <div>
+                            <label for="import-combined-file" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Fichier</label>
+                            <input type="file" name="file" id="import-combined-file" accept=".xlsx,.xls,.csv" required
+                                class="w-full text-[13px] text-slate-900 file:mr-3 file:py-2 file:px-4 file:border-0 file:text-[13px] file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 file:cursor-pointer file:rounded-full">
+                            @error('file')
+                                <p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
+                        <button type="button" @click="showImportModal = false" class="rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">Annuler</button>
+                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Importer</button>
+                    </div>
+                </form>
+
+                {{-- Standard import (models only, brand must exist) --}}
+                <form x-show="importTab === 'standard'" action="{{ route('referentials.models.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="p-6 space-y-4">
+                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                            <p class="text-[12px] font-semibold text-slate-700 mb-1">Format attendu</p>
+                            <p class="text-[12px] text-slate-600">Colonnes : <strong>Marque</strong> (doit exister), <strong>Nom</strong>, et optionnellement <strong>Categorie</strong>.</p>
+                        </div>
                         <div>
                             <label for="import-file" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Fichier</label>
                             <input type="file" name="file" id="import-file" accept=".xlsx,.xls,.csv" required

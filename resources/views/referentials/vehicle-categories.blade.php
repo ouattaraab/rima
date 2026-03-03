@@ -7,6 +7,7 @@
 <div x-data="{
     showAddModal: false,
     showEditModal: false,
+    showImportModal: false,
     addErrors: {},
     editErrors: {},
     editItem: { id: '', name: '', vehicle_type: '', is_active: true },
@@ -31,9 +32,17 @@
     <div class="flex items-center justify-between mb-6">
         <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Catégories</p>
         <div class="flex items-center gap-2">
+            <a href="{{ route('referentials.vehicle-categories.export') }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 3v12"/></svg>
+                Exporter
+            </a>
+            <button @click="showImportModal = true" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 6l-4-4-4 4M12 2v13"/></svg>
+                Importer
+            </button>
             <button @click="addErrors = {}; showAddModal = true" class="inline-flex items-center gap-2 rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Ajouter une catégorie
+                Ajouter une categorie
             </button>
         </div>
     </div>
@@ -176,6 +185,35 @@
                     <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
                         <button type="button" @click="showEditModal = false" class="rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">Annuler</button>
                         <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Mettre à jour</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    {{-- Import Modal --}}
+    <template x-teleport="body">
+        <div x-show="showImportModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="showImportModal = false" x-cloak>
+            <div x-show="showImportModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="bg-white border border-slate-200 w-full max-w-md mx-4 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-200">
+                    <p class="text-[13px] font-semibold uppercase tracking-wide text-slate-900">Importer des categories</p>
+                </div>
+                <form action="{{ route('referentials.vehicle-categories.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="p-6 space-y-4">
+                        <p class="text-[13px] text-slate-500">Selectionnez un fichier Excel (.xlsx, .xls) ou CSV contenant une colonne <strong>Nom</strong> (ou <strong>Categorie</strong>).</p>
+                        <div>
+                            <label for="import-file" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Fichier</label>
+                            <input type="file" name="file" id="import-file" accept=".xlsx,.xls,.csv" required
+                                class="w-full text-[13px] text-slate-900 file:mr-3 file:py-2 file:px-4 file:border-0 file:text-[13px] file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 file:cursor-pointer file:rounded-full">
+                            @error('file')
+                                <p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
+                        <button type="button" @click="showImportModal = false" class="rounded-full border border-slate-200 bg-white text-slate-600 text-[13px] px-4 h-10 hover:bg-slate-50 transition-colors">Annuler</button>
+                        <button type="submit" class="rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] px-4 h-10 transition-colors">Importer</button>
                     </div>
                 </form>
             </div>

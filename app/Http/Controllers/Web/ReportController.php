@@ -157,7 +157,7 @@ class ReportController extends Controller
                 $request->input('date_from'),
                 $request->input('date_to')
             ),
-            'RIMA_STRUCTURE_' . now()->format('Ymd_His') . '.xlsx'
+            'PRIMA_STRUCTURE_' . now()->format('Ymd_His') . '.xlsx'
         );
     }
 
@@ -165,7 +165,7 @@ class ReportController extends Controller
     {
         return Excel::download(
             new \App\Exports\ComplianceExport(),
-            'RIMA_CONFORMITE_' . now()->format('Ymd_His') . '.xlsx'
+            'PRIMA_CONFORMITE_' . now()->format('Ymd_His') . '.xlsx'
         );
     }
 

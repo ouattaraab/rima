@@ -297,7 +297,7 @@ class SodeciVehicleController extends Controller
             ];
         })->toArray();
 
-        $filename = 'RIMA_EXPORT_' . now()->format('Ymd_His') . '.csv';
+        $filename = 'PRIMA_EXPORT_' . now()->format('Ymd_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",

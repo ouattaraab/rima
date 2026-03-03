@@ -19,7 +19,7 @@ class VehiclePdfExport
             'generatedAt' => now()->format('d/m/Y H:i'),
         ];
 
-        $filename = 'RIMA_FICHE_'
+        $filename = 'PRIMA_FICHE_'
             . ($vehicle->registration_number ?? 'SANS_IMMAT')
             . '_' . now()->format('Ymd') . '.pdf';
 
@@ -40,7 +40,7 @@ class VehiclePdfExport
             'total' => $vehicles->count(),
         ];
 
-        $filename = 'RIMA_LISTE_' . now()->format('Ymd') . '.pdf';
+        $filename = 'PRIMA_LISTE_' . now()->format('Ymd') . '.pdf';
 
         return Pdf::loadView('exports.vehicles-list-pdf', $data)
             ->setPaper('a4', 'landscape')

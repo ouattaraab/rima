@@ -89,7 +89,7 @@ class UserController extends Controller
     public function export(Request $request)
     {
         $filters = $request->only(['search', 'role', 'organization']);
-        $filename = 'RIMA_UTILISATEURS_' . now()->format('Ymd_His') . '.xlsx';
+        $filename = 'PRIMA_UTILISATEURS_' . now()->format('Ymd_His') . '.xlsx';
 
         return Excel::download(new UsersExport($filters), $filename);
     }

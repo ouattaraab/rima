@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Connexion - RIMA</title>
+    <title>Connexion - PRIMA</title>
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -17,7 +17,7 @@
             <div class="flex items-center justify-between w-full max-w-5xl border-b border-slate-100 h-full px-6">
                 <div class="flex items-center gap-2.5">
                     <img src="{{ asset('logo_sodeci.png') }}" alt="SODECI" class="h-8 w-auto">
-                    <span class="text-slate-900 font-semibold tracking-tight">RIMA</span>
+                    <span class="text-slate-900 font-semibold tracking-tight">PRIMA</span>
                 </div>
                 <span class="text-[11px] text-slate-400 tracking-wide uppercase">Back-office SODECI</span>
             </div>
@@ -92,7 +92,7 @@
 
         {{-- Footer --}}
         <footer class="h-12 flex items-center justify-center px-6 shrink-0">
-            <span class="text-[11px] text-slate-300">&copy; {{ date('Y') }} SODECI — RIMA v1.4</span>
+            <span class="text-[11px] text-slate-300">&copy; {{ date('Y') }} SODECI — PRIMA v1.4</span>
         </footer>
     </div>
 

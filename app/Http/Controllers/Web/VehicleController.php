@@ -307,14 +307,14 @@ class VehicleController extends Controller
     public function export(Request $request)
     {
         $filters = $request->only(['form_status', 'brand', 'vehicle_type', 'category', 'vehicle_status', 'date_from', 'date_to', 'structures']);
-        $filename = 'RIMA_EXPORT_' . now()->format('Ymd_His') . '.xlsx';
+        $filename = 'PRIMA_EXPORT_' . now()->format('Ymd_His') . '.xlsx';
 
         return Excel::download(new VehiclesExport($filters), $filename);
     }
 
     public function motosTemplate()
     {
-        return Excel::download(new \App\Exports\MotosTemplateExport(), 'RIMA_TEMPLATE_MOTOS.xlsx');
+        return Excel::download(new \App\Exports\MotosTemplateExport(), 'PRIMA_TEMPLATE_MOTOS.xlsx');
     }
 
     public function importMotos(Request $request)

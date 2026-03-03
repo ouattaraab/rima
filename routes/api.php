@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| RIMA API Routes - v1
+| PRIMA API Routes - v1
 |--------------------------------------------------------------------------
 | Prefix: /api/v1 (configure dans bootstrap/app.php)
 */

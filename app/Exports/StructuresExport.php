@@ -118,7 +118,7 @@ class StructuresExport implements FromCollection, WithHeadings, WithStyles, With
                 $sheet->getRowDimension(3)->setRowHeight(18);
                 $sheet->getRowDimension(4)->setRowHeight(8);
 
-                $sheet->setCellValue('B1', 'RIMA · SODECI');
+                $sheet->setCellValue('B1', 'PRIMA · SODECI');
                 $sheet->getStyle('B1')->applyFromArray([
                     'font' => ['name' => 'Calibri', 'bold' => true, 'size' => 16, 'color' => ['rgb' => '1E293B']],
                     'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],

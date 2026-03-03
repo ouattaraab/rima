@@ -42,7 +42,7 @@ class ReferentialController extends Controller
         return back()->with('success', 'Marque mise a jour.');
     }
     public function exportBrands() {
-        return Excel::download(new BrandsExport(), 'RIMA_MARQUES_' . now()->format('Ymd_His') . '.xlsx');
+        return Excel::download(new BrandsExport(), 'PRIMA_MARQUES_' . now()->format('Ymd_His') . '.xlsx');
     }
     public function importBrands(Request $request) {
         $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);
@@ -62,7 +62,7 @@ class ReferentialController extends Controller
         return back()->with('success', 'Modele mis a jour.');
     }
     public function exportModels() {
-        return Excel::download(new VehicleModelsExport(), 'RIMA_MODELES_' . now()->format('Ymd_His') . '.xlsx');
+        return Excel::download(new VehicleModelsExport(), 'PRIMA_MODELES_' . now()->format('Ymd_His') . '.xlsx');
     }
     public function importModels(Request $request) {
         $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);
@@ -100,7 +100,7 @@ class ReferentialController extends Controller
         return back()->with('success', 'Structure mise a jour.');
     }
     public function exportStructures() {
-        return Excel::download(new StructuresExport(), 'RIMA_STRUCTURES_' . now()->format('Ymd_His') . '.xlsx');
+        return Excel::download(new StructuresExport(), 'PRIMA_STRUCTURES_' . now()->format('Ymd_His') . '.xlsx');
     }
     public function importStructures(Request $request) {
         $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);
@@ -125,7 +125,7 @@ class ReferentialController extends Controller
         return back()->with('success', 'Compagnie mise a jour.');
     }
     public function exportInsurances() {
-        return Excel::download(new InsuranceCompaniesExport(), 'RIMA_ASSURANCES_' . now()->format('Ymd_His') . '.xlsx');
+        return Excel::download(new InsuranceCompaniesExport(), 'PRIMA_ASSURANCES_' . now()->format('Ymd_His') . '.xlsx');
     }
     public function importInsurances(Request $request) {
         $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);
@@ -145,7 +145,7 @@ class ReferentialController extends Controller
         return back()->with('success', 'Direction mise a jour.');
     }
     public function exportDirections() {
-        return Excel::download(new DirectionsExport(), 'RIMA_DIRECTIONS_' . now()->format('Ymd_His') . '.xlsx');
+        return Excel::download(new DirectionsExport(), 'PRIMA_DIRECTIONS_' . now()->format('Ymd_His') . '.xlsx');
     }
     public function importDirections(Request $request) {
         $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);
@@ -177,7 +177,7 @@ class ReferentialController extends Controller
         return back()->with('success', 'Categorie mise a jour.');
     }
     public function exportVehicleCategories() {
-        return Excel::download(new \App\Exports\VehicleCategoriesExport(), 'RIMA_CATEGORIES_' . now()->format('Ymd_His') . '.xlsx');
+        return Excel::download(new \App\Exports\VehicleCategoriesExport(), 'PRIMA_CATEGORIES_' . now()->format('Ymd_His') . '.xlsx');
     }
     public function importVehicleCategories(Request $request) {
         $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:2048']);

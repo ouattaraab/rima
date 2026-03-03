@@ -33,7 +33,7 @@ class AuditController extends Controller
     public function export(Request $request)
     {
         $filters = $request->only(['action', 'entity_type', 'user_id', 'date_from', 'date_to', 'source']);
-        $filename = 'RIMA_AUDIT_' . now()->format('Ymd_His') . '.xlsx';
+        $filename = 'PRIMA_AUDIT_' . now()->format('Ymd_His') . '.xlsx';
 
         return Excel::download(new AuditLogsExport($filters), $filename);
     }

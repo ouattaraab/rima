@@ -108,7 +108,7 @@ class BrandsExport implements FromCollection, WithHeadings, WithStyles, WithColu
                 $sheet->getRowDimension(4)->setRowHeight(8); // spacer
 
                 // Title text (offset to B to leave room for logo)
-                $sheet->setCellValue('B' . self::TITLE_ROW, 'RIMA · SODECI');
+                $sheet->setCellValue('B' . self::TITLE_ROW, 'PRIMA · SODECI');
                 $sheet->getStyle('B' . self::TITLE_ROW)->applyFromArray([
                     'font' => ['name' => 'Calibri', 'bold' => true, 'size' => 16, 'color' => ['rgb' => '1E293B']],
                     'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],

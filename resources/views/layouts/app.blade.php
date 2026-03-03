@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') - RIMA</title>
+    <title>@yield('title', 'Dashboard') - PRIMA</title>
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -24,7 +24,7 @@
             <div class="h-14 flex items-center px-5 shrink-0">
                 <div class="flex items-center gap-2.5">
                     <img src="{{ asset('logo_sodeci.png') }}" alt="SODECI" class="h-7 w-auto">
-                    <span class="text-slate-900 font-semibold tracking-tight">RIMA</span>
+                    <span class="text-slate-900 font-semibold tracking-tight">PRIMA</span>
                 </div>
             </div>
 

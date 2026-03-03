@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Liste Véhicules - RIMA</title>
+    <title>Liste Véhicules - PRIMA</title>
     <style>
         @page {
             margin: 18mm 12mm 18mm 12mm;
@@ -197,7 +197,7 @@
     <div class="header">
         <div class="header-top">
             <div class="header-left">
-                <h1><span>RIMA</span> &middot; SODECI</h1>
+                <h1><span>PRIMA</span> &middot; SODECI</h1>
                 <div class="header-subtitle">Référentiel et Inventaire de la Mobilité et des Autos</div>
             </div>
             <div class="header-right">
@@ -287,7 +287,7 @@
     {{-- Footer --}}
     <div class="footer">
         <div class="footer-bar">
-            <div class="footer-left">RIMA — SODECI</div>
+            <div class="footer-left">PRIMA — SODECI</div>
             <div class="footer-center">Document confidentiel</div>
             <div class="footer-right">{{ $generatedAt }} &nbsp;|&nbsp; Page {PAGE_NUM} / {PAGE_COUNT}</div>
         </div>

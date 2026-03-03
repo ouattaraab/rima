@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vehicle;
 
+use App\Models\VehicleCategory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -16,7 +17,7 @@ class StoreVehicleRequest extends FormRequest
     {
         return [
             'vehicle_type' => 'required|in:Auto,Moto',
-            'category' => 'required|in:Utilitaire,Berline,Pick-up,Camion,Moto',
+            'category' => ['required', Rule::in(VehicleCategory::where('is_active', true)->pluck('name')->toArray())],
             'brand' => 'required|string|max:50',
             'model' => 'required|string|max:100',
             'version' => [
@@ -44,7 +45,10 @@ class StoreVehicleRequest extends FormRequest
             ],
             'engine_displacement' => 'nullable|integer|min:50|max:99999',
             'fiscal_power' => 'nullable|integer|min:1|max:999',
-            'seats_count' => 'required|integer|min:1|max:99',
+            'seats_count' => [
+                'required', 'integer', 'min:1',
+                'max:' . ($this->input('vehicle_type') === 'Moto' ? 2 : ($this->input('category') === 'Camion' ? 10 : 7)),
+            ],
             'load_capacity' => [
                 'nullable', 'integer', 'min:1', 'max:99999',
                 Rule::requiredIf(fn() => in_array($this->input('category'), ['Camion', 'Pick-up'])),
@@ -119,6 +123,8 @@ class StoreVehicleRequest extends FormRequest
             'cabin_type.in' => 'Le type de cabine doit etre Simple cabine ou Double cabine.',
             'load_capacity.required' => 'La charge utile est obligatoire pour les Camions et Pick-up.',
             'mileage.min' => 'Le kilometrage doit etre strictement positif.',
+            'seats_count.min' => 'Le nombre de places doit etre superieur a 0.',
+            'seats_count.max' => 'Le nombre de places ne peut pas depasser :max pour cette categorie.',
             'color.in' => 'La couleur doit etre : Blanc, Noir, Gris, Bleu, Rouge, Vert, Jaune, Beige, Marron ou Autre.',
             'special_equipment.prohibited' => 'Les equipements speciaux ne concernent que les Camions.',
             'transmission.prohibited' => 'La transmission n\'est pas applicable pour les Motos.',

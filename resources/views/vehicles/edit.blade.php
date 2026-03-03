@@ -32,9 +32,15 @@
             this.errors.mileage = 'Le kilométrage doit être strictement positif.';
         }
 
-        // Nb places > 0
-        if (refs.seats_count && refs.seats_count.value !== '' && parseInt(refs.seats_count.value) < 1) {
-            this.errors.seats_count = 'Le nombre de places doit être supérieur à 0.';
+        // Nb places > 0 et max selon catégorie
+        if (refs.seats_count && refs.seats_count.value !== '') {
+            const seats = parseInt(refs.seats_count.value);
+            const maxSeats = this.vehicleType === 'Moto' ? 2 : (this.category === 'Camion' ? 10 : 7);
+            if (seats < 1) {
+                this.errors.seats_count = 'Le nombre de places doit être supérieur à 0.';
+            } else if (seats > maxSeats) {
+                this.errors.seats_count = `Le nombre de places ne peut pas dépasser ${maxSeats} pour cette catégorie.`;
+            }
         }
 
         // Charge utile > 0 si Camion/Pick-up
@@ -173,8 +179,8 @@
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Catégorie</label>
                         <select name="category" x-model="category" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
-                            @foreach(['Berline','Pick-up','Utilitaire','Camion','Moto'] as $c)
-                                <option value="{{ $c }}" {{ old('category', $vehicle->category) == $c ? 'selected' : '' }}>{{ $c }}</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->name }}" {{ old('category', $vehicle->category) == $cat->name ? 'selected' : '' }}>{{ $cat->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -280,7 +286,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div>
+                    <div x-show="vehicleType === 'Auto'">
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Transmission</label>
                         <select name="transmission" x-ref="transmission"
                                 class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
@@ -301,8 +307,12 @@
                         <input type="number" name="fiscal_power" min="1" max="999" value="{{ old('fiscal_power', $vehicle->fiscal_power) }}" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Nb places</label>
-                        <input type="number" name="seats_count" x-ref="seats_count" min="1" max="99" value="{{ old('seats_count', $vehicle->seats_count) }}"
+                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">
+                            Nb places <span class="text-slate-300 font-normal" x-text="'(max ' + (vehicleType === 'Moto' ? '2' : (category === 'Camion' ? '10' : '7')) + ')'"></span>
+                        </label>
+                        <input type="number" name="seats_count" x-ref="seats_count" min="1"
+                               :max="vehicleType === 'Moto' ? 2 : (category === 'Camion' ? 10 : 7)"
+                               value="{{ old('seats_count', $vehicle->seats_count) }}"
                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"
                                :class="errors.seats_count ? 'border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'">
                         <p x-show="errors.seats_count" x-text="errors.seats_count" class="text-[12px] text-red-500 mt-1"></p>

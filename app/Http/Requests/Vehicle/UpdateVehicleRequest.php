@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Vehicle;
 
 use App\Models\Vehicle;
+use App\Models\VehicleCategory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +24,7 @@ class UpdateVehicleRequest extends FormRequest
 
         return [
             'vehicle_type' => 'sometimes|in:Auto,Moto',
-            'category' => 'sometimes|in:Utilitaire,Berline,Pick-up,Camion,Moto',
+            'category' => ['sometimes', Rule::in(VehicleCategory::where('is_active', true)->pluck('name')->toArray())],
             'brand' => 'sometimes|string|max:50',
             'model' => 'sometimes|string|max:100',
             'version' => [
@@ -50,7 +51,10 @@ class UpdateVehicleRequest extends FormRequest
             ],
             'engine_displacement' => 'nullable|integer|min:50|max:99999',
             'fiscal_power' => 'sometimes|nullable|integer|min:1|max:999',
-            'seats_count' => 'sometimes|integer|min:1|max:99',
+            'seats_count' => [
+                'sometimes', 'integer', 'min:1',
+                'max:' . ($vehicleType === 'Moto' ? 2 : ($category === 'Camion' ? 10 : 7)),
+            ],
             'load_capacity' => [
                 'nullable', 'integer', 'min:1', 'max:99999',
                 Rule::requiredIf(fn() => in_array($category, ['Camion', 'Pick-up']) && $this->has('category')),
@@ -140,6 +144,7 @@ class UpdateVehicleRequest extends FormRequest
             'load_capacity.min' => 'La charge utile doit etre superieure a 0.',
             'mileage.min' => 'Le kilometrage doit etre strictement positif.',
             'seats_count.min' => 'Le nombre de places doit etre superieur a 0.',
+            'seats_count.max' => 'Le nombre de places ne peut pas depasser :max pour cette categorie.',
             'color.in' => 'La couleur doit etre : Blanc, Noir, Gris, Bleu, Rouge, Vert, Jaune, Beige, Marron ou Autre.',
             'special_equipment.prohibited' => 'Les equipements speciaux ne concernent que les Camions.',
             'transmission.prohibited' => 'La transmission n\'est pas applicable pour les Motos.',

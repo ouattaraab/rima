@@ -15,6 +15,8 @@ use App\Services\NotificationService;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use App\Models\VehicleCategory;
 
 class VehicleController extends Controller
 {
@@ -376,11 +378,12 @@ class VehicleController extends Controller
         $vehicle = Vehicle::with('drivers')->findOrFail($id);
         $brands = Brand::where('is_active', true)->orderBy('name')->get();
         $vehicleModels = VehicleModel::with('brand')->where('is_active', true)->orderBy('name')->get();
+        $categories = VehicleCategory::where('is_active', true)->orderBy('name')->get();
         $structures = Structure::where('is_active', true)->orderBy('code')->get();
         $insuranceCompanies = InsuranceCompany::where('is_active', true)->orderBy('name')->get();
 
         return view('vehicles.edit', compact(
-            'vehicle', 'brands', 'vehicleModels', 'structures', 'insuranceCompanies'
+            'vehicle', 'brands', 'vehicleModels', 'categories', 'structures', 'insuranceCompanies'
         ));
     }
 
@@ -389,7 +392,7 @@ class VehicleController extends Controller
         $request->validate([
             'modification_reason' => 'required|string|min:5|max:500',
             'vehicle_type' => 'nullable|string|in:Auto,Moto',
-            'category' => 'nullable|string|in:Berline,Pick-up,Utilitaire,Camion,Moto',
+            'category' => ['nullable', 'string', Rule::in(VehicleCategory::where('is_active', true)->pluck('name')->toArray())],
             'brand' => 'nullable|string|max:100',
             'model' => 'nullable|string|max:100',
             'version' => 'nullable|string|max:50',
@@ -403,7 +406,7 @@ class VehicleController extends Controller
             'fuel_type' => 'nullable|string|in:Essence,Gasoil,Hybride,Electrique',
             'transmission' => 'nullable|string|in:Automatique,Manuelle',
             'engine_displacement' => 'nullable|integer|min:50|max:99999',
-            'seats_count' => 'nullable|integer|min:1|max:99',
+            'seats_count' => ['nullable', 'integer', 'min:1', 'max:' . ($request->input('vehicle_type') === 'Moto' ? 2 : ($request->input('category') === 'Camion' ? 10 : 7))],
             'load_capacity' => 'nullable|integer|min:1|max:99999',
             'mileage' => 'nullable|integer|min:1|max:9999999',
             'status' => 'nullable|string|in:En service,En reparation,Reforme,Cede',

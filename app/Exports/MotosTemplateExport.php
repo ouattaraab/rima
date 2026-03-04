@@ -6,7 +6,6 @@ use App\Models\Brand;
 use App\Models\InsuranceCompany;
 use App\Models\Structure;
 use App\Models\VehicleCategory;
-use App\Models\VehicleModel;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -14,7 +13,9 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
+use PhpOffice\PhpSpreadsheet\NamedRange;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -128,17 +129,38 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
         return [];
     }
 
+    /**
+     * Sanitize a string to be a valid Excel Named Range name.
+     * Replaces spaces, dashes, dots, accented chars with underscores.
+     * Ensures it starts with a letter or underscore.
+     */
+    private function sanitizeName(string $name): string
+    {
+        $sanitized = preg_replace('/[^A-Za-z0-9_]/', '_', $name);
+
+        // Named ranges must start with a letter or underscore
+        if (is_numeric($sanitized[0] ?? '0')) {
+            $sanitized = '_' . $sanitized;
+        }
+
+        return $sanitized;
+    }
+
     public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
+                $spreadsheet = $event->sheet->getParent();
                 $maxRow = 500;
 
                 // ── Données dynamiques depuis la BDD ──
                 $categories = VehicleCategory::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
                 $brands = Brand::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
-                $models = VehicleModel::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
+                $brandsWithModels = Brand::where('is_active', true)
+                    ->orderBy('name')
+                    ->with(['vehicleModels' => fn($q) => $q->where('is_active', true)->orderBy('name')])
+                    ->get();
                 $structures = Structure::where('is_active', true)->orderBy('code')
                     ->get()
                     ->map(fn($s) => $s->code . '-' . $s->name . ($s->sigle ? ' (' . $s->sigle . ')' : ''))
@@ -154,15 +176,15 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 $yesNo = ['Oui', 'Non'];
 
                 // ── Feuille cachée "Referentiels" pour les listes longues ──
-                $refSheet = $event->sheet->getParent()->createSheet();
+                $refSheet = $spreadsheet->createSheet();
                 $refSheet->setTitle('Referentiels');
 
+                // Colonnes A-D : listes simples (marques, structures, assurances, categories)
                 $refColumns = [
                     'A' => ['header' => 'Marques', 'data' => $brands],
-                    'B' => ['header' => 'Modeles', 'data' => $models],
-                    'C' => ['header' => 'Structures', 'data' => $structures],
-                    'D' => ['header' => 'Assurances', 'data' => $insurances],
-                    'E' => ['header' => 'Categories', 'data' => $categories],
+                    'B' => ['header' => 'Structures', 'data' => $structures],
+                    'C' => ['header' => 'Assurances', 'data' => $insurances],
+                    'D' => ['header' => 'Categories', 'data' => $categories],
                 ];
 
                 foreach ($refColumns as $col => $info) {
@@ -170,6 +192,38 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                     foreach ($info['data'] as $i => $value) {
                         $refSheet->setCellValue("{$col}" . ($i + 2), $value);
                     }
+                }
+
+                // Colonnes E+ : modèles par marque (pour dropdown dépendant)
+                $brandColIndex = 5; // Commence à la colonne E (1-based = 5)
+                foreach ($brandsWithModels as $brand) {
+                    $brandModels = $brand->vehicleModels->pluck('name')->toArray();
+                    if (empty($brandModels)) {
+                        continue;
+                    }
+
+                    $colLetter = Coordinate::stringFromColumnIndex($brandColIndex);
+
+                    // Écrire le nom de la marque en ligne 1 (header)
+                    $refSheet->setCellValue("{$colLetter}1", $brand->name);
+
+                    // Écrire les modèles à partir de la ligne 2
+                    foreach ($brandModels as $i => $modelName) {
+                        $refSheet->setCellValue("{$colLetter}" . ($i + 2), $modelName);
+                    }
+
+                    // Créer un Named Range pour cette marque
+                    $sanitizedName = $this->sanitizeName($brand->name);
+                    $lastModelRow = count($brandModels) + 1;
+
+                    $namedRange = new NamedRange(
+                        $sanitizedName,
+                        $refSheet,
+                        "\${$colLetter}\$2:\${$colLetter}\${$lastModelRow}"
+                    );
+                    $spreadsheet->addNamedRange($namedRange);
+
+                    $brandColIndex++;
                 }
 
                 $refSheet->setSheetState(Worksheet::SHEETSTATE_HIDDEN);
@@ -202,11 +256,10 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
 
                 // ── Dropdowns via feuille cachée (listes longues/dynamiques) ──
                 $refDropdowns = [
-                    'D' => ['col' => 'E', 'count' => count($categories)],   // categorie
+                    'D' => ['col' => 'D', 'count' => count($categories)],   // categorie
                     'E' => ['col' => 'A', 'count' => count($brands)],       // marque
-                    'F' => ['col' => 'B', 'count' => count($models)],       // modele
-                    'O' => ['col' => 'C', 'count' => count($structures)],   // structure
-                    'U' => ['col' => 'D', 'count' => count($insurances)],   // compagnie_assurance
+                    'O' => ['col' => 'B', 'count' => count($structures)],   // structure
+                    'U' => ['col' => 'C', 'count' => count($insurances)],   // compagnie_assurance
                 ];
 
                 foreach ($refDropdowns as $templateCol => $ref) {
@@ -232,8 +285,21 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                     }
                 }
 
+                // ── Colonne F (modele) : dropdown dépendant de la marque (col E) ──
+                // Utilise INDIRECT() qui résout le nom de la marque en Named Range
+                // Ex: si E2="Yamaha" → INDIRECT("Yamaha") → liste des modèles Yamaha
+                for ($row = 2; $row <= $maxRow; $row++) {
+                    $validation = new DataValidation();
+                    $validation->setType(DataValidation::TYPE_LIST);
+                    $validation->setFormula1('INDIRECT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(E' . $row . '," ","_"),"-","_"),".","_"))');
+                    $validation->setAllowBlank(true);
+                    $validation->setShowDropDown(true);
+                    $validation->setShowErrorMessage(false); // Pas d'erreur si marque pas encore choisie
+                    $sheet->getCell("F{$row}")->setDataValidation($validation);
+                }
+
                 // Re-focus on the main sheet
-                $event->sheet->getParent()->setActiveSheetIndex(0);
+                $spreadsheet->setActiveSheetIndex(0);
             },
         ];
     }

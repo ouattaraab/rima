@@ -10,8 +10,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            // BrandSeeder, VehicleModelSeeder, VehicleCategorySeeder removed
+            // BrandSeeder, VehicleModelSeeder removed
             // — these are now populated via Excel import on the web interface
+            VehicleCategorySeeder::class, // Base categories (updateOrCreate — safe with Excel imports)
             StructureSeeder::class,
             InsuranceCompanySeeder::class,
             DirectionSeeder::class,

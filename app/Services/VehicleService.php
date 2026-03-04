@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Vehicle;
 use App\Models\VehicleHistory;
+use Illuminate\Support\Facades\Log;
 
 class VehicleService
 {
@@ -51,8 +52,15 @@ class VehicleService
 
         $this->recordHistory($vehicle, 'synchronized', $userId, comment: 'Fiche synchronisee');
 
-        // Notify supervisors and admins about the new synchronized vehicle
-        $this->notificationService->notifySynchronization($vehicle);
+        // Notify supervisors and admins (non-critical: must not break sync)
+        try {
+            $this->notificationService->notifySynchronization($vehicle);
+        } catch (\Exception $e) {
+            Log::warning('Notification failed during sync', [
+                'vehicle_id' => $vehicle->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return $vehicle->fresh();
     }
@@ -69,7 +77,14 @@ class VehicleService
 
         $this->recordHistory($vehicle, 'validated', $userId, comment: $comment);
 
-        $this->notificationService->notifyValidation($vehicle);
+        try {
+            $this->notificationService->notifyValidation($vehicle);
+        } catch (\Exception $e) {
+            Log::warning('Notification failed during validation', [
+                'vehicle_id' => $vehicle->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return $vehicle->fresh();
     }
@@ -88,7 +103,14 @@ class VehicleService
 
         $this->recordHistory($vehicle, 'rejected', $userId, comment: $comment ?? $reason);
 
-        $this->notificationService->notifyRejection($vehicle, $reason, $comment);
+        try {
+            $this->notificationService->notifyRejection($vehicle, $reason, $comment);
+        } catch (\Exception $e) {
+            Log::warning('Notification failed during rejection', [
+                'vehicle_id' => $vehicle->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return $vehicle->fresh();
     }

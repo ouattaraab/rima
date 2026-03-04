@@ -104,7 +104,7 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
     }
 
     /**
-     * Extract structure code from combined format "DRA - Direction Regionale Abidjan" → "DRA"
+     * Extract structure code from combined format "DRA-Direction Regionale Abidjan" or "DRA-Nom (SIGLE)" → "DRA"
      * Also accepts plain code like "DRA"
      */
     private function extractStructureCode(string $value): ?string
@@ -114,9 +114,9 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             return null;
         }
 
-        // Format combiné "CODE - Nom de la structure"
-        if (str_contains($value, ' - ')) {
-            return trim(explode(' - ', $value, 2)[0]);
+        // Format combiné "CODE-Nom (SIGLE)" ou "CODE-Nom"
+        if (str_contains($value, '-')) {
+            return trim(explode('-', $value, 2)[0]);
         }
 
         // Format simple : code direct

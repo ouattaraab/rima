@@ -76,7 +76,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 '',
                 '5000',
                 'En service',
-                'DRA - Direction Regionale Abidjan',
+                'DRA-Direction Regionale Abidjan',
                 '',
                 '01/01/2020',
                 'Flotte',
@@ -141,7 +141,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 $models = VehicleModel::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
                 $structures = Structure::where('is_active', true)->orderBy('code')
                     ->get()
-                    ->map(fn($s) => $s->code . ' - ' . $s->name)
+                    ->map(fn($s) => $s->code . '-' . $s->name . ($s->sigle ? ' (' . $s->sigle . ')' : ''))
                     ->toArray();
                 $insurances = InsuranceCompany::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
 
@@ -189,7 +189,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                     $validation->setType(DataValidation::TYPE_LIST);
                     $validation->setFormula1('"' . implode(',', $values) . '"');
                     $validation->setAllowBlank(true);
-                    $validation->setShowDropDown(true);
+
                     $validation->setShowErrorMessage(true);
                     $validation->setErrorStyle(DataValidation::STYLE_STOP);
                     $validation->setErrorTitle('Valeur invalide');
@@ -221,7 +221,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                     $validation->setType(DataValidation::TYPE_LIST);
                     $validation->setFormula1($formula);
                     $validation->setAllowBlank(true);
-                    $validation->setShowDropDown(true);
+
                     $validation->setShowErrorMessage(true);
                     $validation->setErrorStyle(DataValidation::STYLE_STOP);
                     $validation->setErrorTitle('Valeur invalide');

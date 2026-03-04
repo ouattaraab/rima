@@ -189,7 +189,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                     $validation->setType(DataValidation::TYPE_LIST);
                     $validation->setFormula1('"' . implode(',', $values) . '"');
                     $validation->setAllowBlank(true);
-
+                    $validation->setShowDropDown(true);
                     $validation->setShowErrorMessage(true);
                     $validation->setErrorStyle(DataValidation::STYLE_STOP);
                     $validation->setErrorTitle('Valeur invalide');
@@ -221,7 +221,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                     $validation->setType(DataValidation::TYPE_LIST);
                     $validation->setFormula1($formula);
                     $validation->setAllowBlank(true);
-
+                    $validation->setShowDropDown(true);
                     $validation->setShowErrorMessage(true);
                     $validation->setErrorStyle(DataValidation::STYLE_STOP);
                     $validation->setErrorTitle('Valeur invalide');

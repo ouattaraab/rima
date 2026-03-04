@@ -15,6 +15,7 @@ use App\Services\NotificationService;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Models\VehicleCategory;
 
@@ -333,11 +334,24 @@ class VehicleController extends Controller
             'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
         ]);
 
-        $import = new \App\Imports\MotosImport();
-        Excel::import($import, $request->file('file'));
+        $import = new \App\Imports\MotosImport(auth()->id());
+
+        try {
+            Excel::import($import, $request->file('file'));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Moto import failed', ['error' => $e->getMessage()]);
+
+            return redirect()->route('vehicles.index')
+                ->with('error', "Erreur lors de l'import: " . Str::limit($e->getMessage(), 200));
+        }
+
+        $message = "{$import->imported} moto(s) importee(s), {$import->skipped} doublon(s) ignore(s).";
+        if (!empty($import->errors)) {
+            $message .= ' ' . count($import->errors) . ' erreur(s): ' . implode(' | ', array_slice($import->errors, 0, 5));
+        }
 
         return redirect()->route('vehicles.index')
-            ->with('success', "{$import->imported} moto(s) importee(s), {$import->skipped} doublon(s) ignore(s).");
+            ->with('success', $message);
     }
 
     /**

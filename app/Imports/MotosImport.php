@@ -6,6 +6,7 @@ use App\Models\Vehicle;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
@@ -14,7 +15,22 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
     public int $skipped = 0;
     public array $errors = [];
 
+    public function __construct(private string $userId) {}
+
     public function model(array $row)
+    {
+        try {
+            return $this->processRow($row);
+        } catch (\Exception $e) {
+            $ref = trim($row['immatriculation'] ?? $row['n_chassis'] ?? '???');
+            $this->errors[] = "Ligne [{$ref}]: {$e->getMessage()}";
+            Log::warning('MotosImport row failed', ['ref' => $ref, 'error' => $e->getMessage()]);
+            $this->skipped++;
+            return null;
+        }
+    }
+
+    private function processRow(array $row): ?Vehicle
     {
         $registrationNumber = trim($row['immatriculation'] ?? '');
         $chassisNumber = trim($row['n_chassis'] ?? $row['chassis'] ?? '');
@@ -43,26 +59,26 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
         return new Vehicle([
             'id' => Str::uuid()->toString(),
             'vehicle_type' => 'Moto',
-            'category' => trim($row['categorie'] ?? 'Moto'),
-            'brand' => trim($row['marque'] ?? ''),
-            'model' => trim($row['modele'] ?? ''),
+            'category' => trim($row['categorie'] ?? 'Moto') ?: 'Moto',
+            'brand' => trim($row['marque'] ?? '') ?: 'Inconnu',
+            'model' => trim($row['modele'] ?? '') ?: 'Inconnu',
             'registration_number' => $registrationNumber ?: null,
             'temporary_registration' => !empty($row['immatriculation_provisoire']) ? trim($row['immatriculation_provisoire']) : null,
             'chassis_number' => $chassisNumber ?: null,
             'chassis_readable' => true,
-            'engine_displacement' => !empty($row['cylindree']) ? (int)$row['cylindree'] : null,
-            'color' => trim($row['couleur'] ?? ''),
-            'fuel_type' => trim($row['carburant'] ?? ''),
-            'transmission' => !empty($row['transmission']) ? trim($row['transmission']) : null,
-            'seats_count' => !empty($row['places']) ? (int)$row['places'] : 2,
-            'load_capacity' => !empty($row['charge_utile']) ? (int)$row['charge_utile'] : null,
-            'mileage' => !empty($row['kilometrage']) ? (int)$row['kilometrage'] : 0,
-            'status' => trim($row['statut'] ?? 'En service'),
-            'structure_ci' => trim($row['structure_ci'] ?? ''),
+            'engine_displacement' => !empty($row['cylindree']) ? (int) $row['cylindree'] : null,
+            'color' => trim($row['couleur'] ?? '') ?: 'Autre',
+            'fuel_type' => $this->validEnum($row['carburant'] ?? '', ['Essence', 'Gasoil', 'Hybride', 'Electrique'], 'Essence'),
+            'transmission' => !empty($row['transmission']) ? $this->validEnum($row['transmission'], ['Automatique', 'Manuelle'], null) : null,
+            'seats_count' => !empty($row['places']) ? min((int) $row['places'], 2) : 2,
+            'load_capacity' => !empty($row['charge_utile']) ? (int) $row['charge_utile'] : null,
+            'mileage' => !empty($row['kilometrage']) ? max((int) $row['kilometrage'], 1) : 1,
+            'status' => $this->validEnum($row['statut'] ?? '', ['En service', 'En reparation', 'Reforme', 'Cede'], 'En service'),
+            'structure_ci' => trim($row['structure_ci'] ?? '') ?: null,
             'special_equipment' => !empty($row['equipements_speciaux']) ? trim($row['equipements_speciaux']) : null,
-            'commissioning_date' => !empty($row['date_mise_en_circulation']) ? $row['date_mise_en_circulation'] : null,
-            'contract_type' => trim($row['type_contrat'] ?? ''),
-            'technical_inspection_date' => !empty($row['date_controle_technique']) ? $row['date_controle_technique'] : null,
+            'commissioning_date' => !empty($row['date_mise_en_circulation']) ? $row['date_mise_en_circulation'] : now()->toDateString(),
+            'contract_type' => $this->validEnum($row['type_contrat'] ?? '', ['Sous contrat', 'Flotte'], 'Flotte'),
+            'technical_inspection_date' => !empty($row['date_controle_technique']) ? $row['date_controle_technique'] : now()->toDateString(),
             'is_insured' => !empty($row['assure']) ? (strtolower(trim($row['assure'])) === 'oui') : false,
             'insurance_company' => !empty($row['compagnie_assurance']) ? trim($row['compagnie_assurance']) : null,
             'policy_number' => !empty($row['numero_police']) ? trim($row['numero_police']) : null,
@@ -71,7 +87,18 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             'user_matricule' => !empty($row['matricule_agent']) ? trim($row['matricule_agent']) : null,
             'user_direction' => !empty($row['direction']) ? trim($row['direction']) : null,
             'form_status' => 'synchronized',
+            'collected_by' => $this->userId,
             'collected_at' => now(),
         ]);
+    }
+
+    /**
+     * Validate a value against allowed ENUM values, return default if invalid.
+     */
+    private function validEnum(string $value, array $allowed, ?string $default): ?string
+    {
+        $value = trim($value);
+
+        return in_array($value, $allowed) ? $value : $default;
     }
 }

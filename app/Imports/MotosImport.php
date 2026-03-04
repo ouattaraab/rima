@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Structure;
 use App\Models\Vehicle;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -74,7 +75,7 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             'load_capacity' => !empty($row['charge_utile']) ? (int) $row['charge_utile'] : null,
             'mileage' => !empty($row['kilometrage']) ? max((int) $row['kilometrage'], 1) : 1,
             'status' => $this->validEnum($row['statut'] ?? '', ['En service', 'En reparation', 'Reforme', 'Cede'], 'En service'),
-            'structure_ci' => trim($row['structure_ci'] ?? '') ?: null,
+            'structure_ci' => $this->extractStructureCode($row['structure'] ?? ''),
             'special_equipment' => !empty($row['equipements_speciaux']) ? trim($row['equipements_speciaux']) : null,
             'commissioning_date' => !empty($row['date_mise_en_circulation']) ? $row['date_mise_en_circulation'] : now()->toDateString(),
             'contract_type' => $this->validEnum($row['type_contrat'] ?? '', ['Sous contrat', 'Flotte'], 'Flotte'),
@@ -85,7 +86,7 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             'insurance_start_date' => !empty($row['debut_assurance']) ? $row['debut_assurance'] : null,
             'insurance_end_date' => !empty($row['fin_assurance']) ? $row['fin_assurance'] : null,
             'user_matricule' => !empty($row['matricule_agent']) ? trim($row['matricule_agent']) : null,
-            'user_direction' => !empty($row['direction']) ? trim($row['direction']) : null,
+            'user_direction' => $this->extractDirectionFromStructure($row['structure'] ?? ''),
             'form_status' => 'synchronized',
             'collected_by' => $this->userId,
             'collected_at' => now(),
@@ -100,5 +101,45 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
         $value = trim($value);
 
         return in_array($value, $allowed) ? $value : $default;
+    }
+
+    /**
+     * Extract structure code from combined format "DRA - Direction Regionale Abidjan" → "DRA"
+     * Also accepts plain code like "DRA"
+     */
+    private function extractStructureCode(string $value): ?string
+    {
+        $value = trim($value);
+        if (empty($value)) {
+            return null;
+        }
+
+        // Format combiné "CODE - Nom de la structure"
+        if (str_contains($value, ' - ')) {
+            return trim(explode(' - ', $value, 2)[0]);
+        }
+
+        // Format simple : code direct
+        return $value;
+    }
+
+    /**
+     * Extract direction code from structure: lookup the structure in DB and get its direction.
+     * Falls back to structure code if direction not found.
+     */
+    private function extractDirectionFromStructure(string $value): ?string
+    {
+        $structureCode = $this->extractStructureCode($value);
+        if (empty($structureCode)) {
+            return null;
+        }
+
+        // Chercher la structure dans la BDD pour récupérer sa direction
+        $structure = Structure::where('code', $structureCode)->first();
+        if ($structure && !empty($structure->direction)) {
+            return $structure->direction;
+        }
+
+        return null;
     }
 }

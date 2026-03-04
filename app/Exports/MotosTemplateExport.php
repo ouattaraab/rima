@@ -3,10 +3,10 @@
 namespace App\Exports;
 
 use App\Models\Brand;
-use App\Models\Direction;
 use App\Models\InsuranceCompany;
 use App\Models\Structure;
 use App\Models\VehicleCategory;
+use App\Models\VehicleModel;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -44,7 +44,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
             'charge_utile',
             'kilometrage',
             'statut',
-            'structure_ci',
+            'structure',
             'equipements_speciaux',
             'date_mise_en_circulation',
             'type_contrat',
@@ -55,7 +55,6 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
             'debut_assurance',
             'fin_assurance',
             'matricule_agent',
-            'direction',
         ];
     }
 
@@ -67,8 +66,8 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 '',
                 'JH2MC1300EK000001',
                 'Moto',
-                'YAMAHA',
-                'YBR 125',
+                'Yamaha',
+                'YBR125E',
                 'Noir',
                 '125',
                 'Essence',
@@ -77,7 +76,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 '',
                 '5000',
                 'En service',
-                '0200',
+                'DRA - Direction Regionale Abidjan',
                 '',
                 '01/01/2020',
                 'Flotte',
@@ -88,7 +87,6 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 '01/01/2025',
                 '31/12/2025',
                 'AB12345',
-                'DGA',
             ],
         ];
     }
@@ -97,18 +95,18 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
     {
         return [
             'A' => 18, 'B' => 22, 'C' => 22, 'D' => 14,
-            'E' => 18, 'F' => 18, 'G' => 12, 'H' => 12,
+            'E' => 18, 'F' => 22, 'G' => 12, 'H' => 12,
             'I' => 14, 'J' => 16, 'K' => 10, 'L' => 14,
-            'M' => 14, 'N' => 16, 'O' => 16, 'P' => 20,
+            'M' => 14, 'N' => 16, 'O' => 38, 'P' => 20,
             'Q' => 22, 'R' => 16, 'S' => 22, 'T' => 10,
             'U' => 24, 'V' => 16, 'W' => 16, 'X' => 16,
-            'Y' => 16, 'Z' => 14,
+            'Y' => 16,
         ];
     }
 
     public function styles(Worksheet $sheet): array
     {
-        $lastCol = 'Z';
+        $lastCol = 'Y';
 
         // Header row styling
         $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
@@ -140,9 +138,12 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 // ── Données dynamiques depuis la BDD ──
                 $categories = VehicleCategory::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
                 $brands = Brand::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
-                $structures = Structure::where('is_active', true)->orderBy('code')->pluck('code')->toArray();
+                $models = VehicleModel::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
+                $structures = Structure::where('is_active', true)->orderBy('code')
+                    ->get()
+                    ->map(fn($s) => $s->code . ' - ' . $s->name)
+                    ->toArray();
                 $insurances = InsuranceCompany::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
-                $directions = Direction::where('is_active', true)->orderBy('code')->pluck('code')->toArray();
 
                 // ── Données fixes ──
                 $colors = ['Blanc', 'Noir', 'Gris', 'Bleu', 'Rouge', 'Vert', 'Jaune', 'Beige', 'Marron', 'Autre'];
@@ -152,16 +153,15 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 $contractTypes = ['Sous contrat', 'Flotte'];
                 $yesNo = ['Oui', 'Non'];
 
-                // ── Listes longues → feuille cachée "Referentiels" ──
+                // ── Feuille cachée "Referentiels" pour les listes longues ──
                 $refSheet = $event->sheet->getParent()->createSheet();
                 $refSheet->setTitle('Referentiels');
 
-                // Écrire les listes longues dans la feuille cachée
                 $refColumns = [
                     'A' => ['header' => 'Marques', 'data' => $brands],
-                    'B' => ['header' => 'Structures', 'data' => $structures],
-                    'C' => ['header' => 'Assurances', 'data' => $insurances],
-                    'D' => ['header' => 'Directions', 'data' => $directions],
+                    'B' => ['header' => 'Modeles', 'data' => $models],
+                    'C' => ['header' => 'Structures', 'data' => $structures],
+                    'D' => ['header' => 'Assurances', 'data' => $insurances],
                     'E' => ['header' => 'Categories', 'data' => $categories],
                 ];
 
@@ -172,10 +172,9 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                     }
                 }
 
-                // Cacher la feuille Referentiels
                 $refSheet->setSheetState(Worksheet::SHEETSTATE_HIDDEN);
 
-                // ── Dropdowns avec formule inline (listes courtes ≤ 255 chars) ──
+                // ── Dropdowns inline (listes courtes ≤ 255 chars) ──
                 $inlineDropdowns = [
                     'G' => $colors,
                     'I' => $fuelTypes,
@@ -203,11 +202,11 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
 
                 // ── Dropdowns via feuille cachée (listes longues/dynamiques) ──
                 $refDropdowns = [
-                    'E' => ['col' => 'A', 'count' => count($brands)],      // marque → Referentiels!A
-                    'O' => ['col' => 'B', 'count' => count($structures)],   // structure_ci → Referentiels!B
-                    'U' => ['col' => 'C', 'count' => count($insurances)],   // compagnie_assurance → Referentiels!C
-                    'Z' => ['col' => 'D', 'count' => count($directions)],   // direction → Referentiels!D
-                    'D' => ['col' => 'E', 'count' => count($categories)],   // categorie → Referentiels!E
+                    'D' => ['col' => 'E', 'count' => count($categories)],   // categorie
+                    'E' => ['col' => 'A', 'count' => count($brands)],       // marque
+                    'F' => ['col' => 'B', 'count' => count($models)],       // modele
+                    'O' => ['col' => 'C', 'count' => count($structures)],   // structure
+                    'U' => ['col' => 'D', 'count' => count($insurances)],   // compagnie_assurance
                 ];
 
                 foreach ($refDropdowns as $templateCol => $ref) {
@@ -215,7 +214,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                         continue;
                     }
 
-                    $lastRow = $ref['count'] + 1; // +1 because data starts at row 2
+                    $lastRow = $ref['count'] + 1;
                     $formula = "Referentiels!\${$ref['col']}\$2:\${$ref['col']}\${$lastRow}";
 
                     $validation = new DataValidation();

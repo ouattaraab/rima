@@ -2,17 +2,25 @@
 
 namespace App\Exports;
 
+use App\Models\Brand;
+use App\Models\Direction;
+use App\Models\InsuranceCompany;
+use App\Models\Structure;
+use App\Models\VehicleCategory;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 
-class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths, WithTitle
+class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths, WithTitle, WithEvents
 {
     public function title(): string
     {
@@ -75,7 +83,7 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 'Flotte',
                 '15/01/2025',
                 'Oui',
-                'SUNU',
+                'SUNU Assurances',
                 'POL123',
                 '01/01/2025',
                 '31/12/2025',
@@ -88,13 +96,13 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
     public function columnWidths(): array
     {
         return [
-            'A' => 18, 'B' => 22, 'C' => 22, 'D' => 12,
-            'E' => 14, 'F' => 14, 'G' => 12, 'H' => 12,
-            'I' => 12, 'J' => 14, 'K' => 10, 'L' => 14,
-            'M' => 14, 'N' => 14, 'O' => 14, 'P' => 20,
-            'Q' => 22, 'R' => 14, 'S' => 22, 'T' => 10,
-            'U' => 22, 'V' => 16, 'W' => 16, 'X' => 16,
-            'Y' => 16, 'Z' => 12,
+            'A' => 18, 'B' => 22, 'C' => 22, 'D' => 14,
+            'E' => 18, 'F' => 18, 'G' => 12, 'H' => 12,
+            'I' => 14, 'J' => 16, 'K' => 10, 'L' => 14,
+            'M' => 14, 'N' => 16, 'O' => 16, 'P' => 20,
+            'Q' => 22, 'R' => 16, 'S' => 22, 'T' => 10,
+            'U' => 24, 'V' => 16, 'W' => 16, 'X' => 16,
+            'Y' => 16, 'Z' => 14,
         ];
     }
 
@@ -120,5 +128,114 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
         ]);
 
         return [];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $maxRow = 500;
+
+                // ── Données dynamiques depuis la BDD ──
+                $categories = VehicleCategory::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
+                $brands = Brand::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
+                $structures = Structure::where('is_active', true)->orderBy('code')->pluck('code')->toArray();
+                $insurances = InsuranceCompany::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
+                $directions = Direction::where('is_active', true)->orderBy('code')->pluck('code')->toArray();
+
+                // ── Données fixes ──
+                $colors = ['Blanc', 'Noir', 'Gris', 'Bleu', 'Rouge', 'Vert', 'Jaune', 'Beige', 'Marron', 'Autre'];
+                $fuelTypes = ['Essence', 'Gasoil', 'Hybride', 'Electrique'];
+                $transmissions = ['Automatique', 'Manuelle'];
+                $statuses = ['En service', 'En reparation', 'Reforme', 'Cede'];
+                $contractTypes = ['Sous contrat', 'Flotte'];
+                $yesNo = ['Oui', 'Non'];
+
+                // ── Listes longues → feuille cachée "Referentiels" ──
+                $refSheet = $event->sheet->getParent()->createSheet();
+                $refSheet->setTitle('Referentiels');
+
+                // Écrire les listes longues dans la feuille cachée
+                $refColumns = [
+                    'A' => ['header' => 'Marques', 'data' => $brands],
+                    'B' => ['header' => 'Structures', 'data' => $structures],
+                    'C' => ['header' => 'Assurances', 'data' => $insurances],
+                    'D' => ['header' => 'Directions', 'data' => $directions],
+                    'E' => ['header' => 'Categories', 'data' => $categories],
+                ];
+
+                foreach ($refColumns as $col => $info) {
+                    $refSheet->setCellValue("{$col}1", $info['header']);
+                    foreach ($info['data'] as $i => $value) {
+                        $refSheet->setCellValue("{$col}" . ($i + 2), $value);
+                    }
+                }
+
+                // Cacher la feuille Referentiels
+                $refSheet->setSheetState(Worksheet::SHEETSTATE_HIDDEN);
+
+                // ── Dropdowns avec formule inline (listes courtes ≤ 255 chars) ──
+                $inlineDropdowns = [
+                    'G' => $colors,
+                    'I' => $fuelTypes,
+                    'J' => $transmissions,
+                    'N' => $statuses,
+                    'R' => $contractTypes,
+                    'T' => $yesNo,
+                ];
+
+                foreach ($inlineDropdowns as $col => $values) {
+                    $validation = new DataValidation();
+                    $validation->setType(DataValidation::TYPE_LIST);
+                    $validation->setFormula1('"' . implode(',', $values) . '"');
+                    $validation->setAllowBlank(true);
+                    $validation->setShowDropDown(true);
+                    $validation->setShowErrorMessage(true);
+                    $validation->setErrorStyle(DataValidation::STYLE_STOP);
+                    $validation->setErrorTitle('Valeur invalide');
+                    $validation->setError('Veuillez selectionner une valeur dans la liste.');
+
+                    for ($row = 2; $row <= $maxRow; $row++) {
+                        $sheet->getCell("{$col}{$row}")->setDataValidation(clone $validation);
+                    }
+                }
+
+                // ── Dropdowns via feuille cachée (listes longues/dynamiques) ──
+                $refDropdowns = [
+                    'E' => ['col' => 'A', 'count' => count($brands)],      // marque → Referentiels!A
+                    'O' => ['col' => 'B', 'count' => count($structures)],   // structure_ci → Referentiels!B
+                    'U' => ['col' => 'C', 'count' => count($insurances)],   // compagnie_assurance → Referentiels!C
+                    'Z' => ['col' => 'D', 'count' => count($directions)],   // direction → Referentiels!D
+                    'D' => ['col' => 'E', 'count' => count($categories)],   // categorie → Referentiels!E
+                ];
+
+                foreach ($refDropdowns as $templateCol => $ref) {
+                    if ($ref['count'] === 0) {
+                        continue;
+                    }
+
+                    $lastRow = $ref['count'] + 1; // +1 because data starts at row 2
+                    $formula = "Referentiels!\${$ref['col']}\$2:\${$ref['col']}\${$lastRow}";
+
+                    $validation = new DataValidation();
+                    $validation->setType(DataValidation::TYPE_LIST);
+                    $validation->setFormula1($formula);
+                    $validation->setAllowBlank(true);
+                    $validation->setShowDropDown(true);
+                    $validation->setShowErrorMessage(true);
+                    $validation->setErrorStyle(DataValidation::STYLE_STOP);
+                    $validation->setErrorTitle('Valeur invalide');
+                    $validation->setError('Veuillez selectionner une valeur dans la liste.');
+
+                    for ($row = 2; $row <= $maxRow; $row++) {
+                        $sheet->getCell("{$templateCol}{$row}")->setDataValidation(clone $validation);
+                    }
+                }
+
+                // Re-focus on the main sheet
+                $event->sheet->getParent()->setActiveSheetIndex(0);
+            },
+        ];
     }
 }

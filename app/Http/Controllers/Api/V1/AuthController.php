@@ -29,14 +29,17 @@ class AuthController extends Controller
         }
 
         if (!Hash::check($request->password, $user->password)) {
-            $user->increment('failed_login_attempts');
+            $attempts = $user->failed_login_attempts + 1;
+            $update = ['failed_login_attempts' => $attempts];
 
-            if ($user->failed_login_attempts >= 3) {
-                $user->update(['locked_until' => now()->addMinutes(15)]);
+            if ($attempts >= 3) {
+                $update['locked_until'] = now()->addMinutes(15);
+                $user->update($update);
                 $this->notifyAdminsAccountLocked($user);
                 return $this->errorResponse('ACCOUNT_LOCKED', 'Compte verrouille suite a 3 tentatives echouees. Reessayez dans 15 minutes.', 403);
             }
 
+            $user->update($update);
             return $this->errorResponse('INVALID_CREDENTIALS', 'Identifiants incorrects.', 401);
         }
 

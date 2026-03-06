@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/login');
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->middleware('audit');
+Route::get('/privacy-policy', fn () => view('public.privacy-policy'))->name('privacy-policy');
 
 // ============ AUTHENTIFIE ============
 Route::middleware(['auth', 'audit'])->group(function () {

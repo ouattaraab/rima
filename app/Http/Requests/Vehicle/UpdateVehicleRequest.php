@@ -98,7 +98,6 @@ class UpdateVehicleRequest extends FormRequest
                 'nullable', 'string', 'max:30',
                 Rule::requiredIf(fn() => $isInsured === true),
             ],
-            'coverage_type' => 'nullable|string|max:30',
             'insurance_start_date' => [
                 'nullable', 'date', 'after_or_equal:commissioning_date',
                 Rule::requiredIf(fn() => $isInsured === true),
@@ -115,13 +114,13 @@ class UpdateVehicleRequest extends FormRequest
             // Multi-conducteurs (V1.5)
             'drivers' => 'sometimes|array|min:1',
             'drivers.*.direction' => 'required|string|max:100',
-            'drivers.*.matricule' => 'required|string|size:7|regex:/^[A-Z0-9]{7}$/i',
+            'drivers.*.matricule' => 'nullable|string|size:7|regex:/^(?=.*[A-Z])[A-Z0-9]{7}$/i',
             'drivers.*.driver_license' => 'required|string|max:50',
             'drivers.*.is_primary' => 'sometimes|boolean',
 
             // @deprecated — Ancien format single-driver (retrocompat)
             'user_direction' => 'sometimes|string|max:100',
-            'user_matricule' => 'sometimes|string|size:7|regex:/^[A-Z0-9]{7}$/i',
+            'user_matricule' => 'sometimes|nullable|string|size:7|regex:/^(?=.*[A-Z])[A-Z0-9]{7}$/i',
             'user_driver_license' => 'sometimes|string|max:50',
         ];
     }

@@ -60,7 +60,6 @@ class AuditLogMiddleware
         if (str_contains($path, 'fuel-types')) return 'fuel_type';
         if (str_contains($path, 'transmissions')) return 'transmission';
         if (str_contains($path, 'contract-types')) return 'contract_type';
-        if (str_contains($path, 'coverage-types')) return 'coverage_type';
         if (str_contains($path, 'insurance-companies') || str_contains($path, 'insurances')) return 'insurance_company';
         if (str_contains($path, 'colors')) return 'color';
         if (str_contains($path, 'vehicles') || str_contains($path, 'sodeci/vehicles')) return 'vehicle';

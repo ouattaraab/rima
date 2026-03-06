@@ -105,10 +105,6 @@ Route::middleware(['auth', 'audit'])->group(function () {
         Route::post('/contract-types', [ReferentialController::class, 'storeContractType'])->name('contract-types.store');
         Route::put('/contract-types/{id}', [ReferentialController::class, 'updateContractType'])->name('contract-types.update');
 
-        Route::get('/coverage-types', [ReferentialController::class, 'coverageTypes'])->name('coverage-types');
-        Route::post('/coverage-types', [ReferentialController::class, 'storeCoverageType'])->name('coverage-types.store');
-        Route::put('/coverage-types/{id}', [ReferentialController::class, 'updateCoverageType'])->name('coverage-types.update');
-
         Route::get('/colors', [ReferentialController::class, 'colorsList'])->name('colors');
         Route::post('/colors', [ReferentialController::class, 'storeColor'])->name('colors.store');
         Route::put('/colors/{id}', [ReferentialController::class, 'updateColor'])->name('colors.update');
@@ -122,6 +118,7 @@ Route::middleware(['auth', 'audit'])->group(function () {
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
     });
 
     // --- Rapports (supervisor_sodeci + admin_sodeci) ---

@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Notification;
 use App\Exports\UsersExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -81,6 +82,17 @@ class UserController extends Controller
 
         $user->update($data);
         return redirect()->route('users.index')->with('success', 'Utilisateur mis a jour.');
+    }
+
+    public function unlock(string $id)
+    {
+        $user = User::findOrFail($id);
+        $user->update([
+            'failed_login_attempts' => 0,
+            'locked_until' => null,
+        ]);
+
+        return redirect()->route('users.index')->with('success', "Compte de {$user->full_name} debloque avec succes.");
     }
 
     /**

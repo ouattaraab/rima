@@ -337,10 +337,8 @@
                 <td class="value">{{ $vehicle->policy_number }}</td>
             </tr>
             <tr>
-                <td class="label">Couverture</td>
-                <td class="value">{{ $vehicle->coverage_type ?? '-' }}</td>
                 <td class="label">Période</td>
-                <td class="value">{{ $vehicle->insurance_start_date?->format('d/m/Y') }} — {{ $vehicle->insurance_end_date?->format('d/m/Y') }}</td>
+                <td class="value" colspan="3">{{ $vehicle->insurance_start_date?->format('d/m/Y') }} — {{ $vehicle->insurance_end_date?->format('d/m/Y') }}</td>
             </tr>
             @endif
         </table>

@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
+use App\Models\User;
 use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -54,11 +55,34 @@ class LoginController extends Controller
         if ($user) {
             $attempts = $user->failed_login_attempts + 1;
             $update = ['failed_login_attempts' => $attempts];
-            if ($attempts >= 3) $update['locked_until'] = now()->addMinutes(15);
-            $user->update($update);
+            if ($attempts >= 3) {
+                $update['locked_until'] = now()->addMinutes(15);
+                $user->update($update);
+                $this->notifyAdminsAccountLocked($user);
+            } else {
+                $user->update($update);
+            }
         }
 
         return back()->withErrors(['username' => 'Identifiants incorrects.'])->withInput();
+    }
+
+    private function notifyAdminsAccountLocked(User $lockedUser): void
+    {
+        $admins = User::where('role', 'admin_sodeci')->where('is_active', true)->get();
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'type' => 'account_locked',
+                'title' => 'Compte verrouille',
+                'message' => "Le compte de {$lockedUser->full_name} ({$lockedUser->username}) a ete verrouille apres 3 tentatives de connexion echouees.",
+                'data' => [
+                    'locked_user_id' => $lockedUser->id,
+                    'locked_user_username' => $lockedUser->username,
+                    'locked_until' => $lockedUser->locked_until?->toIso8601String(),
+                ],
+            ]);
+        }
     }
 
     public function logout(Request $request)

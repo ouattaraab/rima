@@ -21,7 +21,6 @@ class DatabaseSeeder extends Seeder
             TransmissionSeeder::class,
             VehicleStatusSeeder::class,
             ContractTypeSeeder::class,
-            CoverageTypeSeeder::class,
             ColorSeeder::class,
         ]);
     }

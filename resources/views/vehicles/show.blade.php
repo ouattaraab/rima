@@ -61,7 +61,6 @@
         'is_insured' => 'Assuré',
         'insurance_company' => 'Compagnie d\'assurance',
         'policy_number' => 'Numéro de police',
-        'coverage_type' => 'Type de couverture',
         'insurance_start_date' => 'Début assurance',
         'insurance_end_date' => 'Fin assurance',
         'technical_inspection_date' => 'Date contrôle technique',
@@ -377,7 +376,6 @@
                     ['Assuré', $vehicle->is_insured !== null ? ($vehicle->is_insured ? 'Oui' : 'Non') : null],
                     ['Compagnie', $vehicle->insurance_company],
                     ['Numéro de police', $vehicle->policy_number],
-                    ['Couverture', $vehicle->coverage_type],
                     ['Date début', $vehicle->insurance_start_date?->format('d/m/Y')],
                     ['Date fin', $vehicle->insurance_end_date?->format('d/m/Y')],
                 ] as [$label, $value])

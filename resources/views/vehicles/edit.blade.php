@@ -428,15 +428,6 @@
                         <p x-show="errors.policy_number" x-text="errors.policy_number" class="text-[12px] text-red-500 mt-1"></p>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Type couverture</label>
-                        <select name="coverage_type" class="w-full h-10 px-3 border border-slate-200 bg-white text-[13px] text-slate-900 focus:outline-none focus:border-[#2DB56B] focus:ring-0">
-                            <option value="">-</option>
-                            @foreach(['Tout risque','Tiers'] as $c)
-                                <option value="{{ $c }}" {{ old('coverage_type', $vehicle->coverage_type) == $c ? 'selected' : '' }}>{{ $c }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
                         <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Début assurance</label>
                         <input type="date" name="insurance_start_date" x-ref="insurance_start_date" value="{{ old('insurance_start_date', $vehicle->insurance_start_date?->format('Y-m-d')) }}"
                                class="w-full h-10 px-3 border bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-0 transition"

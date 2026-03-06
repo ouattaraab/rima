@@ -8,7 +8,6 @@ use App\Http\Requests\Referential\StoreVehicleModelRequest;
 use App\Models\Brand;
 use App\Models\Color;
 use App\Models\ContractType;
-use App\Models\CoverageType;
 use App\Models\Direction;
 use App\Models\FuelType;
 use App\Models\InsuranceCompany;
@@ -300,23 +299,6 @@ class ReferentialController extends Controller
     public function updateContractType(Request $request, string $id): JsonResponse
     {
         $item = ContractType::findOrFail($id);
-        $item->update($request->only(['name', 'is_active']));
-        return response()->json(['success' => true, 'data' => $item]);
-    }
-
-    // === COVERAGE TYPES ===
-    public function coverageTypes(): JsonResponse
-    {
-        return response()->json(['success' => true, 'data' => CoverageType::where('is_active', true)->orderBy('name')->get()]);
-    }
-    public function storeCoverageType(Request $request): JsonResponse
-    {
-        $request->validate(['name' => 'required|string|max:50|unique:coverage_types,name']);
-        return response()->json(['success' => true, 'data' => CoverageType::create($request->only('name'))], 201);
-    }
-    public function updateCoverageType(Request $request, string $id): JsonResponse
-    {
-        $item = CoverageType::findOrFail($id);
         $item->update($request->only(['name', 'is_active']));
         return response()->json(['success' => true, 'data' => $item]);
     }

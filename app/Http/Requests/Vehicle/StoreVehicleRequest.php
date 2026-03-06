@@ -86,7 +86,6 @@ class StoreVehicleRequest extends FormRequest
             ],
             'insurance_company' => 'nullable|string|max:50|required_if:is_insured,true',
             'policy_number' => 'nullable|string|max:30|required_if:is_insured,true',
-            'coverage_type' => 'nullable|string|max:30',
             'insurance_start_date' => 'nullable|date|required_if:is_insured,true|after_or_equal:commissioning_date',
             'insurance_end_date' => 'nullable|date|after:insurance_start_date|required_if:is_insured,true',
 
@@ -97,13 +96,13 @@ class StoreVehicleRequest extends FormRequest
             // Multi-conducteurs (V1.5)
             'drivers' => 'required_without:user_matricule|array|min:1',
             'drivers.*.direction' => 'required_with:drivers|string|max:100',
-            'drivers.*.matricule' => 'required_with:drivers|string|size:7|regex:/^[A-Z0-9]{7}$/i',
+            'drivers.*.matricule' => 'nullable|string|size:7|regex:/^(?=.*[A-Z])[A-Z0-9]{7}$/i',
             'drivers.*.driver_license' => 'required_with:drivers|string|max:50',
             'drivers.*.is_primary' => 'sometimes|boolean',
 
             // @deprecated — Ancien format single-driver (retrocompat)
             'user_direction' => 'required_without:drivers|string|max:100',
-            'user_matricule' => 'required_without:drivers|string|size:7|regex:/^[A-Z0-9]{7}$/i',
+            'user_matricule' => 'nullable|string|size:7|regex:/^(?=.*[A-Z])[A-Z0-9]{7}$/i',
             'user_driver_license' => 'required_without:drivers|string|max:50',
         ];
     }

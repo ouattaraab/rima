@@ -41,10 +41,6 @@ class FormOptionSeeder extends Seeder
             ['type' => 'contract_type', 'value' => 'Sous contrat', 'sort_order' => 1],
             ['type' => 'contract_type', 'value' => 'Flotte', 'sort_order' => 2],
 
-            // Coverage types
-            ['type' => 'coverage_type', 'value' => 'Tout risque', 'sort_order' => 1],
-            ['type' => 'coverage_type', 'value' => 'Tiers', 'sort_order' => 2],
-
             // Colors
             ['type' => 'color', 'value' => 'Blanc', 'sort_order' => 1],
             ['type' => 'color', 'value' => 'Noir', 'sort_order' => 2],

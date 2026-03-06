@@ -29,7 +29,7 @@ class Vehicle extends Model
         'technical_inspection_date',
         // Assurance
         'is_insured', 'insurance_company', 'policy_number',
-        'coverage_type', 'insurance_start_date', 'insurance_end_date',
+        'insurance_start_date', 'insurance_end_date',
         // GPS
         'gps_latitude', 'gps_longitude', 'gps_accuracy',
         // Metadata

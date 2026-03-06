@@ -66,7 +66,6 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/referentials/transmissions', [ReferentialController::class, 'transmissions']);
     Route::get('/referentials/vehicle-statuses', [ReferentialController::class, 'vehicleStatuses']);
     Route::get('/referentials/contract-types', [ReferentialController::class, 'contractTypes']);
-    Route::get('/referentials/coverage-types', [ReferentialController::class, 'coverageTypes']);
     Route::get('/referentials/colors', [ReferentialController::class, 'colors']);
 
     Route::middleware('role:admin_sodeci')->group(function () {
@@ -92,8 +91,6 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
         Route::put('/referentials/vehicle-statuses/{id}', [ReferentialController::class, 'updateVehicleStatus']);
         Route::post('/referentials/contract-types', [ReferentialController::class, 'storeContractType']);
         Route::put('/referentials/contract-types/{id}', [ReferentialController::class, 'updateContractType']);
-        Route::post('/referentials/coverage-types', [ReferentialController::class, 'storeCoverageType']);
-        Route::put('/referentials/coverage-types/{id}', [ReferentialController::class, 'updateCoverageType']);
         Route::post('/referentials/colors', [ReferentialController::class, 'storeColor']);
         Route::put('/referentials/colors/{id}', [ReferentialController::class, 'updateColor']);
     });

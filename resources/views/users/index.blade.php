@@ -106,7 +106,9 @@
                         <td class="px-5 py-3.5 text-slate-500 border-l border-slate-100">{{ $user->organization }}</td>
                         <td class="px-5 py-3.5 text-slate-500 border-l border-slate-100">{{ $user->region ?? '---' }}</td>
                         <td class="px-5 py-3.5 border-l border-slate-100">
-                            @if($user->is_active)
+                            @if($user->isLocked())
+                                <span class="text-[13px] text-red-600 font-medium">Verrouille</span>
+                            @elseif($user->is_active)
                                 <span class="text-[13px] text-emerald-600">Actif</span>
                             @else
                                 <span class="text-[13px] text-slate-400">Inactif</span>
@@ -115,7 +117,13 @@
                         <td class="px-5 py-3.5 text-slate-400 text-[12px] border-l border-slate-100">
                             {{ $user->last_login_at ? $user->last_login_at->format('d/m/Y H:i') : '---' }}
                         </td>
-                        <td class="px-5 py-3.5 text-right border-l border-slate-100">
+                        <td class="px-5 py-3.5 text-right border-l border-slate-100 space-x-2">
+                            @if($user->isLocked())
+                                <form action="{{ route('users.unlock', $user->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-[12px] text-red-600 hover:text-red-800 underline font-medium transition-colors">Debloquer</button>
+                                </form>
+                            @endif
                             <a href="{{ route('users.edit', $user->id) }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Modifier</a>
                         </td>
                     </tr>

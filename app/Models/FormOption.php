@@ -52,7 +52,6 @@ class FormOption extends Model
         'transmission',
         'status',
         'contract_type',
-        'coverage_type',
         'color',
     ];
 }

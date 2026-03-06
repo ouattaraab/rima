@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Notification;
 use App\Models\User;
 use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
@@ -32,6 +33,7 @@ class AuthController extends Controller
 
             if ($user->failed_login_attempts >= 3) {
                 $user->update(['locked_until' => now()->addMinutes(15)]);
+                $this->notifyAdminsAccountLocked($user);
                 return $this->errorResponse('ACCOUNT_LOCKED', 'Compte verrouille suite a 3 tentatives echouees. Reessayez dans 15 minutes.', 403);
             }
 
@@ -101,6 +103,24 @@ class AuthController extends Controller
                 'created_at' => $user->created_at,
             ],
         ]);
+    }
+
+    private function notifyAdminsAccountLocked(User $lockedUser): void
+    {
+        $admins = User::where('role', 'admin_sodeci')->where('is_active', true)->get();
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'type' => 'account_locked',
+                'title' => 'Compte verrouille',
+                'message' => "Le compte de {$lockedUser->full_name} ({$lockedUser->username}) a ete verrouille apres 3 tentatives de connexion echouees.",
+                'data' => [
+                    'locked_user_id' => $lockedUser->id,
+                    'locked_user_username' => $lockedUser->username,
+                    'locked_until' => $lockedUser->locked_until?->toIso8601String(),
+                ],
+            ]);
+        }
     }
 
     private function errorResponse(string $code, string $message, int $status): JsonResponse

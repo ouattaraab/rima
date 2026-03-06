@@ -38,7 +38,6 @@ class VehicleFactory extends Factory
             'is_insured' => true,
             'insurance_company' => 'NSIA',
             'policy_number' => 'POL-' . fake()->numerify('######'),
-            'coverage_type' => 'Tous risques',
             'insurance_start_date' => now()->subMonths(6),
             'insurance_end_date' => now()->addMonths(6),
             'gps_latitude' => 5.3600,

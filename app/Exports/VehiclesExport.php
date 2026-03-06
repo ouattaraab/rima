@@ -88,7 +88,7 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             'Statut vehicule', 'Structure/CI', 'Arceaux', 'Type cabine', 'Equipements speciaux',
             // ── Reglementaire (W-AC) ──
             'Date controle technique',
-            'Assure', 'Compagnie assurance', 'N° police', 'Type couverture',
+            'Assure', 'Compagnie assurance', 'N° police',
             'Debut assurance', 'Fin assurance',
             // ── Utilisateur / Conducteurs (AE-AI) ──
             'Direction (principal)', 'Matricule (principal)', 'Permis (principal)',
@@ -124,7 +124,7 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             $v->special_equipment,
             $v->technical_inspection_date?->format('d/m/Y'),
             $v->is_insured !== null ? ($v->is_insured ? 'Oui' : 'Non') : '',
-            $v->insurance_company, $v->policy_number, $v->coverage_type,
+            $v->insurance_company, $v->policy_number,
             $v->insurance_start_date?->format('d/m/Y'), $v->insurance_end_date?->format('d/m/Y'),
             // Conducteurs (multi-driver)
             ...($this->mapDriverColumns($v)),

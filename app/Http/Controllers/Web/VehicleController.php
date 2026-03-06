@@ -431,13 +431,12 @@ class VehicleController extends Controller
             'is_insured' => 'nullable|boolean',
             'insurance_company' => 'nullable|string|max:50',
             'policy_number' => 'nullable|string|max:30',
-            'coverage_type' => 'nullable|string',
             'insurance_start_date' => 'nullable|date',
             'insurance_end_date' => 'nullable|date|after:insurance_start_date',
             // Multi-driver validation
             'drivers' => 'nullable|array|min:1',
             'drivers.*.direction' => 'required|string|max:100',
-            'drivers.*.matricule' => 'required|string|size:7|regex:/^[A-Z0-9]+$/i',
+            'drivers.*.matricule' => 'nullable|string|size:7|regex:/^(?=.*[A-Z])[A-Z0-9]{7}$/i',
             'drivers.*.driver_license' => 'required|string|max:50',
             'drivers.*.is_primary' => 'sometimes|boolean',
         ], [
@@ -497,7 +496,7 @@ class VehicleController extends Controller
             'fuel_type', 'transmission', 'engine_displacement', 'seats_count',
             'load_capacity', 'mileage', 'status', 'structure_ci',
             'has_roll_bars', 'special_equipment', 'technical_inspection_date',
-            'is_insured', 'insurance_company', 'policy_number', 'coverage_type',
+            'is_insured', 'insurance_company', 'policy_number',
             'insurance_start_date', 'insurance_end_date',
         ];
 

@@ -13,7 +13,6 @@ use App\Models\FuelType;
 use App\Models\Transmission;
 use App\Models\VehicleStatus;
 use App\Models\ContractType;
-use App\Models\CoverageType;
 use App\Models\Color;
 use App\Exports\BrandsExport;
 use App\Exports\VehicleModelsExport;
@@ -231,18 +230,6 @@ class ReferentialController extends Controller
     public function updateContractType(Request $request, string $id) {
         ContractType::findOrFail($id)->update($request->only(['name', 'is_active']));
         return back()->with('success', 'Type de contrat mis a jour.');
-    }
-
-    // ===================== COVERAGE TYPES =====================
-    public function coverageTypes() { return view('referentials.coverage-types', ['items' => CoverageType::orderBy('name')->paginate(20)]); }
-    public function storeCoverageType(Request $request) {
-        $request->validate(['name' => 'required|string|max:50|unique:coverage_types,name']);
-        CoverageType::create($request->only('name'));
-        return back()->with('success', 'Type de couverture ajoute.');
-    }
-    public function updateCoverageType(Request $request, string $id) {
-        CoverageType::findOrFail($id)->update($request->only(['name', 'is_active']));
-        return back()->with('success', 'Type de couverture mis a jour.');
     }
 
     // ===================== COLORS =====================

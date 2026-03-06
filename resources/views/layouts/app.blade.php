@@ -85,7 +85,6 @@
                             <a href="{{ route('referentials.transmissions') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.transmissions*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Transmissions</a>
                             <a href="{{ route('referentials.vehicle-statuses') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.vehicle-statuses*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Statuts</a>
                             <a href="{{ route('referentials.contract-types') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.contract-types*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Contrats</a>
-                            <a href="{{ route('referentials.coverage-types') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.coverage-types*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Couvertures</a>
                             <a href="{{ route('referentials.colors') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.colors*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Couleurs</a>
                         </div>
                     </div>

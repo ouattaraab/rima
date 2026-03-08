@@ -100,6 +100,7 @@ class StoreVehicleRequest extends FormRequest
             'drivers' => [
                 'sometimes', 'array', 'min:1',
                 Rule::requiredIf(fn() => !$this->boolean('driver_not_assigned') && !$this->input('user_matricule')),
+                Rule::prohibitedIf(fn() => $this->boolean('driver_not_assigned')),
             ],
             'drivers.*.direction' => 'required_with:drivers|string|max:100',
             'drivers.*.matricule' => 'nullable|string|size:7|regex:/^(?=.*[A-Z])[A-Z0-9]{7}$/i',
@@ -139,6 +140,7 @@ class StoreVehicleRequest extends FormRequest
             'insurance_end_date.after' => 'La date de fin d\'assurance doit etre posterieure a la date de debut.',
             'technical_inspection_date.after_or_equal' => 'La date de controle technique ne peut pas etre anterieure a la mise en circulation.',
             'insurance_start_date.after_or_equal' => 'La date de debut d\'assurance ne peut pas etre anterieure a la mise en circulation.',
+            'drivers.prohibited' => 'Les conducteurs ne sont pas autorises quand le vehicule est marque "Non affecte".',
             'user_direction.required' => 'La direction de l\'utilisateur est obligatoire.',
             'user_matricule.required' => 'Le matricule de l\'utilisateur est obligatoire.',
             'user_matricule.size' => 'Le matricule doit comporter exactement 7 caracteres.',

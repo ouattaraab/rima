@@ -199,6 +199,14 @@ class ReportController extends Controller
             $synchronized = (clone $vehicles)->where('form_status', 'synchronized')->count();
             $lastCollection = (clone $vehicles)->max('collected_at');
 
+            // Temps moyen de collecte
+            $completedVehicles = (clone $vehicles)
+                ->whereNotNull('collection_completed_at')
+                ->get(['collected_at', 'collection_completed_at']);
+            $avgMinutes = $completedVehicles->count() > 0
+                ? round($completedVehicles->avg(fn($v) => $v->collection_completed_at->diffInMinutes($v->collected_at)))
+                : null;
+
             return (object) [
                 'id' => $agent->id,
                 'full_name' => $agent->full_name,
@@ -210,6 +218,7 @@ class ReportController extends Controller
                 'synchronized' => $synchronized,
                 'rejection_rate' => $total > 0 ? round(($rejected / $total) * 100, 1) : 0,
                 'last_collection' => $lastCollection ? \Carbon\Carbon::parse($lastCollection)->format('d/m/Y H:i') : null,
+                'avg_collection_time' => $avgMinutes,
             ];
         });
 
@@ -242,6 +251,14 @@ class ReportController extends Controller
         $synchronized = (clone $kpiQuery)->where('form_status', 'synchronized')->count();
         $rejectionRate = $total > 0 ? round(($rejected / $total) * 100, 1) : 0;
 
+        // Temps moyen de collecte
+        $completedVehicles = (clone $kpiQuery)
+            ->whereNotNull('collection_completed_at')
+            ->get(['collected_at', 'collection_completed_at']);
+        $avgCollectionTime = $completedVehicles->count() > 0
+            ? round($completedVehicles->avg(fn($v) => $v->collection_completed_at->diffInMinutes($v->collected_at)))
+            : null;
+
         // Map data (reuse DashboardService)
         $mapData = $dashboardService->getMapData($dateFrom, $dateTo, null, [$agent->id]);
 
@@ -271,7 +288,7 @@ class ReportController extends Controller
 
         return view('reports.agent-show', compact(
             'agent', 'total', 'validated', 'rejected', 'synchronized', 'rejectionRate',
-            'mapData', 'vehicles', 'dateFrom', 'dateTo'
+            'avgCollectionTime', 'mapData', 'vehicles', 'dateFrom', 'dateTo'
         ));
     }
 }

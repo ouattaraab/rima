@@ -94,6 +94,7 @@
                                 'validated' => 'Validées',
                                 'rejected' => 'Rejetées',
                                 'rejection_rate' => 'Taux rejet',
+                                'avg_collection_time' => 'Temps moyen',
                                 'last_collection' => 'Dernière collecte',
                             ] as $sortField => $label)
                                 @php
@@ -138,6 +139,17 @@
                                     $rateColor = $rate < 10 ? 'text-emerald-600' : ($rate <= 25 ? 'text-amber-600' : 'text-rose-600');
                                 @endphp
                                 <span class="text-[12px] font-semibold {{ $rateColor }}">{{ $rate }}%</span>
+                            </td>
+                            <td class="whitespace-nowrap px-5 py-3 text-[12px] text-slate-500 text-right border-l border-slate-100">
+                                @if($agent->avg_collection_time)
+                                    @if($agent->avg_collection_time >= 60)
+                                        {{ floor($agent->avg_collection_time / 60) }}h {{ $agent->avg_collection_time % 60 }}min
+                                    @else
+                                        {{ $agent->avg_collection_time }} min
+                                    @endif
+                                @else
+                                    -
+                                @endif
                             </td>
                             <td class="whitespace-nowrap px-5 py-3 text-[12px] text-slate-400 border-l border-slate-100">{{ $agent->last_collection ?? '-' }}</td>
                             <td class="whitespace-nowrap px-5 py-3 text-right border-l border-slate-100">

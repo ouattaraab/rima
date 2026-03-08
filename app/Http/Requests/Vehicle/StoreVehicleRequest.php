@@ -93,8 +93,14 @@ class StoreVehicleRequest extends FormRequest
             'gps_longitude' => 'nullable|numeric|between:-180,180',
             'gps_accuracy' => 'nullable|numeric|min:0|max:1000',
 
+            'driver_not_assigned' => 'sometimes|boolean',
+            'collection_completed_at' => 'nullable|date',
+
             // Multi-conducteurs (V1.5)
-            'drivers' => 'required_without:user_matricule|array|min:1',
+            'drivers' => [
+                'sometimes', 'array', 'min:1',
+                Rule::requiredIf(fn() => !$this->boolean('driver_not_assigned') && !$this->input('user_matricule')),
+            ],
             'drivers.*.direction' => 'required_with:drivers|string|max:100',
             'drivers.*.matricule' => 'nullable|string|size:7|regex:/^(?=.*[A-Z])[A-Z0-9]{7}$/i',
             'drivers.*.driver_license' => 'required_with:drivers|string|max:50',

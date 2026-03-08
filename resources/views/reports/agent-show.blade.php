@@ -25,7 +25,7 @@
     </div>
 
     {{-- KPI Cards — dashboard style --}}
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-0">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0">
         <div class="p-5">
             <p class="text-3xl font-bold text-slate-900">{{ number_format($total) }}</p>
             <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Total collectes</p>
@@ -48,6 +48,20 @@
             @endphp
             <p class="text-3xl font-bold {{ $rateColor }}">{{ $rejectionRate }}%</p>
             <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Taux de rejet</p>
+        </div>
+        <div class="p-5 border-l border-dashed border-slate-200">
+            <p class="text-3xl font-bold text-slate-900">
+                @if($avgCollectionTime)
+                    @if($avgCollectionTime >= 60)
+                        {{ floor($avgCollectionTime / 60) }}h{{ $avgCollectionTime % 60 }}
+                    @else
+                        {{ $avgCollectionTime }}<span class="text-lg">min</span>
+                    @endif
+                @else
+                    -
+                @endif
+            </p>
+            <p class="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Temps moyen collecte</p>
         </div>
     </div>
 

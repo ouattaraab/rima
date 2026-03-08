@@ -32,8 +32,10 @@ class Vehicle extends Model
         'insurance_start_date', 'insurance_end_date',
         // GPS
         'gps_latitude', 'gps_longitude', 'gps_accuracy',
+        // Conducteur
+        'driver_not_assigned',
         // Metadata
-        'collected_at', 'collected_by', 'form_status',
+        'collected_at', 'collection_completed_at', 'collected_by', 'form_status',
         // @deprecated — Ancien format single-driver (V1.4). Utiliser la table vehicle_drivers.
         'user_direction', 'user_matricule', 'user_driver_license',
         // Validation
@@ -58,7 +60,9 @@ class Vehicle extends Model
             'contract_start_date' => 'date',
             'provision_date' => 'date',
             'collected_at' => 'datetime',
+            'collection_completed_at' => 'datetime',
             'validated_at' => 'datetime',
+            'driver_not_assigned' => 'boolean',
             'is_insured' => 'boolean',
             'chassis_readable' => 'boolean',
             'has_roll_bars' => 'boolean',
@@ -161,8 +165,8 @@ class Vehicle extends Model
             }
         }
 
-        // Au moins un conducteur
-        if ($this->drivers()->count() === 0) {
+        // Au moins un conducteur (sauf si non affecte)
+        if (!$this->driver_not_assigned && $this->drivers()->count() === 0) {
             $missing[] = 'drivers';
         }
 
@@ -344,7 +348,7 @@ class Vehicle extends Model
     public function getCompletionPercentageAttribute(): int
     {
         // Calcul dynamique du total requis selon le type/categorie/statut
-        $total = 15; // champs toujours requis (was 17, removed 3 user_* fields, added 1 "has drivers")
+        $total = 14; // 13 champs toujours requis + 1 "has drivers"
         $total += ($this->vehicle_type === 'Moto') ? 1 : 3; // Moto=1 photo, Auto=3 photos
         $total += 1; // au moins une immatriculation
 

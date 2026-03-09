@@ -107,9 +107,16 @@ class StoreVehicleRequest extends FormRequest
             'drivers.*.is_primary' => 'sometimes|boolean',
 
             // @deprecated — Ancien format single-driver (retrocompat)
-            'user_direction' => 'required_without:drivers|string|max:100',
+            // Non requis si driver_not_assigned=true ou si drivers est present
+            'user_direction' => [
+                'nullable', 'string', 'max:100',
+                Rule::requiredIf(fn() => !$this->boolean('driver_not_assigned') && !$this->has('drivers')),
+            ],
             'user_matricule' => 'nullable|string|size:7|regex:/^(?=.*[A-Z])[A-Z0-9]{7}$/i',
-            'user_driver_license' => 'required_without:drivers|string|max:50',
+            'user_driver_license' => [
+                'nullable', 'string', 'max:50',
+                Rule::requiredIf(fn() => !$this->boolean('driver_not_assigned') && !$this->has('drivers')),
+            ],
         ];
     }
 

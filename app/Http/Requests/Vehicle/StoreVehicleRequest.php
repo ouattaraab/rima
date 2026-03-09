@@ -100,7 +100,6 @@ class StoreVehicleRequest extends FormRequest
             'drivers' => [
                 'sometimes', 'array', 'min:1',
                 Rule::requiredIf(fn() => !$this->boolean('driver_not_assigned') && !$this->input('user_matricule')),
-                Rule::prohibitedIf(fn() => $this->boolean('driver_not_assigned')),
             ],
             'drivers.*.direction' => 'required_with:drivers|string|max:100',
             'drivers.*.matricule' => 'nullable|string|size:7|regex:/^(?=.*[A-Z])[A-Z0-9]{7}$/i',

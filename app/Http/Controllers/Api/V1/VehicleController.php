@@ -62,6 +62,11 @@ class VehicleController extends Controller
         $driversData = $validated['drivers'] ?? null;
         unset($validated['drivers']);
 
+        // Ignore drivers when vehicle is marked "Non affecte"
+        if (!empty($validated['driver_not_assigned'])) {
+            $driversData = null;
+        }
+
         $vehicle = Vehicle::create([
             ...$validated,
             'collected_by' => $request->user()->id,
@@ -133,6 +138,11 @@ class VehicleController extends Controller
         $validated = $request->validated();
         $driversData = $validated['drivers'] ?? null;
         unset($validated['drivers']);
+
+        // Ignore drivers when vehicle is marked "Non affecte"
+        if (!empty($validated['driver_not_assigned'])) {
+            $driversData = null;
+        }
 
         // Reset rejected vehicles back to draft when updated
         if ($v->form_status === 'rejected') {

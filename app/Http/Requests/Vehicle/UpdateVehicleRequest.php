@@ -128,6 +128,7 @@ class UpdateVehicleRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'registration_number.unique' => 'Ce numero d\'immatriculation est deja utilise.',
             'registration_number.max' => 'L\'immatriculation ne doit pas depasser 10 caracteres.',
             'registration_number.regex' => 'L\'immatriculation ne doit contenir que des lettres, chiffres, espaces et tirets.',
             'temporary_registration.regex' => 'L\'immatriculation temporaire ne doit contenir que des lettres, chiffres, espaces et tirets.',

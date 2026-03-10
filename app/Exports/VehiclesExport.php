@@ -47,7 +47,11 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
         $query = Vehicle::with(['collector', 'drivers']);
 
         if (!empty($this->filters['form_status'])) {
-            $query->where('form_status', $this->filters['form_status']);
+            $statuses = (array) $this->filters['form_status'];
+            $statuses = array_filter($statuses);
+            if (!empty($statuses) && !in_array('all', $statuses)) {
+                $query->whereIn('form_status', $statuses);
+            }
         }
         if (!empty($this->filters['brand'])) {
             $query->where('brand', $this->filters['brand']);

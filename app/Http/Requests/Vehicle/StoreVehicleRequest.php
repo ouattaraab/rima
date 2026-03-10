@@ -124,6 +124,7 @@ class StoreVehicleRequest extends FormRequest
     {
         return [
             'registration_number.required_without' => 'Le numero d\'immatriculation ou l\'immatriculation temporaire est obligatoire.',
+            'registration_number.unique' => 'Ce numero d\'immatriculation est deja utilise.',
             'registration_number.max' => 'L\'immatriculation ne doit pas depasser 10 caracteres.',
             'registration_number.regex' => 'L\'immatriculation ne doit contenir que des lettres, chiffres, espaces et tirets.',
             'temporary_registration.required_without' => 'L\'immatriculation temporaire ou le numero d\'immatriculation est obligatoire.',

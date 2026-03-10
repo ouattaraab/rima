@@ -32,7 +32,7 @@ class VehicleController extends Controller
         }
 
         if ($request->filled('search')) {
-            $s = $request->search;
+            $s = trim($request->search);
             $query->where(function($q) use ($s) {
                 $q->where('registration_number', 'like', "%{$s}%")
                   ->orWhere('chassis_number', 'like', "%{$s}%")
@@ -41,8 +41,9 @@ class VehicleController extends Controller
             });
         }
 
-        // form_status: support multiple values, default to synchronized+validated
-        $formStatuses = $request->input('form_status', ['synchronized', 'validated']);
+        // form_status: when searching without explicit filter, search ALL statuses
+        $formStatuses = $request->input('form_status',
+            $request->filled('search') ? [] : ['synchronized', 'validated']);
         if (!is_array($formStatuses)) $formStatuses = [$formStatuses];
         $formStatuses = array_filter($formStatuses);
         if (!empty($formStatuses) && !in_array('all', $formStatuses)) {

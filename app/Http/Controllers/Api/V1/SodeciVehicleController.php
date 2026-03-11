@@ -200,6 +200,7 @@ class SodeciVehicleController extends Controller
             'financing_mode', 'bank_name', 'contract_number',
             'withdrawal_start_date', 'withdrawal_end_date',
             'contract_start_date', 'provision_date',
+            'code_immo', 'code_equipement',
         ];
 
         $oldValues = $v->only($financialFields);

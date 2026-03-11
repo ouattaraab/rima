@@ -73,6 +73,7 @@
         'validated_by' => 'Validé par',
         'rejection_reason' => 'Motif de rejet',
         'rejection_comment' => 'Commentaire de rejet',
+        'code_equipement' => 'Code équipement',
         'financing_mode' => 'Mode de financement',
         'bank_name' => 'Nom de la banque',
         'contract_number' => 'Numéro de contrat',
@@ -178,11 +179,13 @@
                 </button>
             @endif
 
-            @if(auth()->user()->role === 'admin_sodeci')
+            @if(auth()->user()->isAdminSodeci())
                 <a href="{{ route('vehicles.edit', $vehicle) }}"
                    class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-50">
                     Modifier
                 </a>
+            @endif
+            @if(auth()->user()->canEditFinancial())
                 <a href="{{ route('vehicles.financial', $vehicle) }}"
                    class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-50">
                     Données financières
@@ -496,21 +499,49 @@
         {{-- 7. Financier --}}
         <div class="px-6 py-5">
             <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Financier</h3>
-            <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
-                @foreach([
-                    ['Mode de financement', $vehicle->financing_mode],
-                    ['Banque', $vehicle->bank_name],
-                    ['Numéro de contrat', $vehicle->contract_number],
-                    ['Début prélèvement', $vehicle->withdrawal_start_date?->format('d/m/Y')],
-                    ['Fin prélèvement', $vehicle->withdrawal_end_date?->format('d/m/Y')],
-                    ['Début contrat', $vehicle->contract_start_date?->format('d/m/Y')],
-                    ['Mise à disposition', $vehicle->provision_date?->format('d/m/Y')],
-                ] as [$label, $value])
+
+            {{-- Shared: Code IMMO --}}
+            <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4 mb-4">
                 <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">{{ $label }}</p>
-                    <p class="mt-0.5 text-[13px] text-slate-900">{{ $value ?? '-' }}</p>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Code IMMO</p>
+                    <p class="mt-0.5 text-[13px] text-slate-900 font-medium">{{ $vehicle->code_immo ?? '-' }}</p>
                 </div>
-                @endforeach
+            </div>
+
+            {{-- DFC section --}}
+            <div class="mb-4">
+                <p class="text-[10px] font-semibold text-blue-600 uppercase tracking-wider mb-2">DFC</p>
+                <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
+                    @foreach([
+                        ['Mode de financement', $vehicle->financing_mode],
+                        ['Banque', $vehicle->bank_name],
+                        ['Numéro de contrat', $vehicle->contract_number],
+                        ['Début prélèvement', $vehicle->withdrawal_start_date?->format('d/m/Y')],
+                        ['Fin prélèvement', $vehicle->withdrawal_end_date?->format('d/m/Y')],
+                    ] as [$label, $value])
+                    <div>
+                        <p class="text-[11px] uppercase tracking-wide text-slate-400">{{ $label }}</p>
+                        <p class="mt-0.5 text-[13px] text-slate-900">{{ $value ?? '-' }}</p>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- DBCG section --}}
+            <div>
+                <p class="text-[10px] font-semibold text-amber-600 uppercase tracking-wider mb-2">DBCG</p>
+                <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
+                    @foreach([
+                        ['Code équipement', $vehicle->code_equipement],
+                        ['Début contrat', $vehicle->contract_start_date?->format('d/m/Y')],
+                        ['Mise à disposition', $vehicle->provision_date?->format('d/m/Y')],
+                    ] as [$label, $value])
+                    <div>
+                        <p class="text-[11px] uppercase tracking-wide text-slate-400">{{ $label }}</p>
+                        <p class="mt-0.5 text-[13px] text-slate-900">{{ $value ?? '-' }}</p>
+                    </div>
+                    @endforeach
+                </div>
             </div>
         </div>
 

@@ -44,7 +44,7 @@ class Vehicle extends Model
         'financing_mode', 'bank_name', 'contract_number',
         'withdrawal_start_date', 'withdrawal_end_date',
         'contract_start_date', 'provision_date',
-        'code_immo',
+        'code_immo', 'code_equipement',
         'revision',
     ];
 
@@ -321,6 +321,39 @@ class Vehicle extends Model
         }
 
         return $errors;
+    }
+
+    /**
+     * DBCG completion: code_equipement + code_immo required.
+     * If contract_type is "Sous contrat", also require contract_start_date + provision_date.
+     */
+    public function getIsDbcgCompleteAttribute(): bool
+    {
+        if (empty($this->code_equipement) || empty($this->code_immo)) {
+            return false;
+        }
+        if ($this->contract_type === 'Sous contrat') {
+            return !empty($this->contract_start_date) && !empty($this->provision_date);
+        }
+        return true;
+    }
+
+    /**
+     * DFC completion: financing_mode + code_immo required.
+     * If financing_mode is "Leasing", also require bank_name + contract_number + withdrawal dates.
+     */
+    public function getIsDfcCompleteAttribute(): bool
+    {
+        if (empty($this->financing_mode) || empty($this->code_immo)) {
+            return false;
+        }
+        if ($this->financing_mode === 'Leasing') {
+            return !empty($this->bank_name)
+                && !empty($this->contract_number)
+                && !empty($this->withdrawal_start_date)
+                && !empty($this->withdrawal_end_date);
+        }
+        return true;
     }
 
     public function getStatusBadgeAttribute(): string

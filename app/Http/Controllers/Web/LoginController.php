@@ -49,7 +49,8 @@ class LoginController extends Controller
 
             $this->auditService->log('login', 'auth', $user->id, $request, 200, 'web', $user->id);
 
-            return redirect()->intended('/dashboard');
+            $redirectTo = $user->isFinance() ? '/vehicles' : '/dashboard';
+            return redirect()->intended($redirectTo);
         }
 
         if ($user) {

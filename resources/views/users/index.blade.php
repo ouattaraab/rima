@@ -37,6 +37,8 @@
                     <option value="supervisor_cidec" {{ request('role') === 'supervisor_cidec' ? 'selected' : '' }}>Superviseur CIDEC</option>
                     <option value="supervisor_sodeci" {{ request('role') === 'supervisor_sodeci' ? 'selected' : '' }}>Superviseur SODECI</option>
                     <option value="admin_sodeci" {{ request('role') === 'admin_sodeci' ? 'selected' : '' }}>Admin SODECI</option>
+                    <option value="finance_dbcg" {{ request('role') === 'finance_dbcg' ? 'selected' : '' }}>Finance DBCG</option>
+                    <option value="finance_dfc" {{ request('role') === 'finance_dfc' ? 'selected' : '' }}>Finance DFC</option>
                 </select>
             </div>
             <div class="sm:w-40">
@@ -100,6 +102,12 @@
                                     @break
                                 @case('admin_sodeci')
                                     <span class="text-[13px] text-slate-900 font-semibold">Admin SODECI</span>
+                                    @break
+                                @case('finance_dbcg')
+                                    <span class="text-[13px] text-amber-600">Finance DBCG</span>
+                                    @break
+                                @case('finance_dfc')
+                                    <span class="text-[13px] text-blue-600">Finance DFC</span>
                                     @break
                             @endswitch
                         </td>

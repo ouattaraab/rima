@@ -11,6 +11,7 @@
         <p class="text-[13px] text-slate-500">
             <span class="font-semibold text-slate-900">{{ $vehicles->total() }}</span> véhicule(s) trouvé(s)
         </p>
+        @if(!auth()->user()->isFinance())
         <div class="flex items-center gap-2">
             <a href="{{ route('vehicles.export') }}?{{ request()->getQueryString() }}"
                class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition">
@@ -27,6 +28,7 @@
                 Importer motos
             </button>
         </div>
+        @endif
     </div>
 
     {{-- Search + Statut fiche --}}
@@ -185,6 +187,8 @@
                                     </a>
                                 </th>
                             @endforeach
+                            <th class="px-5 py-2.5 text-center text-[11px] font-medium text-amber-500 uppercase tracking-wide border-l border-slate-200">DBCG</th>
+                            <th class="px-5 py-2.5 text-center text-[11px] font-medium text-blue-500 uppercase tracking-wide border-l border-slate-200">DFC</th>
                             <th class="px-5 py-2.5 text-right text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Actions</th>
                         </tr>
                     </thead>
@@ -233,6 +237,20 @@
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-3 text-sm text-slate-500 border-l border-slate-100">{{ $vehicle->collector?->full_name ?? '-' }}</td>
                                 <td class="whitespace-nowrap px-5 py-3 text-[12px] text-slate-400 border-l border-slate-100">{{ $vehicle->collected_at?->format('d/m/Y') ?? '-' }}</td>
+                                <td class="whitespace-nowrap px-5 py-3 text-center border-l border-slate-100">
+                                    @if($vehicle->is_dbcg_complete)
+                                        <svg class="inline h-4 w-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg class="inline h-4 w-4 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                </td>
+                                <td class="whitespace-nowrap px-5 py-3 text-center border-l border-slate-100">
+                                    @if($vehicle->is_dfc_complete)
+                                        <svg class="inline h-4 w-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg class="inline h-4 w-4 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                </td>
                                 <td class="whitespace-nowrap px-5 py-3 text-right border-l border-slate-100">
                                     <a href="{{ route('vehicles.show', $vehicle) }}" class="text-[12px] font-medium text-slate-500 hover:text-slate-900 underline transition">Voir</a>
                                 </td>

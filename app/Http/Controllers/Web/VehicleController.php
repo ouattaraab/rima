@@ -252,54 +252,85 @@ class VehicleController extends Controller
     public function financial(string $id)
     {
         $vehicle = Vehicle::findOrFail($id);
-        return view('vehicles.financial', compact('vehicle'));
+        $user = request()->user();
+
+        // Role-based section visibility
+        $showDbcgSection = $user->isAdminSodeci() || $user->isFinanceDbcg();
+        $showDfcSection  = $user->isAdminSodeci() || $user->isFinanceDfc();
+
+        return view('vehicles.financial', compact('vehicle', 'showDbcgSection', 'showDfcSection'));
     }
 
     public function updateFinancial(Request $request, string $id)
     {
         $vehicle = Vehicle::findOrFail($id);
+        $user = $request->user();
         $isSousContrat = $vehicle->contract_type === 'Sous contrat';
 
-        $rules = [
-            'financing_mode' => 'required|in:Leasing,Direct',
-            'bank_name' => 'nullable|string|max:50|required_if:financing_mode,Leasing',
-            'contract_number' => 'nullable|string|max:50|required_if:financing_mode,Leasing',
-            'withdrawal_start_date' => 'nullable|date|required_if:financing_mode,Leasing',
-            'withdrawal_end_date' => 'nullable|date|after_or_equal:withdrawal_start_date|required_if:financing_mode,Leasing',
-            'contract_start_date' => $isSousContrat ? 'nullable|date' : 'nullable|date',
-            'provision_date' => $isSousContrat ? 'required|date' : 'nullable|date',
-            'code_immo' => ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/', Rule::unique('vehicles', 'code_immo')->ignore($id)],
-        ];
+        // ── Build rules & allowed fields based on role ──
+        $rules = [];
+        $messages = [];
+        $allowedFields = [];
 
-        $request->validate($rules, [
-            'financing_mode.required' => 'Le mode de financement est obligatoire.',
-            'financing_mode.in' => 'Le mode de financement doit etre Leasing ou Direct.',
-            'bank_name.required_if' => 'Le nom de la banque est obligatoire pour le leasing.',
-            'bank_name.max' => 'Le nom de la banque ne doit pas depasser 50 caracteres.',
-            'contract_number.required_if' => 'Le numero de contrat est obligatoire pour le leasing.',
-            'contract_number.max' => 'Le numero de contrat ne doit pas depasser 50 caracteres.',
-            'withdrawal_start_date.required_if' => 'La date de debut de prelevement est obligatoire pour le leasing.',
-            'withdrawal_end_date.required_if' => 'La date de fin de prelevement est obligatoire pour le leasing.',
-            'withdrawal_end_date.after_or_equal' => 'La date de fin de prelevement doit etre posterieure ou egale a la date de debut.',
-            'provision_date.required' => 'La date de mise a disposition est obligatoire.',
-            'provision_date.date' => 'La date de mise a disposition doit etre une date valide.',
-            'contract_start_date.date' => 'La date de debut de contrat doit etre une date valide.',
-            'code_immo.unique' => 'Ce code IMMO est deja utilise par un autre vehicule.',
-            'code_immo.size' => 'Le code IMMO doit contenir exactement 7 chiffres.',
-            'code_immo.regex' => 'Le code IMMO doit contenir uniquement des chiffres.',
-        ]);
+        // Code IMMO — shared by both roles
+        $rules['code_immo'] = ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/', Rule::unique('vehicles', 'code_immo')->ignore($id)];
+        $messages['code_immo.unique'] = 'Ce code IMMO est deja utilise par un autre vehicule.';
+        $messages['code_immo.size'] = 'Le code IMMO doit contenir exactement 7 chiffres.';
+        $messages['code_immo.regex'] = 'Le code IMMO doit contenir uniquement des chiffres.';
+        $allowedFields[] = 'code_immo';
 
-        $oldValues = $vehicle->only(['financing_mode','bank_name','contract_number','withdrawal_start_date','withdrawal_end_date','contract_start_date','provision_date','code_immo']);
+        // DFC fields (financing_mode, leasing info)
+        if ($user->isAdminSodeci() || $user->isFinanceDfc()) {
+            $rules['financing_mode'] = 'required|in:Leasing,Direct';
+            $rules['bank_name'] = 'nullable|string|max:50|required_if:financing_mode,Leasing';
+            $rules['contract_number'] = 'nullable|string|max:50|required_if:financing_mode,Leasing';
+            $rules['withdrawal_start_date'] = 'nullable|date|required_if:financing_mode,Leasing';
+            $rules['withdrawal_end_date'] = 'nullable|date|after_or_equal:withdrawal_start_date|required_if:financing_mode,Leasing';
 
-        $data = $request->only(['financing_mode','bank_name','contract_number','withdrawal_start_date','withdrawal_end_date','contract_start_date','provision_date','code_immo']);
-        if ($request->financing_mode === 'Direct') {
+            $messages['financing_mode.required'] = 'Le mode de financement est obligatoire.';
+            $messages['financing_mode.in'] = 'Le mode de financement doit etre Leasing ou Direct.';
+            $messages['bank_name.required_if'] = 'Le nom de la banque est obligatoire pour le leasing.';
+            $messages['bank_name.max'] = 'Le nom de la banque ne doit pas depasser 50 caracteres.';
+            $messages['contract_number.required_if'] = 'Le numero de contrat est obligatoire pour le leasing.';
+            $messages['contract_number.max'] = 'Le numero de contrat ne doit pas depasser 50 caracteres.';
+            $messages['withdrawal_start_date.required_if'] = 'La date de debut de prelevement est obligatoire pour le leasing.';
+            $messages['withdrawal_end_date.required_if'] = 'La date de fin de prelevement est obligatoire pour le leasing.';
+            $messages['withdrawal_end_date.after_or_equal'] = 'La date de fin de prelevement doit etre posterieure ou egale a la date de debut.';
+
+            array_push($allowedFields, 'financing_mode', 'bank_name', 'contract_number', 'withdrawal_start_date', 'withdrawal_end_date');
+        }
+
+        // DBCG fields (code_equipement, contract dates)
+        if ($user->isAdminSodeci() || $user->isFinanceDbcg()) {
+            $rules['code_equipement'] = ['nullable', 'string', 'size:4', 'regex:/^[0-9]{4}$/'];
+            $rules['contract_start_date'] = 'nullable|date';
+            $rules['provision_date'] = $isSousContrat ? 'required|date' : 'nullable|date';
+
+            $messages['code_equipement.size'] = 'Le code equipement doit contenir exactement 4 chiffres.';
+            $messages['code_equipement.regex'] = 'Le code equipement doit contenir uniquement des chiffres.';
+            $messages['provision_date.required'] = 'La date de mise a disposition est obligatoire.';
+            $messages['provision_date.date'] = 'La date de mise a disposition doit etre une date valide.';
+            $messages['contract_start_date.date'] = 'La date de debut de contrat doit etre une date valide.';
+
+            array_push($allowedFields, 'code_equipement', 'contract_start_date', 'provision_date');
+        }
+
+        $request->validate($rules, $messages);
+
+        // ── Capture old values & build update data (only allowed fields) ──
+        $oldValues = $vehicle->only($allowedFields);
+        $data = $request->only($allowedFields);
+
+        // DFC: Clear leasing fields when mode is Direct
+        if (in_array('financing_mode', $allowedFields) && ($request->financing_mode ?? null) === 'Direct') {
             $data['bank_name'] = null;
             $data['contract_number'] = null;
             $data['withdrawal_start_date'] = null;
             $data['withdrawal_end_date'] = null;
         }
-        // Si le véhicule est "Flotte", les dates du contrat ne sont pas applicables
-        if (!$isSousContrat) {
+
+        // DBCG: Clear contract dates if vehicle is not "Sous contrat"
+        if (in_array('contract_start_date', $allowedFields) && !$isSousContrat) {
             $data['contract_start_date'] = null;
             $data['provision_date'] = null;
         }
@@ -307,13 +338,15 @@ class VehicleController extends Controller
         $vehicle->update($data);
         $vehicle->increment('revision');
 
+        // Audit trail with role info
+        $roleLabel = $user->role_label ?? $user->role;
         VehicleHistory::create([
             'vehicle_id' => $vehicle->id,
             'action' => 'updated',
-            'changed_by' => $request->user()->id,
+            'changed_by' => $user->id,
             'old_values' => $oldValues,
             'new_values' => $data,
-            'comment' => 'Mise a jour des donnees financieres',
+            'comment' => "Mise a jour des donnees financieres ({$roleLabel})",
         ]);
 
         return redirect()->route('vehicles.show', $vehicle->id)->with('success', 'Donnees financieres mises a jour.');

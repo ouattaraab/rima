@@ -136,6 +136,8 @@
                             <option value="supervisor_cidec" {{ old('role') === 'supervisor_cidec' ? 'selected' : '' }}>Superviseur CIDEC</option>
                             <option value="supervisor_sodeci" {{ old('role') === 'supervisor_sodeci' ? 'selected' : '' }}>Superviseur SODECI</option>
                             <option value="admin_sodeci" {{ old('role') === 'admin_sodeci' ? 'selected' : '' }}>Admin SODECI</option>
+                            <option value="finance_dbcg" {{ old('role') === 'finance_dbcg' ? 'selected' : '' }}>Finance DBCG</option>
+                            <option value="finance_dfc" {{ old('role') === 'finance_dfc' ? 'selected' : '' }}>Finance DFC</option>
                         </select>
                         <p x-show="errors.role" x-text="errors.role" class="mt-1 text-[12px] text-red-500"></p>
                         @error('role')

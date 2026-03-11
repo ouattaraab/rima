@@ -65,6 +65,28 @@ class UserSeeder extends Seeder
                 'region' => 'Bouake',
                 'phone' => '+225 07 11 22 33',
             ],
+            [
+                'username' => 'finance.dbcg.01',
+                'email' => 'finance.dbcg@sodeci.ci',
+                'password' => 'Finance@2026!',
+                'first_name' => 'Alassane',
+                'last_name' => 'Diallo',
+                'role' => 'finance_dbcg',
+                'organization' => 'SODECI',
+                'region' => 'Abidjan',
+                'phone' => '+225 07 00 00 10',
+            ],
+            [
+                'username' => 'finance.dfc.01',
+                'email' => 'finance.dfc@sodeci.ci',
+                'password' => 'Finance@2026!',
+                'first_name' => 'Fatou',
+                'last_name' => 'Coulibaly',
+                'role' => 'finance_dfc',
+                'organization' => 'SODECI',
+                'region' => 'Abidjan',
+                'phone' => '+225 07 00 00 11',
+            ],
         ];
 
         foreach ($users as $user) {

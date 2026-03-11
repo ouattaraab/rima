@@ -31,6 +31,7 @@ class UpdateFinancialRequest extends FormRequest
                 Rule::requiredIf($isSousContrat),
             ],
             'code_immo' => ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/', Rule::unique('vehicles', 'code_immo')->ignore($this->route('vehicle'))],
+            'code_equipement' => ['nullable', 'string', 'size:4', 'regex:/^[0-9]{4}$/'],
         ];
     }
 
@@ -49,6 +50,8 @@ class UpdateFinancialRequest extends FormRequest
             'code_immo.unique' => 'Ce code IMMO est deja utilise par un autre vehicule.',
             'code_immo.size' => 'Le code IMMO doit contenir exactement 7 chiffres.',
             'code_immo.regex' => 'Le code IMMO doit contenir uniquement des chiffres.',
+            'code_equipement.size' => 'Le code equipement doit contenir exactement 4 chiffres.',
+            'code_equipement.regex' => 'Le code equipement doit contenir uniquement des chiffres.',
         ];
     }
 

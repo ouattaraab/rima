@@ -104,6 +104,39 @@ class User extends Authenticatable
         return $this->organization === 'SODECI';
     }
 
+    public function isFinanceDbcg(): bool
+    {
+        return $this->role === 'finance_dbcg';
+    }
+
+    public function isFinanceDfc(): bool
+    {
+        return $this->role === 'finance_dfc';
+    }
+
+    public function isFinance(): bool
+    {
+        return in_array($this->role, ['finance_dbcg', 'finance_dfc']);
+    }
+
+    public function canEditFinancial(): bool
+    {
+        return in_array($this->role, ['admin_sodeci', 'finance_dbcg', 'finance_dfc']);
+    }
+
+    public function getRoleLabelAttribute(): string
+    {
+        return match ($this->role) {
+            'agent_cidec' => 'Agent CIDEC',
+            'supervisor_cidec' => 'Superviseur CIDEC',
+            'supervisor_sodeci' => 'Superviseur SODECI',
+            'admin_sodeci' => 'Admin SODECI',
+            'finance_dbcg' => 'Finance DBCG',
+            'finance_dfc' => 'Finance DFC',
+            default => $this->role,
+        };
+    }
+
     public function isLocked(): bool
     {
         return $this->locked_until && $this->locked_until->isFuture();

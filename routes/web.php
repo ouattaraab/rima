@@ -39,10 +39,14 @@ Route::middleware(['auth', 'audit'])->group(function () {
         Route::post('/vehicles/{vehicle}/reject', [VehicleController::class, 'reject'])->name('vehicles.reject');
     });
 
-    // --- Financier + Edition admin (admin_sodeci uniquement) ---
-    Route::middleware('role:admin_sodeci')->group(function () {
+    // --- Financier (admin_sodeci + finance_dbcg + finance_dfc) ---
+    Route::middleware('role:admin_sodeci,finance_dbcg,finance_dfc')->group(function () {
         Route::get('/vehicles/{vehicle}/financial', [VehicleController::class, 'financial'])->name('vehicles.financial');
         Route::put('/vehicles/{vehicle}/financial', [VehicleController::class, 'updateFinancial'])->name('vehicles.updateFinancial');
+    });
+
+    // --- Edition admin (admin_sodeci uniquement) ---
+    Route::middleware('role:admin_sodeci')->group(function () {
         Route::get('/vehicles/{vehicle}/edit', [VehicleController::class, 'edit'])->name('vehicles.edit');
         Route::put('/vehicles/{vehicle}', [VehicleController::class, 'update'])->name('vehicles.update');
     });

@@ -18,6 +18,11 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        // Finance roles have no access to dashboard
+        if ($user->isFinance()) {
+            return redirect()->route('vehicles.index');
+        }
+
         // Retrieve filter parameters
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');

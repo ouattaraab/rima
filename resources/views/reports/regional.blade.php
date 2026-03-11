@@ -118,95 +118,120 @@
     </div>
     @endif
 
-    {{-- Table by Direction --}}
-    <div class="overflow-x-auto">
-        <h3 class="mb-3 text-[13px] font-semibold uppercase tracking-wide text-slate-900 px-5">Synthese par direction</h3>
-        <table class="w-full">
-            <thead>
-                <tr class="border-b border-slate-200">
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Direction</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Total</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Validees</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">En attente</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Rejetees</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Taux completude</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse($byDirection as $row)
-                <tr class="hover:bg-slate-50/50 transition-colors">
-                    <td class="px-5 py-3.5">
-                        <span class="text-[13px] font-medium text-slate-900">{{ $row->direction_code }}</span>
-                        <span class="block text-[12px] text-slate-400">{{ $row->direction_name }}</span>
-                    </td>
-                    <td class="px-5 py-3.5 text-[13px] text-slate-900 text-right font-mono border-l border-slate-100">{{ $row->total }}</td>
-                    <td class="px-5 py-3.5 text-[13px] text-emerald-600 text-right font-mono border-l border-slate-100">{{ $row->validated }}</td>
-                    <td class="px-5 py-3.5 text-[13px] text-amber-600 text-right font-mono border-l border-slate-100">{{ $row->synchronized }}</td>
-                    <td class="px-5 py-3.5 text-[13px] text-red-600 text-right font-mono border-l border-slate-100">{{ $row->rejected }}</td>
-                    <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
-                        {{ $row->total > 0 ? round(($row->validated / $row->total) * 100, 1) : 0 }}%
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="px-5 py-16 text-center">
-                        <p class="text-[13px] text-slate-400">Aucune donnee disponible</p>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+    {{-- Tabs: Direction / Structure --}}
+    <div x-data="{ tab: 'direction' }">
+        {{-- Tab bar --}}
+        <div class="flex items-center gap-0 border-b border-slate-200 px-5">
+            <button @click="tab = 'direction'" type="button"
+                    class="relative px-4 py-3 text-[13px] font-semibold uppercase tracking-wide transition-colors"
+                    :class="tab === 'direction' ? 'text-[#2DB56B]' : 'text-slate-400 hover:text-slate-600'">
+                Synthese par direction
+                <span class="ml-1 text-[11px] font-normal" :class="tab === 'direction' ? 'text-[#2DB56B]' : 'text-slate-300'">({{ $byDirection->count() }})</span>
+                <span class="absolute bottom-0 left-0 right-0 h-[2px] rounded-full transition-colors"
+                      :class="tab === 'direction' ? 'bg-[#2DB56B]' : 'bg-transparent'"></span>
+            </button>
+            <button @click="tab = 'structure'" type="button"
+                    class="relative px-4 py-3 text-[13px] font-semibold uppercase tracking-wide transition-colors"
+                    :class="tab === 'structure' ? 'text-[#2DB56B]' : 'text-slate-400 hover:text-slate-600'">
+                Detail par structure
+                <span class="ml-1 text-[11px] font-normal" :class="tab === 'structure' ? 'text-[#2DB56B]' : 'text-slate-300'">({{ $byRegion->count() }})</span>
+                <span class="absolute bottom-0 left-0 right-0 h-[2px] rounded-full transition-colors"
+                      :class="tab === 'structure' ? 'bg-[#2DB56B]' : 'bg-transparent'"></span>
+            </button>
+        </div>
 
-    {{-- Detail Table by Structure --}}
-    @if($byRegion->count() > 0)
-    <div class="overflow-x-auto mt-6">
-        <h3 class="mb-3 text-[13px] font-semibold uppercase tracking-wide text-slate-900 px-5">Detail par structure</h3>
-        <table class="w-full">
-            <thead>
-                <tr class="border-b border-slate-200">
-                    <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Structure / CI</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Total</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Validees</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">En attente</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Rejetees</th>
-                    <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Taux completude</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @foreach($byRegion as $row)
-                <tr class="hover:bg-slate-50/50 transition-colors">
-                    <td class="px-5 py-3.5">
-                        <span class="text-[13px] font-medium text-slate-900">{{ $row->structure_ci }}-{{ $row->structure_name }}</span>
-                        @if($row->structure_sigle)
-                            <span class="text-[12px] text-slate-400"> ({{ $row->structure_sigle }})</span>
-                        @endif
-                    </td>
-                    <td class="px-5 py-3.5 text-[13px] text-slate-900 text-right font-mono border-l border-slate-100">{{ $row->total }}</td>
-                    <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
-                        @if($row->validated > 0)
-                            <a href="{{ route('vehicles.index', ['form_status' => 'validated', 'structures' => [$row->structure_ci]]) }}" class="text-emerald-600 hover:underline">{{ $row->validated }}</a>
-                        @else
-                            <span class="text-emerald-600">{{ $row->validated }}</span>
-                        @endif
-                    </td>
-                    <td class="px-5 py-3.5 text-[13px] text-amber-600 text-right font-mono border-l border-slate-100">{{ $row->synchronized }}</td>
-                    <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
-                        @if($row->rejected > 0)
-                            <a href="{{ route('vehicles.index', ['form_status' => 'rejected', 'structures' => [$row->structure_ci]]) }}" class="text-red-600 hover:underline">{{ $row->rejected }}</a>
-                        @else
-                            <span class="text-red-600">{{ $row->rejected }}</span>
-                        @endif
-                    </td>
-                    <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
-                        {{ $row->total > 0 ? round(($row->validated / $row->total) * 100, 1) : 0 }}%
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        {{-- Tab content: Synthese par direction --}}
+        <div x-show="tab === 'direction'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-slate-200">
+                        <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Direction</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Total</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Validees</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">En attente</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Rejetees</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Taux completude</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($byDirection as $row)
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-5 py-3.5">
+                            <span class="text-[13px] font-medium text-slate-900">{{ $row->direction_code }}</span>
+                            <span class="block text-[12px] text-slate-400">{{ $row->direction_name }}</span>
+                        </td>
+                        <td class="px-5 py-3.5 text-[13px] text-slate-900 text-right font-mono border-l border-slate-100">{{ $row->total }}</td>
+                        <td class="px-5 py-3.5 text-[13px] text-emerald-600 text-right font-mono border-l border-slate-100">{{ $row->validated }}</td>
+                        <td class="px-5 py-3.5 text-[13px] text-amber-600 text-right font-mono border-l border-slate-100">{{ $row->synchronized }}</td>
+                        <td class="px-5 py-3.5 text-[13px] text-red-600 text-right font-mono border-l border-slate-100">{{ $row->rejected }}</td>
+                        <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
+                            {{ $row->total > 0 ? round(($row->validated / $row->total) * 100, 1) : 0 }}%
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-5 py-16 text-center">
+                            <p class="text-[13px] text-slate-400">Aucune donnee disponible</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Tab content: Detail par structure --}}
+        <div x-show="tab === 'structure'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="overflow-x-auto" x-cloak>
+            @if($byRegion->count() > 0)
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-slate-200">
+                        <th class="text-left px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide">Structure / CI</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Total</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Validees</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">En attente</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Rejetees</th>
+                        <th class="text-right px-5 py-3 text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Taux completude</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach($byRegion as $row)
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-5 py-3.5">
+                            <span class="text-[13px] font-medium text-slate-900">{{ $row->structure_ci }}-{{ $row->structure_name }}</span>
+                            @if($row->structure_sigle)
+                                <span class="text-[12px] text-slate-400"> ({{ $row->structure_sigle }})</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-[13px] text-slate-900 text-right font-mono border-l border-slate-100">{{ $row->total }}</td>
+                        <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
+                            @if($row->validated > 0)
+                                <a href="{{ route('vehicles.index', ['form_status' => 'validated', 'structures' => [$row->structure_ci]]) }}" class="text-emerald-600 hover:underline">{{ $row->validated }}</a>
+                            @else
+                                <span class="text-emerald-600">{{ $row->validated }}</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-[13px] text-amber-600 text-right font-mono border-l border-slate-100">{{ $row->synchronized }}</td>
+                        <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
+                            @if($row->rejected > 0)
+                                <a href="{{ route('vehicles.index', ['form_status' => 'rejected', 'structures' => [$row->structure_ci]]) }}" class="text-red-600 hover:underline">{{ $row->rejected }}</a>
+                            @else
+                                <span class="text-red-600">{{ $row->rejected }}</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-[13px] text-right font-mono border-l border-slate-100">
+                            {{ $row->total > 0 ? round(($row->validated / $row->total) * 100, 1) : 0 }}%
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            @else
+            <div class="px-5 py-16 text-center">
+                <p class="text-[13px] text-slate-400">Aucune donnee disponible</p>
+            </div>
+            @endif
+        </div>
     </div>
-    @endif
 </div>
 @endsection
 

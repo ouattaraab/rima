@@ -35,6 +35,9 @@
         $selectedStatuses = request('form_status', $defaultStatuses);
         if (!is_array($selectedStatuses)) $selectedStatuses = [$selectedStatuses];
         $selectedStatuses = array_filter($selectedStatuses);
+        // Si "all" est present, on ignore les statuts individuels
+        $isAll = empty($selectedStatuses) || in_array('all', $selectedStatuses);
+        if ($isAll) $selectedStatuses = [];
         $allStatuses = [
             'synchronized' => 'Synchronise',
             'validated' => 'Valide',
@@ -63,12 +66,16 @@
             </div>
             <div class="flex items-center gap-1.5">
                 <label class="cursor-pointer">
-                    <input type="checkbox" name="form_status[]" value="all" class="sr-only peer" onchange="this.form.submit()" @checked(empty($selectedStatuses) || in_array('all', $selectedStatuses))>
+                    <input type="checkbox" id="cb-all" name="form_status[]" value="all" class="sr-only peer"
+                           onchange="document.querySelectorAll('.status-cb').forEach(c => c.checked = false); this.form.submit()"
+                           @checked($isAll)>
                     <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">Tout</span>
                 </label>
                 @foreach($allStatuses as $value => $label)
                 <label class="cursor-pointer">
-                    <input type="checkbox" name="form_status[]" value="{{ $value }}" class="sr-only peer" onchange="this.form.submit()" @checked(in_array($value, $selectedStatuses))>
+                    <input type="checkbox" name="form_status[]" value="{{ $value }}" class="sr-only peer status-cb"
+                           onchange="document.getElementById('cb-all').checked = false; this.form.submit()"
+                           @checked(in_array($value, $selectedStatuses))>
                     <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">{{ $label }}</span>
                 </label>
                 @endforeach

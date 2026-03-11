@@ -17,7 +17,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use App\Models\VehicleCategory;
 
 class VehicleController extends Controller

@@ -375,7 +375,13 @@ class VehicleController extends Controller
     {
         $query = Vehicle::with('collector');
 
-        if ($request->filled('form_status')) $query->where('form_status', $request->form_status);
+        if ($request->filled('form_status')) {
+            $statuses = (array) $request->form_status;
+            $statuses = array_filter($statuses);
+            if (!empty($statuses) && !in_array('all', $statuses)) {
+                $query->whereIn('form_status', $statuses);
+            }
+        }
         if ($request->filled('vehicle_type')) $query->where('vehicle_type', $request->vehicle_type);
         if ($request->filled('brand')) $query->where('brand', $request->brand);
         if ($request->filled('category')) $query->where('category', $request->category);

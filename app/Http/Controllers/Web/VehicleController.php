@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Exports\VehiclesExport;
 use App\Exports\VehiclePdfExport;
 use App\Services\NotificationService;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -268,7 +269,7 @@ class VehicleController extends Controller
             'withdrawal_end_date' => 'nullable|date|after_or_equal:withdrawal_start_date|required_if:financing_mode,Leasing',
             'contract_start_date' => $isSousContrat ? 'nullable|date' : 'nullable|date',
             'provision_date' => $isSousContrat ? 'required|date' : 'nullable|date',
-            'code_immo' => 'nullable|string|size:7|regex:/^[0-9]{7}$/',
+            'code_immo' => ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/', Rule::unique('vehicles', 'code_immo')->ignore($id)],
         ];
 
         $request->validate($rules, [
@@ -284,6 +285,9 @@ class VehicleController extends Controller
             'provision_date.required' => 'La date de mise a disposition est obligatoire.',
             'provision_date.date' => 'La date de mise a disposition doit etre une date valide.',
             'contract_start_date.date' => 'La date de debut de contrat doit etre une date valide.',
+            'code_immo.unique' => 'Ce code IMMO est deja utilise par un autre vehicule.',
+            'code_immo.size' => 'Le code IMMO doit contenir exactement 7 chiffres.',
+            'code_immo.regex' => 'Le code IMMO doit contenir uniquement des chiffres.',
         ]);
 
         $oldValues = $vehicle->only(['financing_mode','bank_name','contract_number','withdrawal_start_date','withdrawal_end_date','contract_start_date','provision_date','code_immo']);

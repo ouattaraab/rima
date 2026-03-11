@@ -216,7 +216,7 @@
             &nbsp;&nbsp;|&nbsp;&nbsp;Filtres actifs :
             @foreach($filters as $key => $value)
                 @if($value)
-                    <span class="filter-tag">{{ $key }}: {{ $value }}</span>
+                    <span class="filter-tag">{{ $key }}: {{ is_array($value) ? implode(', ', $value) : $value }}</span>
                 @endif
             @endforeach
         @endif

@@ -57,7 +57,9 @@
                     <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
                 </div>
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
-                       class="filter-input block w-full" style="padding-left: 2.75rem;">
+                       class="filter-input block w-full" style="padding-left: 2.75rem;"
+                       @input.debounce.400ms="$el.form.submit()"
+                       @if(request('search')) autofocus @endif>
             </div>
             <div class="flex items-center gap-1.5">
                 <label class="cursor-pointer">

@@ -189,14 +189,13 @@
                             @endforeach
                             <th class="px-5 py-2.5 text-center text-[11px] font-medium text-amber-500 uppercase tracking-wide border-l border-slate-200">DBCG</th>
                             <th class="px-5 py-2.5 text-center text-[11px] font-medium text-blue-500 uppercase tracking-wide border-l border-slate-200">DFC</th>
-                            <th class="px-5 py-2.5 text-right text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @foreach($vehicles as $vehicle)
-                            <tr class="hover:bg-slate-50/50">
+                            <tr class="hover:bg-slate-50/50 cursor-pointer transition-colors" onclick="window.location='{{ route('vehicles.show', $vehicle) }}'">
                                 <td class="whitespace-nowrap px-5 py-3">
-                                    <a href="{{ route('vehicles.show', $vehicle) }}" class="text-sm font-medium text-slate-900 underline decoration-slate-300 hover:decoration-slate-900">{{ $vehicle->registration_number }}</a>
+                                    <span class="text-sm font-medium text-slate-900">{{ $vehicle->registration_number }}</span>
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-3 text-sm text-slate-600 border-l border-slate-100">{{ $vehicle->brand }} {{ $vehicle->model }}</td>
                                 <td class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
@@ -250,9 +249,6 @@
                                     @else
                                         <svg class="inline h-4 w-4 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
                                     @endif
-                                </td>
-                                <td class="whitespace-nowrap px-5 py-3 text-right border-l border-slate-100">
-                                    <a href="{{ route('vehicles.show', $vehicle) }}" class="text-[12px] font-medium text-slate-500 hover:text-slate-900 underline transition">Voir</a>
                                 </td>
                             </tr>
                         @endforeach

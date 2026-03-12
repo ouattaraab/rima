@@ -32,6 +32,7 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::middleware('role:agent_cidec,admin_sodeci')->group(function () {
         Route::get('/vehicles', [VehicleController::class, 'index']);
         Route::post('/vehicles', [VehicleController::class, 'store']);
+        Route::post('/vehicles/find-existing', [VehicleController::class, 'findExisting']);
         Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show']);
         Route::put('/vehicles/{vehicle}', [VehicleController::class, 'update']);
         Route::delete('/vehicles/{vehicle}', [VehicleController::class, 'destroy']);

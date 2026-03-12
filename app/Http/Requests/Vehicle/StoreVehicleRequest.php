@@ -33,8 +33,15 @@ class StoreVehicleRequest extends FormRequest
                 Rule::unique('vehicles')->ignore($this->route('vehicle')),
                 'required_without:temporary_registration',
             ],
-            'temporary_registration' => 'nullable|string|max:30|regex:/^[A-Z0-9\s\-]+$/i|required_without:registration_number',
-            'chassis_number' => 'nullable|string|max:30|regex:/^[A-Z0-9]+$/i',
+            'temporary_registration' => [
+                'nullable', 'string', 'max:30', 'regex:/^[A-Z0-9\s\-]+$/i',
+                'required_without:registration_number',
+                Rule::unique('vehicles')->ignore($this->route('vehicle')),
+            ],
+            'chassis_number' => [
+                'nullable', 'string', 'max:30', 'regex:/^[A-Z0-9]+$/i',
+                Rule::unique('vehicles')->ignore($this->route('vehicle')),
+            ],
             'chassis_readable' => 'required|boolean',
 
             'fuel_type' => 'required|in:Essence,Gasoil,Hybride,Electrique',
@@ -128,7 +135,9 @@ class StoreVehicleRequest extends FormRequest
             'registration_number.max' => 'L\'immatriculation ne doit pas depasser 10 caracteres.',
             'registration_number.regex' => 'L\'immatriculation ne doit contenir que des lettres, chiffres, espaces et tirets.',
             'temporary_registration.required_without' => 'L\'immatriculation temporaire ou le numero d\'immatriculation est obligatoire.',
+            'temporary_registration.unique' => 'Cette immatriculation temporaire est deja utilisee par un autre vehicule.',
             'chassis_number.regex' => 'Le numero de chassis ne doit contenir que des lettres et chiffres.',
+            'chassis_number.unique' => 'Ce numero de chassis est deja utilise par un autre vehicule.',
             'transmission.required' => 'La transmission est obligatoire pour les vehicules de type Auto.',
             'structure_ci.required' => 'Le centre d\'imputation est obligatoire pour les vehicules en service ou en reparation.',
             'has_roll_bars.required' => 'L\'indication des arceaux est obligatoire pour les Pick-up.',

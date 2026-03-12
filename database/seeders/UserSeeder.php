@@ -87,6 +87,17 @@ class UserSeeder extends Seeder
                 'region' => 'Abidjan',
                 'phone' => '+225 07 00 00 11',
             ],
+            [
+                'username' => 'validateur.sodeci.01',
+                'email' => 'validateur@sodeci.ci',
+                'password' => 'Validateur@2026!',
+                'first_name' => 'Moussa',
+                'last_name' => 'Kone',
+                'role' => 'validateur_sodeci',
+                'organization' => 'SODECI',
+                'region' => 'Abidjan',
+                'phone' => '+225 07 00 00 12',
+            ],
         ];
 
         foreach ($users as $user) {

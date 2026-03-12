@@ -39,6 +39,7 @@
                     <option value="admin_sodeci" {{ request('role') === 'admin_sodeci' ? 'selected' : '' }}>Admin SODECI</option>
                     <option value="finance_dbcg" {{ request('role') === 'finance_dbcg' ? 'selected' : '' }}>Finance DBCG</option>
                     <option value="finance_dfc" {{ request('role') === 'finance_dfc' ? 'selected' : '' }}>Finance DFC</option>
+                    <option value="validateur_sodeci" {{ request('role') === 'validateur_sodeci' ? 'selected' : '' }}>Validateur SODECI</option>
                 </select>
             </div>
             <div class="sm:w-40">
@@ -108,6 +109,9 @@
                                     @break
                                 @case('finance_dfc')
                                     <span class="text-[13px] text-blue-600">Finance DFC</span>
+                                    @break
+                                @case('validateur_sodeci')
+                                    <span class="text-[13px] text-purple-600">Validateur SODECI</span>
                                     @break
                             @endswitch
                         </td>

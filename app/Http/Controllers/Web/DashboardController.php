@@ -18,8 +18,8 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // Finance roles have no access to dashboard
-        if ($user->isFinance()) {
+        // Limited roles (finance, validateur) have no access to dashboard
+        if ($user->isLimitedRole()) {
             return redirect()->route('vehicles.index');
         }
 

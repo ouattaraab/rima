@@ -67,6 +67,36 @@ class VehicleController extends Controller
             $driversData = null;
         }
 
+        // ── Find-or-create: prevent duplicates from mobile sync ──
+        $existing = $this->findExistingDraft($request->user()->id, $validated);
+
+        if ($existing) {
+            // Update the existing draft instead of creating a duplicate
+            $existing->update($validated);
+            $this->syncDrivers($existing, $driversData, $validated);
+            $existing->refresh();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $existing->id,
+                    'vehicle_type' => $existing->vehicle_type,
+                    'category' => $existing->category,
+                    'brand' => $existing->brand,
+                    'model' => $existing->model,
+                    'registration_number' => $existing->registration_number,
+                    'form_status' => $existing->form_status,
+                    'completion_percentage' => $existing->completion_percentage,
+                    'missing_fields' => $existing->getMissingFields(),
+                    'collected_by' => $existing->collected_by,
+                    'collected_at' => $existing->collected_at,
+                    'created_at' => $existing->created_at,
+                    'version' => $existing->revision,
+                ],
+                'message' => 'Fiche vehicule existante mise a jour (doublon evite)',
+            ], 200);
+        }
+
         $vehicle = Vehicle::create([
             ...$validated,
             'collected_by' => $request->user()->id,
@@ -258,6 +288,74 @@ class VehicleController extends Controller
             ],
             'message' => "Synchronisation terminee: {$succeeded}/" . count($request->vehicle_ids) . " fiches synchronisees",
         ]);
+    }
+
+    /**
+     * Find an existing vehicle (POST /vehicles/find-existing).
+     * Used by mobile to check if a vehicle already exists before creating.
+     */
+    public function findExisting(Request $request): JsonResponse
+    {
+        $request->validate([
+            'registration_number' => 'nullable|string',
+            'temporary_registration' => 'nullable|string',
+            'chassis_number' => 'nullable|string',
+        ]);
+
+        $existing = $this->findExistingDraft(
+            $request->user()->id,
+            $request->only(['registration_number', 'temporary_registration', 'chassis_number'])
+        );
+
+        if ($existing) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $existing->id,
+                    'registration_number' => $existing->registration_number,
+                    'form_status' => $existing->form_status,
+                ],
+                'message' => 'Vehicule existant trouve',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => null,
+            'message' => 'Aucun vehicule existant trouve',
+        ]);
+    }
+
+    /**
+     * Find an existing draft/rejected vehicle with matching identifiers for the same agent.
+     * Returns the vehicle if found, null otherwise.
+     */
+    private function findExistingDraft(string $userId, array $data): ?Vehicle
+    {
+        $regNum = $data['registration_number'] ?? null;
+        $tempReg = $data['temporary_registration'] ?? null;
+        $chassis = $data['chassis_number'] ?? null;
+
+        // Need at least one identifier to search
+        if (!$regNum && !$tempReg && !$chassis) {
+            return null;
+        }
+
+        return Vehicle::where('collected_by', $userId)
+            ->whereIn('form_status', ['draft', 'rejected'])
+            ->where(function ($q) use ($regNum, $tempReg, $chassis) {
+                if ($regNum) {
+                    $q->orWhere('registration_number', $regNum);
+                }
+                if ($tempReg) {
+                    $q->orWhere('temporary_registration', $tempReg);
+                }
+                if ($chassis) {
+                    $q->orWhere('chassis_number', $chassis);
+                }
+            })
+            ->latest('updated_at')
+            ->first();
     }
 
     /**

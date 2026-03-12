@@ -166,7 +166,7 @@
         {{-- Action buttons --}}
         <div class="flex flex-wrap items-center gap-2">
             @if(
-                in_array(auth()->user()->role, ['supervisor_sodeci', 'admin_sodeci'])
+                in_array(auth()->user()->role, ['supervisor_sodeci', 'admin_sodeci', 'validateur_sodeci'])
                 && $vehicle->form_status === 'synchronized'
             )
                 <button @click="showValidateModal = true"

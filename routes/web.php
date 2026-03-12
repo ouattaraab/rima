@@ -33,8 +33,8 @@ Route::middleware(['auth', 'audit'])->group(function () {
     Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('vehicles.show');
     Route::get('/vehicles/{vehicle}/pdf', [VehicleController::class, 'downloadPdf'])->name('vehicles.downloadPdf');
 
-    // --- Validation/Rejet (supervisor_sodeci + admin_sodeci) ---
-    Route::middleware('role:supervisor_sodeci,admin_sodeci')->group(function () {
+    // --- Validation/Rejet (supervisor_sodeci + admin_sodeci + validateur_sodeci) ---
+    Route::middleware('role:supervisor_sodeci,admin_sodeci,validateur_sodeci')->group(function () {
         Route::post('/vehicles/{vehicle}/validate', [VehicleController::class, 'validateVehicle'])->name('vehicles.validate');
         Route::post('/vehicles/{vehicle}/reject', [VehicleController::class, 'reject'])->name('vehicles.reject');
     });

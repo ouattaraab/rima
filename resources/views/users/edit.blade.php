@@ -139,6 +139,7 @@
                             <option value="admin_sodeci" {{ old('role', $user->role) === 'admin_sodeci' ? 'selected' : '' }}>Admin SODECI</option>
                             <option value="finance_dbcg" {{ old('role', $user->role) === 'finance_dbcg' ? 'selected' : '' }}>Finance DBCG</option>
                             <option value="finance_dfc" {{ old('role', $user->role) === 'finance_dfc' ? 'selected' : '' }}>Finance DFC</option>
+                            <option value="validateur_sodeci" {{ old('role', $user->role) === 'validateur_sodeci' ? 'selected' : '' }}>Validateur SODECI</option>
                         </select>
                         <p x-show="errors.role" x-text="errors.role" class="mt-1 text-[12px] text-red-500"></p>
                         @error('role')

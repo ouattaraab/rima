@@ -119,6 +119,16 @@ class User extends Authenticatable
         return in_array($this->role, ['finance_dbcg', 'finance_dfc']);
     }
 
+    public function isValidateur(): bool
+    {
+        return $this->role === 'validateur_sodeci';
+    }
+
+    public function isLimitedRole(): bool
+    {
+        return $this->isFinance() || $this->isValidateur();
+    }
+
     public function canEditFinancial(): bool
     {
         return in_array($this->role, ['admin_sodeci', 'finance_dbcg', 'finance_dfc']);
@@ -133,6 +143,7 @@ class User extends Authenticatable
             'admin_sodeci' => 'Admin SODECI',
             'finance_dbcg' => 'Finance DBCG',
             'finance_dfc' => 'Finance DFC',
+            'validateur_sodeci' => 'Validateur SODECI',
             default => $this->role,
         };
     }

@@ -23,7 +23,7 @@ class StoreUserRequest extends FormRequest
                 'regex:/[0-9]/',
                 'regex:/[!@#$%^&*]/',
             ],
-            'role' => 'required|in:agent_cidec,supervisor_cidec,supervisor_sodeci,admin_sodeci,finance_dbcg,finance_dfc',
+            'role' => 'required|in:agent_cidec,supervisor_cidec,supervisor_sodeci,admin_sodeci,finance_dbcg,finance_dfc,validateur_sodeci',
             'organization' => 'required|in:CIDEC,SODECI',
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',

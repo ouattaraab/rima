@@ -11,7 +11,7 @@
         <p class="text-[13px] text-slate-500">
             <span class="font-semibold text-slate-900">{{ $vehicles->total() }}</span> véhicule(s) trouvé(s)
         </p>
-        @if(!auth()->user()->isFinance())
+        @if(!auth()->user()->isLimitedRole())
         <div class="flex items-center gap-2">
             <a href="{{ route('vehicles.export') }}?{{ request()->getQueryString() }}"
                class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition">

@@ -500,19 +500,12 @@
         <div class="px-6 py-5">
             <h3 class="mb-4 text-[13px] font-semibold uppercase tracking-wide text-slate-900">Financier</h3>
 
-            {{-- Shared: Code IMMO --}}
-            <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4 mb-4">
-                <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-400">Code IMMO</p>
-                    <p class="mt-0.5 text-[13px] text-slate-900 font-medium">{{ $vehicle->code_immo ?? '-' }}</p>
-                </div>
-            </div>
-
             {{-- DFC section --}}
             <div class="mb-4">
                 <p class="text-[10px] font-semibold text-blue-600 uppercase tracking-wider mb-2">DFC</p>
                 <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
                     @foreach([
+                        ['Code IMMO DFC', $vehicle->code_immo_dfc],
                         ['Mode de financement', $vehicle->financing_mode],
                         ['Banque', $vehicle->bank_name],
                         ['Numéro de contrat', $vehicle->contract_number],
@@ -532,6 +525,7 @@
                 <p class="text-[10px] font-semibold text-amber-600 uppercase tracking-wider mb-2">DBCG</p>
                 <div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:grid-cols-4">
                     @foreach([
+                        ['Code IMMO DBCG', $vehicle->code_immo_dbcg],
                         ['Code équipement', $vehicle->code_equipement],
                         ['Début contrat', $vehicle->contract_start_date?->format('d/m/Y')],
                         ['Mise à disposition', $vehicle->provision_date?->format('d/m/Y')],

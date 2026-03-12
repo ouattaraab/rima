@@ -134,7 +134,7 @@ class VehicleController extends Controller
             $checks[] = ['label' => 'Assurance (obligatoire si en service)', 'ok' => $insuranceOk];
 
             // Financial data completeness (dates du contrat uniquement pour "Sous contrat")
-            $financialFields = ['financing_mode', 'code_immo'];
+            $financialFields = ['financing_mode', 'code_immo_dfc', 'code_immo_dbcg'];
             if ($vehicle->contract_type === 'Sous contrat') {
                 $financialFields[] = 'contract_start_date';
                 $financialFields[] = 'provision_date';
@@ -272,15 +272,12 @@ class VehicleController extends Controller
         $messages = [];
         $allowedFields = [];
 
-        // Code IMMO — shared by both roles
-        $rules['code_immo'] = ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/', Rule::unique('vehicles', 'code_immo')->ignore($id)];
-        $messages['code_immo.unique'] = 'Ce code IMMO est deja utilise par un autre vehicule.';
-        $messages['code_immo.size'] = 'Le code IMMO doit contenir exactement 7 chiffres.';
-        $messages['code_immo.regex'] = 'Le code IMMO doit contenir uniquement des chiffres.';
-        $allowedFields[] = 'code_immo';
-
-        // DFC fields (financing_mode, leasing info)
+        // DFC fields (financing_mode, leasing info, code_immo_dfc)
         if ($user->isAdminSodeci() || $user->isFinanceDfc()) {
+            $rules['code_immo_dfc'] = ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/'];
+            $messages['code_immo_dfc.size'] = 'Le code IMMO DFC doit contenir exactement 7 chiffres.';
+            $messages['code_immo_dfc.regex'] = 'Le code IMMO DFC doit contenir uniquement des chiffres.';
+            $allowedFields[] = 'code_immo_dfc';
             $rules['financing_mode'] = 'required|in:Leasing,Direct';
             $rules['bank_name'] = 'nullable|string|max:50|required_if:financing_mode,Leasing';
             $rules['contract_number'] = 'nullable|string|max:50|required_if:financing_mode,Leasing';
@@ -300,8 +297,11 @@ class VehicleController extends Controller
             array_push($allowedFields, 'financing_mode', 'bank_name', 'contract_number', 'withdrawal_start_date', 'withdrawal_end_date');
         }
 
-        // DBCG fields (code_equipement, contract dates)
+        // DBCG fields (code_equipement, code_immo_dbcg, contract dates)
         if ($user->isAdminSodeci() || $user->isFinanceDbcg()) {
+            $rules['code_immo_dbcg'] = ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/'];
+            $messages['code_immo_dbcg.size'] = 'Le code IMMO DBCG doit contenir exactement 7 chiffres.';
+            $messages['code_immo_dbcg.regex'] = 'Le code IMMO DBCG doit contenir uniquement des chiffres.';
             $rules['code_equipement'] = ['nullable', 'string', 'size:4', 'regex:/^[0-9]{4}$/'];
             $rules['contract_start_date'] = 'nullable|date';
             $rules['provision_date'] = $isSousContrat ? 'required|date' : 'nullable|date';
@@ -312,7 +312,7 @@ class VehicleController extends Controller
             $messages['provision_date.date'] = 'La date de mise a disposition doit etre une date valide.';
             $messages['contract_start_date.date'] = 'La date de debut de contrat doit etre une date valide.';
 
-            array_push($allowedFields, 'code_equipement', 'contract_start_date', 'provision_date');
+            array_push($allowedFields, 'code_immo_dbcg', 'code_equipement', 'contract_start_date', 'provision_date');
         }
 
         $request->validate($rules, $messages);

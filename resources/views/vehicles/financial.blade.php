@@ -57,6 +57,23 @@
             </div>
             @endif
 
+            {{-- Code IMMO DFC --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
+                <div>
+                    <p class="text-[13px] font-semibold text-slate-900">Code IMMO DFC</p>
+                    <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Code d'immobilisation DFC du véhicule (7 chiffres).</p>
+                </div>
+                <div class="lg:col-span-2">
+                    <div>
+                        <label for="code_immo_dfc" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Code IMMO DFC</label>
+                        <input type="text" name="code_immo_dfc" id="code_immo_dfc" value="{{ old('code_immo_dfc', $vehicle->code_immo_dfc) }}" placeholder="0000000"
+                               maxlength="7" pattern="[0-9]{7}"
+                               class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 transition sm:max-w-[250px]">
+                        @error('code_immo_dfc')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+            </div>
+
             {{-- Mode de financement --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
                 <div>
@@ -144,6 +161,23 @@
             </div>
             @endif
 
+            {{-- Code IMMO DBCG --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
+                <div>
+                    <p class="text-[13px] font-semibold text-slate-900">Code IMMO DBCG</p>
+                    <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Code d'immobilisation DBCG du véhicule (7 chiffres).</p>
+                </div>
+                <div class="lg:col-span-2">
+                    <div>
+                        <label for="code_immo_dbcg" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Code IMMO DBCG</label>
+                        <input type="text" name="code_immo_dbcg" id="code_immo_dbcg" value="{{ old('code_immo_dbcg', $vehicle->code_immo_dbcg) }}" placeholder="0000000"
+                               maxlength="7" pattern="[0-9]{7}"
+                               class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 transition sm:max-w-[250px]">
+                        @error('code_immo_dbcg')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+            </div>
+
             {{-- Code équipement --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
                 <div>
@@ -186,25 +220,6 @@
             </div>
         </div>
         @endif
-
-        {{-- ═══════════════════════════════════════════════ --}}
-        {{-- Code IMMO — visible par tous les rôles finance --}}
-        {{-- ═══════════════════════════════════════════════ --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-5 py-8 border-b border-slate-200">
-            <div>
-                <p class="text-[13px] font-semibold text-slate-900">Code IMMO</p>
-                <p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Code d'immobilisation du véhicule (7 chiffres). Partagé entre DBCG et DFC.</p>
-            </div>
-            <div class="lg:col-span-2">
-                <div>
-                    <label for="code_immo" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Code IMMO</label>
-                    <input type="text" name="code_immo" id="code_immo" value="{{ old('code_immo', $vehicle->code_immo) }}" placeholder="0000000"
-                           maxlength="7" pattern="[0-9]{7}"
-                           class="w-full h-10 px-3 border border-slate-200 focus:outline-none focus:border-[#2DB56B] focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 transition sm:max-w-[250px]">
-                    @error('code_immo')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
-                </div>
-            </div>
-        </div>
 
         {{-- Actions --}}
         <div class="flex items-center justify-end gap-3 pt-6">

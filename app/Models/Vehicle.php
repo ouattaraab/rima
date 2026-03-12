@@ -44,7 +44,7 @@ class Vehicle extends Model
         'financing_mode', 'bank_name', 'contract_number',
         'withdrawal_start_date', 'withdrawal_end_date',
         'contract_start_date', 'provision_date',
-        'code_immo', 'code_equipement',
+        'code_immo_dfc', 'code_immo_dbcg', 'code_equipement',
         'revision',
     ];
 
@@ -324,12 +324,12 @@ class Vehicle extends Model
     }
 
     /**
-     * DBCG completion: code_equipement + code_immo required.
+     * DBCG completion: code_equipement + code_immo_dbcg required.
      * If contract_type is "Sous contrat", also require contract_start_date + provision_date.
      */
     public function getIsDbcgCompleteAttribute(): bool
     {
-        if (empty($this->code_equipement) || empty($this->code_immo)) {
+        if (empty($this->code_equipement) || empty($this->code_immo_dbcg)) {
             return false;
         }
         if ($this->contract_type === 'Sous contrat') {
@@ -339,12 +339,12 @@ class Vehicle extends Model
     }
 
     /**
-     * DFC completion: financing_mode + code_immo required.
+     * DFC completion: financing_mode + code_immo_dfc required.
      * If financing_mode is "Leasing", also require bank_name + contract_number + withdrawal dates.
      */
     public function getIsDfcCompleteAttribute(): bool
     {
-        if (empty($this->financing_mode) || empty($this->code_immo)) {
+        if (empty($this->financing_mode) || empty($this->code_immo_dfc)) {
             return false;
         }
         if ($this->financing_mode === 'Leasing') {

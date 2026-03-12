@@ -30,7 +30,8 @@ class UpdateFinancialRequest extends FormRequest
                 'nullable', 'date',
                 Rule::requiredIf($isSousContrat),
             ],
-            'code_immo' => ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/', Rule::unique('vehicles', 'code_immo')->ignore($this->route('vehicle'))],
+            'code_immo_dfc' => ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/'],
+            'code_immo_dbcg' => ['nullable', 'string', 'size:7', 'regex:/^[0-9]{7}$/'],
             'code_equipement' => ['nullable', 'string', 'size:4', 'regex:/^[0-9]{4}$/'],
         ];
     }
@@ -47,9 +48,10 @@ class UpdateFinancialRequest extends FormRequest
             'withdrawal_end_date.after_or_equal' => 'La date de fin de prelevement doit etre posterieure ou egale a la date de debut.',
             'contract_start_date.required' => 'La date de debut du contrat est obligatoire pour les vehicules sous contrat.',
             'provision_date.required' => 'La date de mise a disposition est obligatoire pour les vehicules sous contrat.',
-            'code_immo.unique' => 'Ce code IMMO est deja utilise par un autre vehicule.',
-            'code_immo.size' => 'Le code IMMO doit contenir exactement 7 chiffres.',
-            'code_immo.regex' => 'Le code IMMO doit contenir uniquement des chiffres.',
+            'code_immo_dfc.size' => 'Le code IMMO DFC doit contenir exactement 7 chiffres.',
+            'code_immo_dfc.regex' => 'Le code IMMO DFC doit contenir uniquement des chiffres.',
+            'code_immo_dbcg.size' => 'Le code IMMO DBCG doit contenir exactement 7 chiffres.',
+            'code_immo_dbcg.regex' => 'Le code IMMO DBCG doit contenir uniquement des chiffres.',
             'code_equipement.size' => 'Le code equipement doit contenir exactement 4 chiffres.',
             'code_equipement.regex' => 'Le code equipement doit contenir uniquement des chiffres.',
         ];

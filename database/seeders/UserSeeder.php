@@ -102,13 +102,25 @@ class UserSeeder extends Seeder
 
         foreach ($users as $userData) {
             $username = $userData['username'];
+            $email = $userData['email'];
             $password = $userData['password'];
             unset($userData['password']);
 
-            User::updateOrCreate(
-                ['username' => $username],
-                array_merge($userData, ['password' => $password]),
-            );
+            // Skip if user already exists by username
+            $existing = User::where('username', $username)->first();
+            if ($existing) {
+                $existing->update(array_merge($userData, ['password' => $password]));
+                continue;
+            }
+
+            // Skip if email is already taken by another user
+            $emailTaken = User::where('email', $email)->where('username', '!=', $username)->exists();
+            if ($emailTaken) {
+                // Use a unique email to avoid conflict
+                $userData['email'] = $username . '@test.local';
+            }
+
+            User::create(array_merge($userData, ['password' => $password]));
         }
     }
 }

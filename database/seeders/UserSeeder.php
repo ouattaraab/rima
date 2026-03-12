@@ -100,8 +100,15 @@ class UserSeeder extends Seeder
             ],
         ];
 
-        foreach ($users as $user) {
-            User::create($user);
+        foreach ($users as $userData) {
+            $username = $userData['username'];
+            $password = $userData['password'];
+            unset($userData['password']);
+
+            User::updateOrCreate(
+                ['username' => $username],
+                array_merge($userData, ['password' => $password]),
+            );
         }
     }
 }

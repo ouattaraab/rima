@@ -88,6 +88,7 @@
                             <a href="{{ route('referentials.vehicle-statuses') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.vehicle-statuses*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Statuts</a>
                             <a href="{{ route('referentials.contract-types') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.contract-types*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Contrats</a>
                             <a href="{{ route('referentials.colors') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.colors*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Couleurs</a>
+                            <a href="{{ route('referentials.banks') }}" class="block px-2 py-1.5 text-[13px] {{ request()->routeIs('referentials.banks*') ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-700' }}">Banques</a>
                         </div>
                     </div>
 

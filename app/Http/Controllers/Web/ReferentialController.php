@@ -13,6 +13,7 @@ use App\Models\FuelType;
 use App\Models\Transmission;
 use App\Models\VehicleStatus;
 use App\Models\ContractType;
+use App\Models\Bank;
 use App\Models\Color;
 use App\Exports\BrandsExport;
 use App\Exports\VehicleModelsExport;
@@ -242,5 +243,17 @@ class ReferentialController extends Controller
     public function updateColor(Request $request, string $id) {
         Color::findOrFail($id)->update($request->only(['name', 'is_active']));
         return back()->with('success', 'Couleur mise a jour.');
+    }
+
+    // ===================== BANKS =====================
+    public function banksList() { return view('referentials.banks', ['items' => Bank::orderBy('name')->paginate(20)]); }
+    public function storeBank(Request $request) {
+        $request->validate(['name' => 'required|string|max:100|unique:banks,name']);
+        Bank::create($request->only('name'));
+        return back()->with('success', 'Banque ajoutee.');
+    }
+    public function updateBank(Request $request, string $id) {
+        Bank::findOrFail($id)->update($request->only(['name', 'is_active']));
+        return back()->with('success', 'Banque mise a jour.');
     }
 }

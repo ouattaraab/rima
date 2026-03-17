@@ -113,6 +113,10 @@ Route::middleware(['auth', 'audit'])->group(function () {
         Route::get('/colors', [ReferentialController::class, 'colorsList'])->name('colors');
         Route::post('/colors', [ReferentialController::class, 'storeColor'])->name('colors.store');
         Route::put('/colors/{id}', [ReferentialController::class, 'updateColor'])->name('colors.update');
+
+        Route::get('/banks', [ReferentialController::class, 'banksList'])->name('banks');
+        Route::post('/banks', [ReferentialController::class, 'storeBank'])->name('banks.store');
+        Route::put('/banks/{bank}', [ReferentialController::class, 'updateBank'])->name('banks.update');
     });
 
     // --- Utilisateurs (admin_sodeci uniquement) ---

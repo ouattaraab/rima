@@ -258,7 +258,10 @@ class VehicleController extends Controller
         $showDbcgSection = $user->isAdminSodeci() || $user->isFinanceDbcg();
         $showDfcSection  = $user->isAdminSodeci() || $user->isFinanceDfc();
 
-        return view('vehicles.financial', compact('vehicle', 'showDbcgSection', 'showDfcSection'));
+        // Load banks for DFC leasing select
+        $banks = \App\Models\Bank::where('is_active', true)->orderBy('name')->get();
+
+        return view('vehicles.financial', compact('vehicle', 'showDbcgSection', 'showDfcSection', 'banks'));
     }
 
     public function updateFinancial(Request $request, string $id)

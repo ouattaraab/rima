@@ -68,6 +68,7 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/referentials/vehicle-statuses', [ReferentialController::class, 'vehicleStatuses']);
     Route::get('/referentials/contract-types', [ReferentialController::class, 'contractTypes']);
     Route::get('/referentials/colors', [ReferentialController::class, 'colors']);
+    Route::get('/referentials/banks', [ReferentialController::class, 'banks']);
 
     Route::middleware('role:admin_sodeci')->group(function () {
         Route::post('/referentials/brands', [ReferentialController::class, 'storeBrand']);
@@ -94,6 +95,8 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
         Route::put('/referentials/contract-types/{id}', [ReferentialController::class, 'updateContractType']);
         Route::post('/referentials/colors', [ReferentialController::class, 'storeColor']);
         Route::put('/referentials/colors/{id}', [ReferentialController::class, 'updateColor']);
+        Route::post('/referentials/banks', [ReferentialController::class, 'storeBank']);
+        Route::put('/referentials/banks/{bank}', [ReferentialController::class, 'updateBank']);
     });
 
     // --- SODECI Vehicules (superviseurs + admin) ---

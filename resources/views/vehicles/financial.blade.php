@@ -110,10 +110,15 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label for="bank_name" class="block text-[11px] font-medium text-slate-400 uppercase tracking-wide mb-1.5">Banque <span class="text-red-500">*</span></label>
-                                <input type="text" name="bank_name" id="bank_name" x-ref="bank_name" value="{{ old('bank_name', $vehicle->bank_name) }}" placeholder="Nom de la banque"
-                                       class="w-full h-10 px-3 border focus:outline-none focus:ring-0 text-[13px] text-slate-900 placeholder-slate-300 transition"
-                                       :class="errors.bank_name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
-                                       @input="delete errors.bank_name">
+                                <select name="bank_name" id="bank_name" x-ref="bank_name"
+                                        class="w-full h-10 px-3 border focus:outline-none focus:ring-0 text-[13px] text-slate-900 transition"
+                                        :class="errors.bank_name ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#2DB56B]'"
+                                        @change="delete errors.bank_name">
+                                    <option value="">-- Sélectionner une banque --</option>
+                                    @foreach($banks as $bank)
+                                        <option value="{{ $bank->name }}" {{ old('bank_name', $vehicle->bank_name) === $bank->name ? 'selected' : '' }}>{{ $bank->name }}</option>
+                                    @endforeach
+                                </select>
                                 <p x-show="errors.bank_name" x-text="errors.bank_name" class="mt-1 text-[12px] text-red-500"></p>
                                 @error('bank_name')<p class="mt-1 text-[12px] text-red-500">{{ $message }}</p>@enderror
                             </div>

@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             VehicleStatusSeeder::class,
             ContractTypeSeeder::class,
             ColorSeeder::class,
+            BankSeeder::class,
         ]);
     }
 }

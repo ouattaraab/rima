@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Referential\StoreBrandRequest;
 use App\Http\Requests\Referential\StoreVehicleModelRequest;
+use App\Models\Bank;
 use App\Models\Brand;
 use App\Models\Color;
 use App\Models\ContractType;
@@ -301,6 +302,34 @@ class ReferentialController extends Controller
         $item = ContractType::findOrFail($id);
         $item->update($request->only(['name', 'is_active']));
         return response()->json(['success' => true, 'data' => $item]);
+    }
+
+    // === BANKS ===
+    public function banks(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => Bank::where('is_active', true)->orderBy('name')->get(),
+        ]);
+    }
+
+    public function storeBank(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:100|unique:banks,name',
+        ]);
+
+        $bank = Bank::create($request->only('name'));
+
+        return response()->json(['success' => true, 'data' => $bank], 201);
+    }
+
+    public function updateBank(Request $request, string $bank): JsonResponse
+    {
+        $b = Bank::findOrFail($bank);
+        $b->update($request->only(['name', 'is_active']));
+
+        return response()->json(['success' => true, 'data' => $b]);
     }
 
     // === COLORS ===

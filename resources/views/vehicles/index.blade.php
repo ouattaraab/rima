@@ -64,7 +64,7 @@
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
                        class="filter-input block w-full" style="padding-left: 2.75rem;"
                        @input.debounce.400ms="$el.form.submit()"
-                       @if(request('search')) autofocus @endif>
+                       @if(request('search')) autofocus x-init="$nextTick(() => { $el.setSelectionRange($el.value.length, $el.value.length) })" @endif>
             </div>
             <div class="flex items-center gap-1.5">
                 <label class="cursor-pointer">

@@ -35,7 +35,7 @@ class Vehicle extends Model
         // Conducteur
         'driver_not_assigned',
         // Metadata
-        'collected_at', 'collection_completed_at', 'collected_by', 'form_status',
+        'collected_at', 'collection_completed_at', 'collected_by', 'form_status', 'data_origin',
         // @deprecated — Ancien format single-driver (V1.4). Utiliser la table vehicle_drivers.
         'user_direction', 'user_matricule', 'user_driver_license',
         // Validation

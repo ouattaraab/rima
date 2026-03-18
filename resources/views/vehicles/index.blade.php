@@ -221,6 +221,9 @@
                                         };
                                     @endphp
                                     <span class="text-[12px] font-medium {{ $fClass }}">{{ $fLabel }}</span>
+                                    @if($vehicle->data_origin === 'import')
+                                        <span class="ml-1.5 inline-flex items-center rounded-full bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 text-[10px] font-medium text-indigo-600">Importé</span>
+                                    @endif
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
                                     @php

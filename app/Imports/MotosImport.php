@@ -15,6 +15,7 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
     public int $imported = 0;
     public int $skipped = 0;
     public array $errors = [];
+    public array $duplicates = [];
 
     public function __construct(private string $userId) {}
 
@@ -42,16 +43,20 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             return null;
         }
 
-        // Check for duplicates
-        $exists = Vehicle::query();
-        if (!empty($registrationNumber)) {
-            $exists->where('registration_number', $registrationNumber);
+        // Check for duplicates with detailed motifs
+        $duplicateReasons = [];
+        $ref = $registrationNumber ?: $chassisNumber;
+
+        if (!empty($registrationNumber) && Vehicle::where('registration_number', $registrationNumber)->exists()) {
+            $duplicateReasons[] = "immatriculation '{$registrationNumber}' deja existante";
         }
-        if (!empty($chassisNumber)) {
-            $exists->orWhere('chassis_number', $chassisNumber);
+        if (!empty($chassisNumber) && Vehicle::where('chassis_number', $chassisNumber)->exists()) {
+            $duplicateReasons[] = "chassis '{$chassisNumber}' deja existant";
         }
-        if ($exists->exists()) {
+
+        if (!empty($duplicateReasons)) {
             $this->skipped++;
+            $this->duplicates[] = "[{$ref}]: " . implode(', ', $duplicateReasons);
             return null;
         }
 
@@ -88,6 +93,7 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             'user_matricule' => !empty($row['matricule_agent']) ? trim($row['matricule_agent']) : null,
             'user_direction' => $this->extractDirectionFromStructure($row['structure'] ?? ''),
             'form_status' => 'synchronized',
+            'data_origin' => 'import',
             'collected_by' => $this->userId,
             'collected_at' => now(),
         ]);

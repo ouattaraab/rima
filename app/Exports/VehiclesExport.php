@@ -101,7 +101,7 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             'Mode financement', 'Banque', 'N° contrat', 'Debut prelevement',
             'Fin prelevement', 'Debut contrat', 'Date mise a disposition', 'Code IMMO DFC', 'Code IMMO DBCG', 'Code equipement',
             // ── Metadonnees (AT-AZ) ──
-            'Statut fiche', 'Collecte par', 'Date collecte', 'Fin collecte', 'GPS Latitude', 'GPS Longitude', 'Precision GPS (m)',
+            'Statut fiche', 'Origine', 'Collecte par', 'Date collecte', 'Fin collecte', 'GPS Latitude', 'GPS Longitude', 'Precision GPS (m)',
         ];
     }
 
@@ -137,7 +137,8 @@ class VehiclesExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             $v->withdrawal_start_date?->format('d/m/Y'), $v->withdrawal_end_date?->format('d/m/Y'),
             $v->contract_start_date?->format('d/m/Y'), $v->provision_date?->format('d/m/Y'),
             $v->code_immo_dfc, $v->code_immo_dbcg, $v->code_equipement,
-            $formStatusFr, $v->collector?->full_name, $v->collected_at?->format('d/m/Y H:i'),
+            $formStatusFr, $v->data_origin === 'import' ? 'Import Excel' : 'Application mobile',
+            $v->collector?->full_name, $v->collected_at?->format('d/m/Y H:i'),
             $v->collection_completed_at?->format('d/m/Y H:i'),
             $v->gps_latitude, $v->gps_longitude, $v->gps_accuracy,
         ];

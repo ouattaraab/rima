@@ -385,7 +385,12 @@ class VehicleController extends Controller
                 ->with('error', "Erreur lors de l'import: " . Str::limit($e->getMessage(), 200));
         }
 
-        $message = "{$import->imported} moto(s) importee(s), {$import->skipped} doublon(s) ignore(s).";
+        $message = "{$import->imported} moto(s) importee(s).";
+
+        if (!empty($import->duplicates)) {
+            $message .= " {$import->skipped} doublon(s) rejete(s): " . implode(' | ', array_slice($import->duplicates, 0, 10));
+        }
+
         if (!empty($import->errors)) {
             $message .= ' ' . count($import->errors) . ' erreur(s): ' . implode(' | ', array_slice($import->errors, 0, 5));
         }

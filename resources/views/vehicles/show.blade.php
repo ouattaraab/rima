@@ -157,6 +157,9 @@
                 <h2 class="font-['DM_Sans'] text-2xl font-bold text-slate-900">{{ $vehicle->registration_number ?? 'Sans immatriculation' }}</h2>
                 {!! $vehicle->status_badge !!}
                 {!! $vehicle->vehicle_status_badge !!}
+                @if($vehicle->data_origin === 'import')
+                    <span class="inline-flex items-center rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-[11px] font-semibold text-indigo-600 uppercase tracking-wide">Importé</span>
+                @endif
             </div>
             @if($vehicle->brand || $vehicle->model)
                 <p class="mt-1 text-sm text-slate-500">{{ trim(($vehicle->brand ?? '') . ' ' . ($vehicle->model ?? '')) }}</p>

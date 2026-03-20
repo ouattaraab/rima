@@ -63,9 +63,17 @@
                 </div>
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
                        class="filter-input block w-full" style="padding-left: 2.75rem;"
-                       @input.debounce.400ms="$el.form.submit()"
-                       @if(request('search')) autofocus x-init="$nextTick(() => { $el.setSelectionRange($el.value.length, $el.value.length) })" @endif>
+                       @keydown.enter="$el.form.submit()">
+                @if(request('search'))
+                    <a href="{{ route('vehicles.index', request()->except(['search', 'page'])) }}" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </a>
+                @endif
             </div>
+            <button type="submit" class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-[12px] font-medium h-10 px-4 transition-colors">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                Rechercher
+            </button>
             <div class="flex items-center gap-1.5">
                 <label class="cursor-pointer">
                     <input type="checkbox" id="cb-all" name="form_status[]" value="all" class="sr-only peer"

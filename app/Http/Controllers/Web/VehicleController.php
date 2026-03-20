@@ -395,6 +395,26 @@ class VehicleController extends Controller
             $message .= ' ' . count($import->errors) . ' erreur(s): ' . implode(' | ', array_slice($import->errors, 0, 5));
         }
 
+        // Audit log for import traceability
+        \App\Models\AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'import_motos',
+            'entity_type' => 'Vehicle',
+            'entity_id' => null,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'source' => 'web',
+            'request_body' => [
+                'filename' => $request->file('file')->getClientOriginalName(),
+                'imported' => $import->imported,
+                'duplicates_rejected' => $import->skipped,
+                'errors' => count($import->errors),
+                'duplicate_details' => array_slice($import->duplicates, 0, 50),
+                'error_details' => array_slice($import->errors, 0, 20),
+            ],
+            'response_status' => 200,
+        ]);
+
         return redirect()->route('vehicles.index')
             ->with('success', $message);
     }

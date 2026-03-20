@@ -56,6 +56,8 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
             'debut_assurance',
             'fin_assurance',
             'matricule_agent',
+            'matricule_conducteur',
+            'permis_conducteur',
         ];
     }
 
@@ -88,6 +90,8 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                 '01/01/2025',
                 '31/12/2025',
                 'AB12345',
+                'CD67890',
+                'P12345678',
             ],
         ];
     }
@@ -101,13 +105,13 @@ class MotosTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
             'M' => 14, 'N' => 16, 'O' => 38, 'P' => 20,
             'Q' => 22, 'R' => 16, 'S' => 22, 'T' => 10,
             'U' => 24, 'V' => 16, 'W' => 16, 'X' => 16,
-            'Y' => 16,
+            'Y' => 16, 'Z' => 22, 'AA' => 22,
         ];
     }
 
     public function styles(Worksheet $sheet): array
     {
-        $lastCol = 'Y';
+        $lastCol = 'AA';
 
         // Header row styling
         $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([

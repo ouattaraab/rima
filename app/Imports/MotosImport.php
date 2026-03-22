@@ -82,14 +82,14 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             'status' => $this->validEnum($row['statut'] ?? '', ['En service', 'En reparation', 'Reforme', 'Cede'], 'En service'),
             'structure_ci' => $this->extractStructureCode($row['structure'] ?? ''),
             'special_equipment' => !empty($row['equipements_speciaux']) ? trim($row['equipements_speciaux']) : null,
-            'commissioning_date' => !empty($row['date_mise_en_circulation']) ? $row['date_mise_en_circulation'] : now()->toDateString(),
+            'commissioning_date' => $this->parseDate($row['date_mise_en_circulation'] ?? '') ?: now()->toDateString(),
             'contract_type' => $this->validEnum($row['type_contrat'] ?? '', ['Sous contrat', 'Flotte'], 'Flotte'),
-            'technical_inspection_date' => !empty($row['date_controle_technique']) ? $row['date_controle_technique'] : now()->toDateString(),
+            'technical_inspection_date' => $this->parseDate($row['date_controle_technique'] ?? '') ?: now()->toDateString(),
             'is_insured' => !empty($row['assure']) ? (strtolower(trim($row['assure'])) === 'oui') : false,
             'insurance_company' => !empty($row['compagnie_assurance']) ? trim($row['compagnie_assurance']) : null,
             'policy_number' => !empty($row['numero_police']) ? trim($row['numero_police']) : null,
-            'insurance_start_date' => !empty($row['debut_assurance']) ? $row['debut_assurance'] : null,
-            'insurance_end_date' => !empty($row['fin_assurance']) ? $row['fin_assurance'] : null,
+            'insurance_start_date' => $this->parseDate($row['debut_assurance'] ?? ''),
+            'insurance_end_date' => $this->parseDate($row['fin_assurance'] ?? ''),
             'user_matricule' => !empty($row['matricule_conducteur']) ? trim($row['matricule_conducteur']) : (!empty($row['matricule_agent']) ? trim($row['matricule_agent']) : null),
             'user_driver_license' => !empty($row['permis_conducteur']) ? trim($row['permis_conducteur']) : null,
             'user_direction' => $this->extractDirectionFromStructure($row['structure'] ?? ''),
@@ -98,6 +98,35 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             'collected_by' => $this->userId,
             'collected_at' => now(),
         ]);
+    }
+
+    /**
+     * Parse a date string in various formats (dd/mm/yyyy, yyyy-mm-dd, Excel numeric).
+     */
+    private function parseDate(mixed $value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        // Excel numeric date (e.g. 45678)
+        if (is_numeric($value)) {
+            return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((int) $value)->format('Y-m-d');
+        }
+
+        $value = trim((string) $value);
+
+        // dd/mm/yyyy or dd-mm-yyyy
+        if (preg_match('#^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$#', $value, $m)) {
+            return "{$m[3]}-{$m[2]}-{$m[1]}";
+        }
+
+        // yyyy-mm-dd (already correct)
+        if (preg_match('#^\d{4}-\d{2}-\d{2}$#', $value)) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**

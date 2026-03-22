@@ -65,6 +65,18 @@ class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             return;
         }
 
+        // Debug: log raw date values and parsed results
+        Log::info('MotosImport dates debug', [
+            'ref' => $ref,
+            'raw_mise_en_circulation' => $row['date_mise_en_circulation'] ?? 'MISSING',
+            'raw_type' => gettype($row['date_mise_en_circulation'] ?? null),
+            'parsed_mise_en_circulation' => $this->parseDate($row['date_mise_en_circulation'] ?? ''),
+            'raw_controle_technique' => $row['date_controle_technique'] ?? 'MISSING',
+            'parsed_controle_technique' => $this->parseDate($row['date_controle_technique'] ?? ''),
+            'raw_fin_assurance' => $row['fin_assurance'] ?? 'MISSING',
+            'parsed_fin_assurance' => $this->parseDate($row['fin_assurance'] ?? ''),
+        ]);
+
         Vehicle::create([
             'id' => Str::uuid()->toString(),
             'vehicle_type' => 'Moto',

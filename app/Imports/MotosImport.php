@@ -4,13 +4,15 @@ namespace App\Imports;
 
 use App\Models\Structure;
 use App\Models\Vehicle;
-use Maatwebsite\Excel\Concerns\ToModel;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
-class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
+class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 {
     public int $imported = 0;
     public int $skipped = 0;
@@ -19,20 +21,23 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
 
     public function __construct(private string $userId) {}
 
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
-        try {
-            return $this->processRow($row);
-        } catch (\Exception $e) {
+        foreach ($rows as $row) {
+            $row = $row->toArray();
             $ref = trim($row['immatriculation'] ?? $row['n_chassis'] ?? '???');
-            $this->errors[] = "Ligne [{$ref}]: {$e->getMessage()}";
-            Log::warning('MotosImport row failed', ['ref' => $ref, 'error' => $e->getMessage()]);
-            $this->skipped++;
-            return null;
+
+            try {
+                $this->processRow($row);
+            } catch (\Exception $e) {
+                $this->errors[] = "Ligne [{$ref}]: {$e->getMessage()}";
+                Log::warning('MotosImport row failed', ['ref' => $ref, 'error' => $e->getMessage()]);
+                $this->skipped++;
+            }
         }
     }
 
-    private function processRow(array $row): ?Vehicle
+    private function processRow(array $row): void
     {
         $registrationNumber = trim($row['immatriculation'] ?? '');
         $chassisNumber = trim($row['n_chassis'] ?? $row['chassis'] ?? '');
@@ -40,7 +45,7 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
         // Skip if no registration number and no chassis number
         if (empty($registrationNumber) && empty($chassisNumber)) {
             $this->skipped++;
-            return null;
+            return;
         }
 
         // Check for duplicates with detailed motifs
@@ -57,12 +62,10 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
         if (!empty($duplicateReasons)) {
             $this->skipped++;
             $this->duplicates[] = "[{$ref}]: " . implode(', ', $duplicateReasons);
-            return null;
+            return;
         }
 
-        $this->imported++;
-
-        return new Vehicle([
+        Vehicle::create([
             'id' => Str::uuid()->toString(),
             'vehicle_type' => 'Moto',
             'category' => trim($row['categorie'] ?? 'Moto') ?: 'Moto',
@@ -98,15 +101,22 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             'collected_by' => $this->userId,
             'collected_at' => now(),
         ]);
+
+        $this->imported++;
     }
 
     /**
-     * Parse a date string in various formats (dd/mm/yyyy, yyyy-mm-dd, Excel numeric).
+     * Parse a date in various formats (dd/mm/yyyy, yyyy-mm-dd, Excel numeric, Carbon/DateTime).
      */
     private function parseDate(mixed $value): ?string
     {
         if (empty($value)) {
             return null;
+        }
+
+        // Already a DateTime/Carbon object (Excel stores dates as objects)
+        if ($value instanceof \DateTimeInterface) {
+            return Carbon::instance($value)->format('Y-m-d');
         }
 
         // Excel numeric date (e.g. 45678)
@@ -115,10 +125,13 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
         }
 
         $value = trim((string) $value);
+        if (empty($value)) {
+            return null;
+        }
 
         // dd/mm/yyyy or dd-mm-yyyy
         if (preg_match('#^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$#', $value, $m)) {
-            return "{$m[3]}-{$m[2]}-{$m[1]}";
+            return sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]);
         }
 
         // yyyy-mm-dd (already correct)
@@ -126,23 +139,20 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             return $value;
         }
 
-        return null;
+        // Last resort: try Carbon::parse
+        try {
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
-    /**
-     * Validate a value against allowed ENUM values, return default if invalid.
-     */
     private function validEnum(string $value, array $allowed, ?string $default): ?string
     {
         $value = trim($value);
-
         return in_array($value, $allowed) ? $value : $default;
     }
 
-    /**
-     * Extract structure code from combined format "DRA-Direction Regionale Abidjan" or "DRA-Nom (SIGLE)" → "DRA"
-     * Also accepts plain code like "DRA"
-     */
     private function extractStructureCode(string $value): ?string
     {
         $value = trim($value);
@@ -150,19 +160,13 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             return null;
         }
 
-        // Format combiné "CODE-Nom (SIGLE)" ou "CODE-Nom"
         if (str_contains($value, '-')) {
             return trim(explode('-', $value, 2)[0]);
         }
 
-        // Format simple : code direct
         return $value;
     }
 
-    /**
-     * Extract direction code from structure: lookup the structure in DB and get its direction.
-     * Falls back to structure code if direction not found.
-     */
     private function extractDirectionFromStructure(string $value): ?string
     {
         $structureCode = $this->extractStructureCode($value);
@@ -170,7 +174,6 @@ class MotosImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             return null;
         }
 
-        // Chercher la structure dans la BDD pour récupérer sa direction
         $structure = Structure::where('code', $structureCode)->first();
         if ($structure && !empty($structure->direction)) {
             return $structure->direction;

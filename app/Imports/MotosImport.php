@@ -8,11 +8,15 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use Maatwebsite\Excel\DefaultValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
-class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
+class MotosImport extends DefaultValueBinder implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithCustomValueBinder
 {
     public int $imported = 0;
     public int $skipped = 0;
@@ -20,6 +24,20 @@ class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
     public array $duplicates = [];
 
     public function __construct(private string $userId) {}
+
+    /**
+     * Force all cells to be read as strings — prevents PhpSpreadsheet
+     * from auto-parsing dd/mm/yyyy dates with Carbon (which fails).
+     */
+    public function bindValue(Cell $cell, mixed $value): bool
+    {
+        if (is_string($value) && preg_match('#^\d{1,2}[/\-]\d{1,2}[/\-]\d{4}$#', $value)) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+            return true;
+        }
+
+        return parent::bindValue($cell, $value);
+    }
 
     public function collection(Collection $rows)
     {
@@ -42,13 +60,11 @@ class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         $registrationNumber = trim($row['immatriculation'] ?? '');
         $chassisNumber = trim($row['n_chassis'] ?? $row['chassis'] ?? '');
 
-        // Skip if no registration number and no chassis number
         if (empty($registrationNumber) && empty($chassisNumber)) {
             $this->skipped++;
             return;
         }
 
-        // Check for duplicates with detailed motifs
         $duplicateReasons = [];
         $ref = $registrationNumber ?: $chassisNumber;
 
@@ -64,18 +80,6 @@ class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             $this->duplicates[] = "[{$ref}]: " . implode(', ', $duplicateReasons);
             return;
         }
-
-        // Debug: log raw date values and parsed results
-        Log::info('MotosImport dates debug', [
-            'ref' => $ref,
-            'raw_mise_en_circulation' => $row['date_mise_en_circulation'] ?? 'MISSING',
-            'raw_type' => gettype($row['date_mise_en_circulation'] ?? null),
-            'parsed_mise_en_circulation' => $this->parseDate($row['date_mise_en_circulation'] ?? ''),
-            'raw_controle_technique' => $row['date_controle_technique'] ?? 'MISSING',
-            'parsed_controle_technique' => $this->parseDate($row['date_controle_technique'] ?? ''),
-            'raw_fin_assurance' => $row['fin_assurance'] ?? 'MISSING',
-            'parsed_fin_assurance' => $this->parseDate($row['fin_assurance'] ?? ''),
-        ]);
 
         Vehicle::create([
             'id' => Str::uuid()->toString(),
@@ -117,21 +121,16 @@ class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         $this->imported++;
     }
 
-    /**
-     * Parse a date in various formats (dd/mm/yyyy, yyyy-mm-dd, Excel numeric, Carbon/DateTime).
-     */
     private function parseDate(mixed $value): ?string
     {
         if (empty($value)) {
             return null;
         }
 
-        // Already a DateTime/Carbon object (Excel stores dates as objects)
         if ($value instanceof \DateTimeInterface) {
             return Carbon::instance($value)->format('Y-m-d');
         }
 
-        // Excel numeric date (e.g. 45678)
         if (is_numeric($value)) {
             return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((int) $value)->format('Y-m-d');
         }
@@ -146,12 +145,11 @@ class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             return sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]);
         }
 
-        // yyyy-mm-dd (already correct)
+        // yyyy-mm-dd
         if (preg_match('#^\d{4}-\d{2}-\d{2}$#', $value)) {
             return $value;
         }
 
-        // Last resort: try Carbon::parse
         try {
             return Carbon::parse($value)->format('Y-m-d');
         } catch (\Exception $e) {
@@ -171,11 +169,9 @@ class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         if (empty($value)) {
             return null;
         }
-
         if (str_contains($value, '-')) {
             return trim(explode('-', $value, 2)[0]);
         }
-
         return $value;
     }
 
@@ -185,12 +181,10 @@ class MotosImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         if (empty($structureCode)) {
             return null;
         }
-
         $structure = Structure::where('code', $structureCode)->first();
         if ($structure && !empty($structure->direction)) {
             return $structure->direction;
         }
-
         return null;
     }
 }

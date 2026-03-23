@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\Structure;
 use App\Models\Vehicle;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
@@ -25,17 +26,12 @@ class MotosImport extends DefaultValueBinder implements ToCollection, WithHeadin
 
     public function __construct(private string $userId) {}
 
-    /**
-     * Force all cells to be read as strings — prevents PhpSpreadsheet
-     * from auto-parsing dd/mm/yyyy dates with Carbon (which fails).
-     */
     public function bindValue(Cell $cell, mixed $value): bool
     {
         if (is_string($value) && preg_match('#^\d{1,2}[/\-]\d{1,2}[/\-]\d{4}$#', $value)) {
             $cell->setValueExplicit($value, DataType::TYPE_STRING);
             return true;
         }
-
         return parent::bindValue($cell, $value);
     }
 
@@ -81,7 +77,10 @@ class MotosImport extends DefaultValueBinder implements ToCollection, WithHeadin
             return;
         }
 
-        Vehicle::create([
+        // Use DB::table to bypass Eloquent date casts entirely
+        $now = now();
+
+        DB::table('vehicles')->insert([
             'id' => Str::uuid()->toString(),
             'vehicle_type' => 'Moto',
             'category' => trim($row['categorie'] ?? 'Moto') ?: 'Moto',
@@ -101,9 +100,9 @@ class MotosImport extends DefaultValueBinder implements ToCollection, WithHeadin
             'status' => $this->validEnum($row['statut'] ?? '', ['En service', 'En reparation', 'Reforme', 'Cede'], 'En service'),
             'structure_ci' => $this->extractStructureCode($row['structure'] ?? ''),
             'special_equipment' => !empty($row['equipements_speciaux']) ? trim($row['equipements_speciaux']) : null,
-            'commissioning_date' => $this->parseDate($row['date_mise_en_circulation'] ?? '') ?: now()->toDateString(),
+            'commissioning_date' => $this->parseDate($row['date_mise_en_circulation'] ?? '') ?: $now->toDateString(),
             'contract_type' => $this->validEnum($row['type_contrat'] ?? '', ['Sous contrat', 'Flotte'], 'Flotte'),
-            'technical_inspection_date' => $this->parseDate($row['date_controle_technique'] ?? '') ?: now()->toDateString(),
+            'technical_inspection_date' => $this->parseDate($row['date_controle_technique'] ?? '') ?: $now->toDateString(),
             'is_insured' => !empty($row['assure']) ? (strtolower(trim($row['assure'])) === 'oui') : false,
             'insurance_company' => !empty($row['compagnie_assurance']) ? trim($row['compagnie_assurance']) : null,
             'policy_number' => !empty($row['numero_police']) ? trim($row['numero_police']) : null,
@@ -115,7 +114,9 @@ class MotosImport extends DefaultValueBinder implements ToCollection, WithHeadin
             'form_status' => 'synchronized',
             'data_origin' => 'import',
             'collected_by' => $this->userId,
-            'collected_at' => now(),
+            'collected_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         $this->imported++;
@@ -126,30 +127,22 @@ class MotosImport extends DefaultValueBinder implements ToCollection, WithHeadin
         if (empty($value)) {
             return null;
         }
-
         if ($value instanceof \DateTimeInterface) {
             return Carbon::instance($value)->format('Y-m-d');
         }
-
         if (is_numeric($value)) {
             return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((int) $value)->format('Y-m-d');
         }
-
         $value = trim((string) $value);
         if (empty($value)) {
             return null;
         }
-
-        // dd/mm/yyyy or dd-mm-yyyy
         if (preg_match('#^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$#', $value, $m)) {
             return sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]);
         }
-
-        // yyyy-mm-dd
         if (preg_match('#^\d{4}-\d{2}-\d{2}$#', $value)) {
             return $value;
         }
-
         try {
             return Carbon::parse($value)->format('Y-m-d');
         } catch (\Exception $e) {

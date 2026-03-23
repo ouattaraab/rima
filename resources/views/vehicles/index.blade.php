@@ -69,14 +69,14 @@
                         <input type="checkbox" id="cb-all" name="form_status[]" value="all" class="sr-only peer"
                                onchange="document.querySelectorAll('.status-cb').forEach(c => c.checked = false); this.form.submit()"
                                @checked($isAll)>
-                        <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">Tout</span>
+                        <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] peer-checked:hover:bg-[#2AAE64] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">Tout</span>
                     </label>
                     @foreach($allStatuses as $value => $label)
                     <label class="cursor-pointer">
                         <input type="checkbox" name="form_status[]" value="{{ $value }}" class="sr-only peer status-cb"
                                onchange="document.getElementById('cb-all').checked = false; this.form.submit()"
                                @checked(in_array($value, $selectedStatuses))>
-                        <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">{{ $label }}</span>
+                        <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] peer-checked:hover:bg-[#2AAE64] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">{{ $label }}</span>
                     </label>
                     @endforeach
                 </div>
@@ -130,7 +130,35 @@
     </div>
 
     {{-- Table --}}
-    <div>
+    <div x-data="{
+        columns: {
+            chassis: {{ request('search') ? 'true' : 'false' }},
+            category: true,
+            type: true,
+            agent: true,
+            date: true,
+            dbcg: true,
+            dfc: true,
+        },
+        showColMenu: false,
+    }">
+        {{-- Column visibility toggle --}}
+        <div class="flex justify-end mb-2 relative">
+            <button @click="showColMenu = !showColMenu" type="button" class="inline-flex items-center gap-1.5 text-[12px] text-slate-400 hover:text-slate-600 transition">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg>
+                Colonnes
+            </button>
+            <div x-show="showColMenu" @click.outside="showColMenu = false" x-cloak class="absolute right-0 top-7 z-10 bg-white border border-slate-200 rounded-lg shadow-lg p-3 space-y-1.5 min-w-[160px]">
+                <label class="flex items-center gap-2 cursor-pointer text-[12px] text-slate-600"><input type="checkbox" x-model="columns.chassis" class="rounded border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> N° Chassis</label>
+                <label class="flex items-center gap-2 cursor-pointer text-[12px] text-slate-600"><input type="checkbox" x-model="columns.category" class="rounded border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> Catégorie</label>
+                <label class="flex items-center gap-2 cursor-pointer text-[12px] text-slate-600"><input type="checkbox" x-model="columns.type" class="rounded border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> Type</label>
+                <label class="flex items-center gap-2 cursor-pointer text-[12px] text-slate-600"><input type="checkbox" x-model="columns.agent" class="rounded border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> Agent</label>
+                <label class="flex items-center gap-2 cursor-pointer text-[12px] text-slate-600"><input type="checkbox" x-model="columns.date" class="rounded border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> Date</label>
+                <label class="flex items-center gap-2 cursor-pointer text-[12px] text-slate-600"><input type="checkbox" x-model="columns.dbcg" class="rounded border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> DBCG</label>
+                <label class="flex items-center gap-2 cursor-pointer text-[12px] text-slate-600"><input type="checkbox" x-model="columns.dfc" class="rounded border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> DFC</label>
+            </div>
+        </div>
+
         @if($vehicles->isEmpty())
             <div class="flex flex-col items-center justify-center px-6 py-16">
                 <p class="text-[13px] font-medium text-slate-900">Aucun véhicule trouvé</p>
@@ -147,20 +175,23 @@
                                 $baseParams = request()->except(['sort', 'direction', 'page']);
                             @endphp
                             @foreach([
-                                'registration_number' => 'Immatriculation',
-                                'brand' => 'Marque / Modèle',
-                                'category' => 'Catégorie',
-                                'vehicle_type' => 'Type',
-                                'form_status' => 'Statut fiche',
-                                'status' => 'Statut véhicule',
-                                'collected_by' => 'Agent',
-                                'collected_at' => 'Date',
-                            ] as $sortField => $label)
+                                'registration_number' => ['label' => 'Immatriculation', 'col' => null],
+                                'chassis_number' => ['label' => 'N° Chassis', 'col' => 'chassis'],
+                                'brand' => ['label' => 'Marque / Modèle', 'col' => null],
+                                'category' => ['label' => 'Catégorie', 'col' => 'category'],
+                                'vehicle_type' => ['label' => 'Type', 'col' => 'type'],
+                                'form_status' => ['label' => 'Statut fiche', 'col' => null],
+                                'status' => ['label' => 'Statut véhicule', 'col' => null],
+                                'collected_by' => ['label' => 'Agent', 'col' => 'agent'],
+                                'collected_at' => ['label' => 'Date', 'col' => 'date'],
+                            ] as $sortField => $meta)
+                            @php $label = $meta['label']; $colKey = $meta['col']; @endphp
                                 @php
                                     $newDirection = ($currentSort === $sortField && $currentDirection === 'asc') ? 'desc' : 'asc';
                                     $sortUrl = route('vehicles.index', array_merge($baseParams, ['sort' => $sortField, 'direction' => $newDirection]));
                                 @endphp
-                                <th class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide {{ !$loop->first ? 'border-l border-slate-200' : '' }}">
+                                <th class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide {{ !$loop->first ? 'border-l border-slate-200' : '' }}"
+                                    @if($colKey) x-show="columns.{{ $colKey }}" @endif>
                                     <a href="{{ $sortUrl }}" class="inline-flex items-center gap-1 hover:text-slate-700 transition">
                                         {{ $label }}
                                         @if($currentSort === $sortField)
@@ -175,8 +206,8 @@
                                     </a>
                                 </th>
                             @endforeach
-                            <th class="px-5 py-2.5 text-center text-[11px] font-medium text-amber-500 uppercase tracking-wide border-l border-slate-200">DBCG</th>
-                            <th class="px-5 py-2.5 text-center text-[11px] font-medium text-blue-500 uppercase tracking-wide border-l border-slate-200">DFC</th>
+                            <th x-show="columns.dbcg" class="px-5 py-2.5 text-center text-[11px] font-medium text-amber-500 uppercase tracking-wide border-l border-slate-200">DBCG</th>
+                            <th x-show="columns.dfc" class="px-5 py-2.5 text-center text-[11px] font-medium text-blue-500 uppercase tracking-wide border-l border-slate-200">DFC</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -185,11 +216,14 @@
                                 <td class="whitespace-nowrap px-5 py-3">
                                     <span class="text-sm font-medium text-slate-900">{{ $vehicle->registration_number }}</span>
                                 </td>
+                                <td x-show="columns.chassis" class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
+                                    <span class="text-[12px] text-slate-400 font-mono" title="{{ $vehicle->chassis_number }}">{{ $vehicle->chassis_number ? Str::limit($vehicle->chassis_number, 12) : '-' }}</span>
+                                </td>
                                 <td class="whitespace-nowrap px-5 py-3 text-sm text-slate-600 border-l border-slate-100">{{ $vehicle->brand }} {{ $vehicle->model }}</td>
-                                <td class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
+                                <td x-show="columns.category" class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
                                     <span class="text-[12px] text-slate-500">{{ $vehicle->category ?? '-' }}</span>
                                 </td>
-                                <td class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
+                                <td x-show="columns.type" class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
                                     <span class="text-[12px] text-slate-500">{{ $vehicle->vehicle_type }}</span>
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
@@ -225,16 +259,16 @@
                                     @endphp
                                     <span class="text-[12px] font-medium {{ $vClass }}">{{ $vehicle->status ?? '-' }}</span>
                                 </td>
-                                <td class="whitespace-nowrap px-5 py-3 text-sm text-slate-500 border-l border-slate-100">{{ $vehicle->collector?->full_name ?? '-' }}</td>
-                                <td class="whitespace-nowrap px-5 py-3 text-[12px] text-slate-400 border-l border-slate-100">{{ $vehicle->collected_at?->format('d/m/Y') ?? '-' }}</td>
-                                <td class="whitespace-nowrap px-5 py-3 text-center border-l border-slate-100">
+                                <td x-show="columns.agent" class="whitespace-nowrap px-5 py-3 text-sm text-slate-500 border-l border-slate-100">{{ $vehicle->collector?->full_name ?? '-' }}</td>
+                                <td x-show="columns.date" class="whitespace-nowrap px-5 py-3 text-[12px] text-slate-400 border-l border-slate-100">{{ $vehicle->collected_at?->format('d/m/Y') ?? '-' }}</td>
+                                <td x-show="columns.dbcg" class="whitespace-nowrap px-5 py-3 text-center border-l border-slate-100">
                                     @if($vehicle->is_dbcg_complete)
                                         <svg class="inline h-4 w-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
                                     @else
                                         <svg class="inline h-4 w-4 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
                                     @endif
                                 </td>
-                                <td class="whitespace-nowrap px-5 py-3 text-center border-l border-slate-100">
+                                <td x-show="columns.dfc" class="whitespace-nowrap px-5 py-3 text-center border-l border-slate-100">
                                     @if($vehicle->is_dfc_complete)
                                         <svg class="inline h-4 w-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
                                     @else

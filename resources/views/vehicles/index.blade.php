@@ -166,47 +166,62 @@
                 <p class="text-[12px] text-slate-400 mt-1">Essayez de modifier vos critères de recherche.</p>
             </div>
         @else
+            <style>
+                .sticky-col { position: sticky; z-index: 1; background: white; }
+                .sticky-col-1 { left: 0; min-width: 150px; }
+                .sticky-col-2 { left: 150px; min-width: 180px; }
+                .sticky-col-2::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 3px; background: linear-gradient(to right, rgba(0,0,0,0.06), transparent); }
+                thead .sticky-col { background: #f8fafc; z-index: 2; }
+                tr:hover .sticky-col { background: rgb(248 250 252 / 0.5); }
+            </style>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
-                    <thead>
+                    <thead class="bg-slate-50/50">
                         <tr>
                             @php
                                 $currentSort = request('sort');
                                 $currentDirection = request('direction', 'asc');
                                 $baseParams = request()->except(['sort', 'direction', 'page']);
+                                $sortIcon = function($field) use ($currentSort, $currentDirection) {
+                                    if ($currentSort !== $field) return '';
+                                    $path = $currentDirection === 'asc' ? 'M4.5 15.75l7.5-7.5 7.5 7.5' : 'M19.5 8.25l-7.5 7.5-7.5-7.5';
+                                    return '<svg class="h-3 w-3 text-slate-900 inline ml-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="'.$path.'"/></svg>';
+                                };
+                                $sortHref = function($field) use ($currentSort, $currentDirection, $baseParams) {
+                                    $dir = ($currentSort === $field && $currentDirection === 'asc') ? 'desc' : 'asc';
+                                    return route('vehicles.index', array_merge($baseParams, ['sort' => $field, 'direction' => $dir]));
+                                };
                             @endphp
-                            @foreach([
-                                'registration_number' => ['label' => 'Immatriculation', 'col' => null],
-                                'chassis_number' => ['label' => 'N° Chassis', 'col' => 'chassis'],
-                                'brand' => ['label' => 'Marque / Modèle', 'col' => null],
-                                'category' => ['label' => 'Catégorie', 'col' => 'category'],
-                                'vehicle_type' => ['label' => 'Type', 'col' => 'type'],
-                                'form_status' => ['label' => 'Statut fiche', 'col' => null],
-                                'status' => ['label' => 'Statut véhicule', 'col' => null],
-                                'collected_by' => ['label' => 'Agent', 'col' => 'agent'],
-                                'collected_at' => ['label' => 'Date', 'col' => 'date'],
-                            ] as $sortField => $meta)
-                            @php $label = $meta['label']; $colKey = $meta['col']; @endphp
-                                @php
-                                    $newDirection = ($currentSort === $sortField && $currentDirection === 'asc') ? 'desc' : 'asc';
-                                    $sortUrl = route('vehicles.index', array_merge($baseParams, ['sort' => $sortField, 'direction' => $newDirection]));
-                                @endphp
-                                <th class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide {{ !$loop->first ? 'border-l border-slate-200' : '' }}"
-                                    @if($colKey) x-show="columns.{{ $colKey }}" @endif>
-                                    <a href="{{ $sortUrl }}" class="inline-flex items-center gap-1 hover:text-slate-700 transition">
-                                        {{ $label }}
-                                        @if($currentSort === $sortField)
-                                            <svg class="h-3 w-3 text-slate-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                @if($currentDirection === 'asc')
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
-                                                @else
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-                                                @endif
-                                            </svg>
-                                        @endif
-                                    </a>
-                                </th>
-                            @endforeach
+                            {{-- Frozen: Immatriculation --}}
+                            <th class="sticky-col sticky-col-1 px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide">
+                                <a href="{{ $sortHref('registration_number') }}" class="hover:text-slate-700 transition">Immatriculation {!! $sortIcon('registration_number') !!}</a>
+                            </th>
+                            {{-- Frozen: Marque / Modèle --}}
+                            <th class="sticky-col sticky-col-2 px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">
+                                <a href="{{ $sortHref('brand') }}" class="hover:text-slate-700 transition">Marque / Modèle {!! $sortIcon('brand') !!}</a>
+                            </th>
+                            {{-- Scrollable columns --}}
+                            <th x-show="columns.chassis" class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">
+                                <a href="{{ $sortHref('chassis_number') }}" class="hover:text-slate-700 transition">N° Chassis {!! $sortIcon('chassis_number') !!}</a>
+                            </th>
+                            <th x-show="columns.category" class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">
+                                <a href="{{ $sortHref('category') }}" class="hover:text-slate-700 transition">Catégorie {!! $sortIcon('category') !!}</a>
+                            </th>
+                            <th x-show="columns.type" class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">
+                                <a href="{{ $sortHref('vehicle_type') }}" class="hover:text-slate-700 transition">Type {!! $sortIcon('vehicle_type') !!}</a>
+                            </th>
+                            <th class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">
+                                <a href="{{ $sortHref('form_status') }}" class="hover:text-slate-700 transition">Statut fiche {!! $sortIcon('form_status') !!}</a>
+                            </th>
+                            <th class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">
+                                <a href="{{ $sortHref('status') }}" class="hover:text-slate-700 transition">Statut véhicule {!! $sortIcon('status') !!}</a>
+                            </th>
+                            <th x-show="columns.agent" class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">
+                                <a href="{{ $sortHref('collected_by') }}" class="hover:text-slate-700 transition">Agent {!! $sortIcon('collected_by') !!}</a>
+                            </th>
+                            <th x-show="columns.date" class="px-5 py-2.5 text-left text-[11px] font-medium text-slate-400 uppercase tracking-wide border-l border-slate-200">
+                                <a href="{{ $sortHref('collected_at') }}" class="hover:text-slate-700 transition">Date {!! $sortIcon('collected_at') !!}</a>
+                            </th>
                             <th x-show="columns.dbcg" class="px-5 py-2.5 text-center text-[11px] font-medium text-amber-500 uppercase tracking-wide border-l border-slate-200">DBCG</th>
                             <th x-show="columns.dfc" class="px-5 py-2.5 text-center text-[11px] font-medium text-blue-500 uppercase tracking-wide border-l border-slate-200">DFC</th>
                         </tr>
@@ -214,13 +229,16 @@
                     <tbody class="divide-y divide-slate-100">
                         @foreach($vehicles as $vehicle)
                             <tr class="hover:bg-slate-50/50 cursor-pointer transition-colors" onclick="window.location='{{ route('vehicles.show', $vehicle) }}'">
-                                <td class="whitespace-nowrap px-5 py-3">
+                                {{-- Frozen: Immatriculation --}}
+                                <td class="sticky-col sticky-col-1 whitespace-nowrap px-5 py-3">
                                     <span class="text-sm font-medium text-slate-900">{{ $vehicle->registration_number }}</span>
                                 </td>
+                                {{-- Frozen: Marque / Modèle --}}
+                                <td class="sticky-col sticky-col-2 whitespace-nowrap px-5 py-3 text-sm text-slate-600 border-l border-slate-100">{{ $vehicle->brand }} {{ $vehicle->model }}</td>
+                                {{-- Scrollable columns --}}
                                 <td x-show="columns.chassis" class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
                                     <span class="text-[12px] text-slate-400 font-mono" title="{{ $vehicle->chassis_number }}">{{ $vehicle->chassis_number ? Str::limit($vehicle->chassis_number, 12) : '-' }}</span>
                                 </td>
-                                <td class="whitespace-nowrap px-5 py-3 text-sm text-slate-600 border-l border-slate-100">{{ $vehicle->brand }} {{ $vehicle->model }}</td>
                                 <td x-show="columns.category" class="whitespace-nowrap px-5 py-3 border-l border-slate-100">
                                     <span class="text-[12px] text-slate-500">{{ $vehicle->category ?? '-' }}</span>
                                 </td>

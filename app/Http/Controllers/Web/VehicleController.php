@@ -41,12 +41,12 @@ class VehicleController extends Controller
             });
         }
 
-        // form_status: always respect selected chips (search + filters are in same form now)
-        $formStatuses = $request->input('form_status', ['synchronized', 'validated']);
-        if (!is_array($formStatuses)) $formStatuses = [$formStatuses];
-        $formStatuses = array_filter($formStatuses);
-        if (!empty($formStatuses) && !in_array('all', $formStatuses)) {
-            $query->whereIn('form_status', $formStatuses);
+        // form_status: single select dropdown (empty = show synchronized + validated by default)
+        $formStatus = $request->input('form_status');
+        if ($formStatus) {
+            $query->where('form_status', $formStatus);
+        } elseif (!$request->filled('form_status')) {
+            $query->whereIn('form_status', ['synchronized', 'validated']);
         }
         if ($request->filled('vehicle_status')) $query->where('status', $request->vehicle_status);
         if ($request->filled('category')) $query->where('category', $request->category);

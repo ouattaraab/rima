@@ -31,32 +31,16 @@
         @endif
     </div>
 
-    {{-- Search + Statut fiche --}}
-    @php
-        $defaultStatuses = ['synchronized', 'validated'];
-        $selectedStatuses = request('form_status', $defaultStatuses);
-        if (!is_array($selectedStatuses)) $selectedStatuses = [$selectedStatuses];
-        $selectedStatuses = array_filter($selectedStatuses);
-        // Si "all" est present, on ignore les statuts individuels
-        $isAll = empty($selectedStatuses) || in_array('all', $selectedStatuses);
-        if ($isAll) $selectedStatuses = [];
-        $allStatuses = [
-            'synchronized' => 'Synchronise',
-            'validated' => 'Valide',
-            'rejected' => 'Rejete',
-            'draft' => 'Brouillon',
-        ];
-    @endphp
-    {{-- Single unified form: search + status chips + filters + one "Filtrer" button --}}
+    {{-- Single unified form: search + filters + one "Filtrer" button --}}
     <div>
         <form method="GET" action="{{ route('vehicles.index') }}" class="border-b border-slate-200 pb-4">
-            {{-- Search bar + Status chips --}}
+            {{-- Search bar --}}
             <div class="flex items-center gap-2 mb-3">
                 <div class="relative flex-1">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                         <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, structure..."
                            class="filter-input block w-full" style="padding-left: 2.75rem;">
                     @if(request('search'))
                         <a href="{{ route('vehicles.index', request()->except(['search', 'page'])) }}" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
@@ -64,28 +48,19 @@
                         </a>
                     @endif
                 </div>
-                <div class="flex items-center gap-1.5">
-                    <label class="cursor-pointer">
-                        <input type="checkbox" id="cb-all" name="form_status[]" value="all" class="sr-only peer"
-                               onchange="document.querySelectorAll('.status-cb').forEach(c => c.checked = false); this.form.submit()"
-                               @checked($isAll)>
-                        <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] peer-checked:hover:bg-[#2AAE64] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">Tout</span>
-                    </label>
-                    @foreach($allStatuses as $value => $label)
-                    <label class="cursor-pointer">
-                        <input type="checkbox" name="form_status[]" value="{{ $value }}" class="sr-only peer status-cb"
-                               onchange="document.getElementById('cb-all').checked = false; this.form.submit()"
-                               @checked(in_array($value, $selectedStatuses))>
-                        <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] peer-checked:hover:bg-[#2AAE64] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">{{ $label }}</span>
-                    </label>
-                    @endforeach
-                </div>
             </div>
 
             {{-- Filters --}}
             <div class="flex flex-wrap items-center gap-3">
+                <select name="form_status" class="filter-input flex-1 min-w-0" onchange="this.form.submit()">
+                    <option value="">Statut fiche : Tous</option>
+                    <option value="synchronized" @selected(request('form_status') === 'synchronized')>Synchronisé</option>
+                    <option value="validated" @selected(request('form_status') === 'validated')>Validé</option>
+                    <option value="rejected" @selected(request('form_status') === 'rejected')>Rejeté</option>
+                    <option value="draft" @selected(request('form_status') === 'draft')>Brouillon</option>
+                </select>
                 <select name="vehicle_status" class="filter-input flex-1 min-w-0">
-                    <option value="">Statut : Tous</option>
+                    <option value="">Statut véhicule : Tous</option>
                     @foreach($vehicleStatuses as $vs)
                         <option value="{{ $vs->name }}" @selected(request('vehicle_status') === $vs->name)>{{ $vs->name }}</option>
                     @endforeach

@@ -35,15 +35,14 @@ class VehicleController extends Controller
             $s = trim($request->search);
             $query->where(function($q) use ($s) {
                 $q->where('registration_number', 'like', "%{$s}%")
+                  ->orWhere('temporary_registration', 'like', "%{$s}%")
                   ->orWhere('chassis_number', 'like', "%{$s}%")
-                  ->orWhere('brand', 'like', "%{$s}%")
-                  ->orWhere('model', 'like', "%{$s}%");
+                  ->orWhere('structure_ci', 'like', "%{$s}%");
             });
         }
 
-        // form_status: when searching without explicit filter, search ALL statuses
-        $formStatuses = $request->input('form_status',
-            $request->filled('search') ? [] : ['synchronized', 'validated']);
+        // form_status: always respect selected chips (search + filters are in same form now)
+        $formStatuses = $request->input('form_status', ['synchronized', 'validated']);
         if (!is_array($formStatuses)) $formStatuses = [$formStatuses];
         $formStatuses = array_filter($formStatuses);
         if (!empty($formStatuses) && !in_array('all', $formStatuses)) {

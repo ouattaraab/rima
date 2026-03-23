@@ -149,14 +149,14 @@
                 Colonnes
                 <svg class="h-3.5 w-3.5 text-slate-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
             </button>
-            <div x-show="showColMenu" @click.outside="showColMenu = false" x-cloak class="absolute right-0 top-11 z-10 bg-white border border-slate-200 shadow-sm py-1 min-w-[170px]">
-                <label class="flex items-center gap-2 cursor-pointer text-[13px] text-slate-600 px-3 py-1.5 hover:bg-slate-50"><input type="checkbox" x-model="columns.chassis" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> N° Chassis</label>
-                <label class="flex items-center gap-2 cursor-pointer text-[13px] text-slate-600 px-3 py-1.5 hover:bg-slate-50"><input type="checkbox" x-model="columns.category" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> Catégorie</label>
-                <label class="flex items-center gap-2 cursor-pointer text-[13px] text-slate-600 px-3 py-1.5 hover:bg-slate-50"><input type="checkbox" x-model="columns.type" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> Type</label>
-                <label class="flex items-center gap-2 cursor-pointer text-[13px] text-slate-600 px-3 py-1.5 hover:bg-slate-50"><input type="checkbox" x-model="columns.agent" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> Agent</label>
-                <label class="flex items-center gap-2 cursor-pointer text-[13px] text-slate-600 px-3 py-1.5 hover:bg-slate-50"><input type="checkbox" x-model="columns.date" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> Date</label>
-                <label class="flex items-center gap-2 cursor-pointer text-[13px] text-slate-600 px-3 py-1.5 hover:bg-slate-50"><input type="checkbox" x-model="columns.dbcg" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> DBCG</label>
-                <label class="flex items-center gap-2 cursor-pointer text-[13px] text-slate-600 px-3 py-1.5 hover:bg-slate-50"><input type="checkbox" x-model="columns.dfc" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3.5 w-3.5"> DFC</label>
+            <div x-show="showColMenu" @click.outside="showColMenu = false" x-cloak class="absolute right-0 top-11 z-10 bg-white border border-slate-200 shadow-sm py-0.5 min-w-[140px]">
+                <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600 px-2.5 py-1 hover:bg-slate-50"><input type="checkbox" x-model="columns.chassis" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3 w-3"> N° Chassis</label>
+                <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600 px-2.5 py-1 hover:bg-slate-50"><input type="checkbox" x-model="columns.category" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3 w-3"> Catégorie</label>
+                <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600 px-2.5 py-1 hover:bg-slate-50"><input type="checkbox" x-model="columns.type" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3 w-3"> Type</label>
+                <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600 px-2.5 py-1 hover:bg-slate-50"><input type="checkbox" x-model="columns.agent" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3 w-3"> Agent</label>
+                <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600 px-2.5 py-1 hover:bg-slate-50"><input type="checkbox" x-model="columns.date" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3 w-3"> Date</label>
+                <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600 px-2.5 py-1 hover:bg-slate-50"><input type="checkbox" x-model="columns.dbcg" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3 w-3"> DBCG</label>
+                <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600 px-2.5 py-1 hover:bg-slate-50"><input type="checkbox" x-model="columns.dfc" class="border-slate-300 text-[#2DB56B] focus:ring-0 h-3 w-3"> DFC</label>
             </div>
         </div>
 
@@ -168,13 +168,16 @@
         @else
             <style>
                 .sticky-col { position: sticky; z-index: 1; background: white; }
-                .sticky-col-1 { left: 0; min-width: 150px; }
-                .sticky-col-2 { left: 150px; min-width: 180px; }
+                .sticky-col-1 { left: 0; min-width: 140px; }
+                .sticky-col-2 { left: 140px; min-width: 160px; }
                 .sticky-col-2::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 3px; background: linear-gradient(to right, rgba(0,0,0,0.06), transparent); }
                 thead .sticky-col { background: #f8fafc; z-index: 2; }
                 tr:hover .sticky-col { background: rgb(248 250 252 / 0.5); }
+                /* Hide scrollbar but keep scroll functionality */
+                .no-scrollbar { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+                .no-scrollbar::-webkit-scrollbar { display: none; }
             </style>
-            <div class="overflow-x-auto">
+            <div class="no-scrollbar">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50/50">
                         <tr>
@@ -278,7 +281,9 @@
                                     @endphp
                                     <span class="text-[12px] font-medium {{ $vClass }}">{{ $vehicle->status ?? '-' }}</span>
                                 </td>
-                                <td x-show="columns.agent" class="whitespace-nowrap px-5 py-3 text-sm text-slate-500 border-l border-slate-100">{{ $vehicle->collector?->full_name ?? '-' }}</td>
+                                <td x-show="columns.agent" class="whitespace-nowrap px-3 py-3 border-l border-slate-100">
+                                    <span class="text-[12px] text-slate-500" title="{{ $vehicle->collector?->full_name }}">{{ $vehicle->collector ? Str::limit($vehicle->collector->full_name, 18) : '-' }}</span>
+                                </td>
                                 <td x-show="columns.date" class="whitespace-nowrap px-5 py-3 text-[12px] text-slate-400 border-l border-slate-100">{{ $vehicle->collected_at?->format('d/m/Y') ?? '-' }}</td>
                                 <td x-show="columns.dbcg" class="whitespace-nowrap px-5 py-3 text-center border-l border-slate-100">
                                     @if($vehicle->is_dbcg_complete)

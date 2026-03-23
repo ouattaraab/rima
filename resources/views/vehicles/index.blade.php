@@ -47,105 +47,85 @@
             'draft' => 'Brouillon',
         ];
     @endphp
-    <form method="GET" action="{{ route('vehicles.index') }}">
-        @foreach(request()->except(['search', 'page', 'form_status', 'structures']) as $key => $value)
-            @if($value !== null && $value !== '' && !is_array($value))<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif
-        @endforeach
-        @if(request('structures'))
-            @foreach(request('structures') as $code)
-                <input type="hidden" name="structures[]" value="{{ $code }}">
-            @endforeach
-        @endif
-        <div class="flex items-center gap-2">
-            <div class="relative flex-1">
-                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                    <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
-                </div>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
-                       class="filter-input block w-full" style="padding-left: 2.75rem;"
-                       @keydown.enter="$el.form.submit()">
-                @if(request('search'))
-                    <a href="{{ route('vehicles.index', request()->except(['search', 'page'])) }}" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </a>
-                @endif
-            </div>
-            <button type="submit" class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-[12px] font-medium h-10 px-4 transition-colors">
-                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
-                Rechercher
-            </button>
-            <div class="flex items-center gap-1.5">
-                <label class="cursor-pointer">
-                    <input type="checkbox" id="cb-all" name="form_status[]" value="all" class="sr-only peer"
-                           onchange="document.querySelectorAll('.status-cb').forEach(c => c.checked = false); this.form.submit()"
-                           @checked($isAll)>
-                    <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">Tout</span>
-                </label>
-                @foreach($allStatuses as $value => $label)
-                <label class="cursor-pointer">
-                    <input type="checkbox" name="form_status[]" value="{{ $value }}" class="sr-only peer status-cb"
-                           onchange="document.getElementById('cb-all').checked = false; this.form.submit()"
-                           @checked(in_array($value, $selectedStatuses))>
-                    <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">{{ $label }}</span>
-                </label>
-                @endforeach
-            </div>
-        </div>
-    </form>
-
-    {{-- Filters --}}
+    {{-- Single unified form: search + status chips + filters + one "Filtrer" button --}}
     <div>
         <form method="GET" action="{{ route('vehicles.index') }}" class="border-b border-slate-200 pb-4">
-                @if(request('search'))<input type="hidden" name="search" value="{{ request('search') }}">@endif
-                @if(request('form_status'))
-                    @foreach((array) request('form_status') as $fs)
-                        <input type="hidden" name="form_status[]" value="{{ $fs }}">
-                    @endforeach
-                @endif
-
-                <div class="flex flex-wrap items-center gap-3">
-                    <select name="vehicle_status" class="filter-input flex-1 min-w-0">
-                        <option value="">Statut : Tous</option>
-                        @foreach($vehicleStatuses as $vs)
-                            <option value="{{ $vs->name }}" @selected(request('vehicle_status') === $vs->name)>{{ $vs->name }}</option>
-                        @endforeach
-                    </select>
-                    <select name="vehicle_type" class="filter-input flex-1 min-w-0">
-                        <option value="">Type : Tous</option>
-                        @foreach($vehicleTypes as $vt)
-                            <option value="{{ $vt->name }}" @selected(request('vehicle_type') === $vt->name)>{{ $vt->name }}</option>
-                        @endforeach
-                    </select>
-                    <select name="category" class="filter-input flex-1 min-w-0">
-                        <option value="">Categorie : Toutes</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->name }}" @selected(request('category') === $cat->name)>{{ $cat->name }}</option>
-                        @endforeach
-                    </select>
-                    <select name="brand" class="filter-input flex-1 min-w-0">
-                        <option value="">Marque : Toutes</option>
-                        @foreach($brands as $brand)
-                            <option value="{{ $brand->name }}" @selected(request('brand') === $brand->name)>{{ $brand->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="flex flex-wrap items-center gap-3 mt-3">
-                    <select name="agent" class="filter-input flex-1 min-w-0">
-                        <option value="">Agent : Tous</option>
-                        @foreach($agents as $agent)
-                            <option value="{{ $agent->id }}" @selected(request('agent') === $agent->id)>{{ $agent->full_name }}</option>
-                        @endforeach
-                    </select>
-                    <x-structure-multiselect :structures="$structures" :selected="request('structures', [])" />
-                    <input type="date" name="date_from" value="{{ request('date_from') }}"
-                           class="filter-input">
-                    <input type="date" name="date_to" value="{{ request('date_to') }}"
-                           class="filter-input">
-                    <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">Filtrer</button>
-                    @if(request()->hasAny(['form_status', 'vehicle_status', 'vehicle_type', 'category', 'brand', 'agent', 'structures', 'date_from', 'date_to']))
-                        <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Réinitialiser</a>
+            {{-- Search bar + Status chips --}}
+            <div class="flex items-center gap-2 mb-3">
+                <div class="relative flex-1">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                        <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                    </div>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par immatriculation, chassis, marque..."
+                           class="filter-input block w-full" style="padding-left: 2.75rem;">
+                    @if(request('search'))
+                        <a href="{{ route('vehicles.index', request()->except(['search', 'page'])) }}" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </a>
                     @endif
                 </div>
+                <div class="flex items-center gap-1.5">
+                    <label class="cursor-pointer">
+                        <input type="checkbox" id="cb-all" name="form_status[]" value="all" class="sr-only peer"
+                               onchange="document.querySelectorAll('.status-cb').forEach(c => c.checked = false); this.form.submit()"
+                               @checked($isAll)>
+                        <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">Tout</span>
+                    </label>
+                    @foreach($allStatuses as $value => $label)
+                    <label class="cursor-pointer">
+                        <input type="checkbox" name="form_status[]" value="{{ $value }}" class="sr-only peer status-cb"
+                               onchange="document.getElementById('cb-all').checked = false; this.form.submit()"
+                               @checked(in_array($value, $selectedStatuses))>
+                        <span class="inline-block text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors peer-checked:bg-[#2DB56B] peer-checked:text-white peer-checked:border-[#2DB56B] bg-white text-slate-500 border-slate-200 hover:bg-slate-50">{{ $label }}</span>
+                    </label>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Filters --}}
+            <div class="flex flex-wrap items-center gap-3">
+                <select name="vehicle_status" class="filter-input flex-1 min-w-0">
+                    <option value="">Statut : Tous</option>
+                    @foreach($vehicleStatuses as $vs)
+                        <option value="{{ $vs->name }}" @selected(request('vehicle_status') === $vs->name)>{{ $vs->name }}</option>
+                    @endforeach
+                </select>
+                <select name="vehicle_type" class="filter-input flex-1 min-w-0">
+                    <option value="">Type : Tous</option>
+                    @foreach($vehicleTypes as $vt)
+                        <option value="{{ $vt->name }}" @selected(request('vehicle_type') === $vt->name)>{{ $vt->name }}</option>
+                    @endforeach
+                </select>
+                <select name="category" class="filter-input flex-1 min-w-0">
+                    <option value="">Categorie : Toutes</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->name }}" @selected(request('category') === $cat->name)>{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+                <select name="brand" class="filter-input flex-1 min-w-0">
+                    <option value="">Marque : Toutes</option>
+                    @foreach($brands as $brand)
+                        <option value="{{ $brand->name }}" @selected(request('brand') === $brand->name)>{{ $brand->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 mt-3">
+                <select name="agent" class="filter-input flex-1 min-w-0">
+                    <option value="">Agent : Tous</option>
+                    @foreach($agents as $agent)
+                        <option value="{{ $agent->id }}" @selected(request('agent') === $agent->id)>{{ $agent->full_name }}</option>
+                    @endforeach
+                </select>
+                <x-structure-multiselect :structures="$structures" :selected="request('structures', [])" />
+                <input type="date" name="date_from" value="{{ request('date_from') }}"
+                       class="filter-input">
+                <input type="date" name="date_to" value="{{ request('date_to') }}"
+                       class="filter-input">
+                <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#2DB56B] hover:bg-[#2AAE64] text-white text-[13px] font-medium h-10 px-5 transition-colors">Filtrer</button>
+                @if(request()->hasAny(['search', 'form_status', 'vehicle_status', 'vehicle_type', 'category', 'brand', 'agent', 'structures', 'date_from', 'date_to']))
+                    <a href="{{ route('vehicles.index') }}" class="text-[12px] text-slate-500 hover:text-slate-900 underline transition-colors">Réinitialiser</a>
+                @endif
+            </div>
         </form>
     </div>
 
